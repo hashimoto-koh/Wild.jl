@@ -33,6 +33,8 @@ const _NS_fields = Set([:_keys,
                         :_noncst_keys,
                         :_clr,
                         :_copy,
+                        :import,
+                        :export,
                         :haskey,
                         :del,
                         :cstize,
@@ -123,7 +125,37 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (d = ns.__dict;
                      return [k for k in ns._keys if isa(d[k], NSnoncst_item)])
             else
+
                 # mths
+                if atr == :import
+                    (g::AbstNS, a::Varargs{Symbol}) ->
+                        begin
+                            if length(a) > 0
+                                for k in a
+                                    ns.__dict[k] = deepcopy(g.__dict[k])
+                                end
+                            else
+                                for (k, v) in pairs(g.__dict)
+                                    ns.__dict[k] = deepcopy(v)
+                                end
+                            end
+                        end
+                end
+                if atr == :export
+                    (a::Varargs{Symbol}) ->
+                        begin
+                            g = typeof(ns)()
+                            if length(a) > 0
+                                for k in a
+                                    g.__dict[k] = deepcopy(ns.__dict[k])
+                                end
+                            else
+                                for (k, v) in pairs(ns.__dict)
+                                    g.__dict[k] = deepcopy(v)
+                                end
+                            end
+                        end
+                end
                 atr == :haskey   && return NShaskey(ns)
                 atr == :del      && return NSdel(ns)
                 atr == :cstize   && return NScstize(ns)
