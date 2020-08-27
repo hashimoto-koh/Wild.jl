@@ -1,4 +1,5 @@
 import DataStructures.OrderedDict
+import SHA
 
 ################
 # NSitem
@@ -375,7 +376,10 @@ begin
     if (mdl != @__MODULE__) && !isnothing(name)
         !isa(name, Symbol) && (name = Symbol(name))
     else
-        name = Symbol("NSType_" * string(isnothing(name) ? Base.gensym() : name))
+        name = Symbol("NSType_" *
+                      string(isnothing(name)
+                             ? bytes2hex(SHA.sha256(string(time_ns())))
+                             : name))
     end
     tp = (Core.eval(__mdl,
             quote

@@ -1,4 +1,5 @@
 import Dates
+import SHA
 
 ################
 # AbstNSCode
@@ -25,7 +26,8 @@ struct NSCode <: AbstNSCode
     NSCode(args...; __mdl=nothing, __link_instances=false, kargs...) =
         begin
             __mdl == nothing && (__mdl = @__MODULE__)
-            name = Symbol("NSCodeGenType_" * string(Base.gensym()))
+            name = Symbol("NSCodeGenType_" *
+                          string(bytes2hex(SHA.sha256(string(time_ns())))))
             tp = (Core.eval(__mdl,
                             quote
                             import DataStructures: OrderedDict
