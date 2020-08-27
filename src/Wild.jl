@@ -12,6 +12,12 @@ export dfn, prp, mth, sprp
 include("functionalize.jl")
 export arg, cry, wc, wd, @cry
 
+include("ns.jl")
+export AbstNS, NS, ns, AbstNSitem
+
+include("nscode.jl")
+export AbstNSCode, NSCode
+
 include("operators.jl")
 
 Base.getproperty(o::Any, atr::Symbol) =
