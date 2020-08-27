@@ -1,4 +1,4 @@
-module operators
+# module operators
 
 export ⊕, ⊗
 
@@ -106,4 +106,4 @@ Base.:|(x::Args, f) = x(f)
 @inline ⩒(itr, fnc) = pfary(fnc, itr; prgrs=true)
 =#
 
-end
+# end
