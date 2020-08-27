@@ -177,6 +177,13 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
     end
 
 ################
+# >>, <<
+################
+
+Base.:>>(g::AbstNS, h::AbstNS) = h.import(g)
+Base.:<<(g::AbstNS, h::AbstNS) = g.import(h)
+
+################
 # NShaskey
 ################
 struct NShaskey <: Function ns::AbstNS end
