@@ -9,6 +9,9 @@ export AbstClassFunc
 export Dfn, Prp, Mth, SetPrp
 export dfn, prp, mth, sprp
 
+include("functionalize.jl")
+export arg, cry
+
 Base.getproperty(o::Any, atr::Symbol) =
     (hasfield(typeof(o), atr)
      ? Base.getfield(o, atr)
