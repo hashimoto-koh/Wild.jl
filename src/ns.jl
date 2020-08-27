@@ -35,6 +35,8 @@ const _NS_fields = Set([:_keys,
                         :_copy,
                         :import,
                         :export,
+                        :deepimport,
+                        :deepexport,
                         :haskey,
                         :del,
                         :cstize,
@@ -131,6 +133,35 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                         begin
                             if length(a) > 0
                                 for k in a
+                                    ns.__dict[k] = g.__dict[k]
+                                end
+                            else
+                                for (k, v) in pairs(g.__dict)
+                                    ns.__dict[k] = v
+                                end
+                            end
+                            ns
+                        end)
+                atr == :export &&
+                    (return (a::Vararg{Symbol}) ->
+                        begin
+                            g = typeof(ns)()
+                            if length(a) > 0
+                                for k in a
+                                    g.__dict[k] = ns.__dict[k]
+                                end
+                            else
+                                for (k, v) in pairs(ns.__dict)
+                                    g.__dict[k] = v
+                                end
+                            end
+                            g
+                        end)
+                atr == :deepimport &&
+                    (return (g::AbstNS, a::Vararg{Symbol}) ->
+                        begin
+                            if length(a) > 0
+                                for k in a
                                     ns.__dict[k] = deepcopy(g.__dict[k])
                                 end
                             else
@@ -140,7 +171,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                             end
                             ns
                         end)
-                atr == :export &&
+                atr == :deepexport &&
                     (return (a::Vararg{Symbol}) ->
                         begin
                             g = typeof(ns)()
@@ -177,11 +208,13 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
     end
 
 ################
-# >>, <<
+# >>, <<, >>>, <<<
 ################
 
-Base.:>>(g::AbstNS, h::AbstNS) = h.import(g)
-Base.:<<(g::AbstNS, h::AbstNS) = g.import(h)
+Base.:>>( g::AbstNS, h::AbstNS) = h.import(g)
+Base.:<<( g::AbstNS, h::AbstNS) = g.import(h)
+Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
+Base.:<<<(g::AbstNS, h::AbstNS) = g.deepimport(h)
 
 ################
 # NShaskey
