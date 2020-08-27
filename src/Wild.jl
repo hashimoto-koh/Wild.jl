@@ -12,7 +12,7 @@ export dfn, prp, mth, sprp
 include("functionalize.jl")
 export arg, cry
 
-import .operators
+include("operators.jl")
 
 Base.getproperty(o::Any, atr::Symbol) =
     (hasfield(typeof(o), atr)
