@@ -381,7 +381,7 @@ begin
                              ? bytes2hex(SHA.sha256(string(time_ns())))
                              : name))
     end
-    tp = (Core.eval(__mdl,
+    tp = (Core.eval(mdl,
             quote
                 import DataStructures: OrderedDict
                 import Wild: AbstNSitem
@@ -394,7 +394,7 @@ begin
                                   [false, false])
                 end
                 end);
-        Core.eval(__mdl, name))
+        Core.eval(mdl, name))
     Base.invokelatest(tp)
 end
 
