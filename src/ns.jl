@@ -208,13 +208,11 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
     end
 
 ################
-# >>, <<, >>>, <<<
+# >>, >>>
 ################
 
 Base.:>>( g::AbstNS, h::AbstNS) = h.import(g)
-Base.:<<( g::AbstNS, h::AbstNS) = g.import(h)
 Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
-Base.:<<<(g::AbstNS, h::AbstNS) = g.deepimport(h)
 
 ################
 # NShaskey
