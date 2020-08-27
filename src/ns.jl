@@ -126,8 +126,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                      return [k for k in ns._keys if isa(d[k], NSnoncst_item)])
             else
                 # mths
-                if atr == :import
-                    return (g::AbstNS, a::Vararg{Symbol}) ->
+                atr == :import &&
+                    (return (g::AbstNS, a::Vararg{Symbol}) ->
                         begin
                             if length(a) > 0
                                 for k in a
@@ -138,10 +138,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                     ns.__dict[k] = deepcopy(v)
                                 end
                             end
-                        end
-                end
-                if atr == :export
-                    return (a::Vararg{Symbol}) ->
+                            ns
+                        end)
+                atr == :export &&
+                    (return (a::Vararg{Symbol}) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
@@ -153,8 +153,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                     g.__dict[k] = deepcopy(v)
                                 end
                             end
-                        end
-                end
+                            g
+                        end)
                 atr == :haskey   && return NShaskey(ns)
                 atr == :del      && return NSdel(ns)
                 atr == :cstize   && return NScstize(ns)
