@@ -29,7 +29,7 @@ struct NSCode <: AbstNSCode
             tp = (Core.eval(__mdl,
                             quote
                             import DataStructures: OrderedDict
-                            import wlib: AbstNSitem
+                            import Wild: AbstNSitem
 
                             struct $name <: AbstNS
                             __dict::OrderedDict{Symbol, AbstNSitem}

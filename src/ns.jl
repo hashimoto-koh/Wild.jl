@@ -311,7 +311,7 @@ begin
     tp = (Core.eval(__mdl,
             quote
                 import DataStructures: OrderedDict
-                import wlib: AbstNSitem
+                import Wild: AbstNSitem
 
                 struct $name <: AbstNS
                     __dict::OrderedDict{Symbol, AbstNSitem}
@@ -332,7 +332,7 @@ end
 macro makeNS(name)
     return esc(quote
                import DataStructures.OrderedDict
-               import wlib.AbstNSitem
+               import Wild.AbstNSitem
                struct $name <: AbstNS
                    __dict::OrderedDict{Symbol, AbstNSitem}
                    __fix_lck::Vector{Bool, 1}
