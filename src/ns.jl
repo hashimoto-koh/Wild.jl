@@ -128,7 +128,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 
                 # mths
                 if atr == :import
-                    (g::AbstNS, a::Varargs{Symbol}) ->
+                    (g::AbstNS, a::Vararg{Symbol}) ->
                         begin
                             if length(a) > 0
                                 for k in a
