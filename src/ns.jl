@@ -142,7 +142,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                         end
                 end
                 if atr == :export
-                    (a::Varargs{Symbol}) ->
+                    (a::Vararg{Symbol}) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
