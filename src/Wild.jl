@@ -10,7 +10,7 @@ export Dfn, Prp, Mth, SetPrp
 export dfn, prp, mth, sprp
 
 include("functionalize.jl")
-export arg, cry
+export arg, cry, wc, wd, @cry
 
 include("operators.jl")
 
