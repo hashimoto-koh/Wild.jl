@@ -143,5 +143,5 @@ wd(f) = cry(f, -1)
 Base.getproperty(::typeof(wd), p::Symbol) = wd(eval(p))
 
 macro cry(f)
-    eval( :($f(a...;ka...) = x -> $f(x, a...; ka...)))
+    esc( :($f(a...;ka...) = x -> $f(x, a...; ka...)))
 end
