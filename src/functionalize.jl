@@ -94,7 +94,7 @@ Base.getindex(g::_SetsSingleton, a...) = _Sets(a)
 Base.getproperty(g::_AbstGet, a::Symbol) =
     (
         itms = Base.getfield(g, :__itms);
-        a == :__itms ? itms : (append!(itms, a);g)
+        a == :__itms ? itms : (append!(itms, [a]); g)
     )
 Base.getindex(g::_AbstGet, a...) = (append!(g.__itms, a); g)
 
