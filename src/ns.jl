@@ -208,9 +208,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (return (filename::AbstractString, atr::Vararg{Symbol};
                              forcename=false) ->
                      begin
-                         if !forcename && (length(fname) < length("a.ns") ||
-                                           fname[end-length(".ns")+1:end] != ".ns")
-                             fname = fname * ".ns"
+                         if !forcename && (length(filename) < length("a.ns") ||
+                                           filename[end-length(".ns")+1:end] != ".ns")
+                             filename = filename * ".ns"
                          end
                          ns.import(Serialization.deserialize(filename), atr...)
                      end)
@@ -218,9 +218,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (return (filename::AbstractString, atr::Vararg{Symbol};
                              forcename=false) ->
                      begin
-                         if !forcename && (length(fname) < length("a.ns") ||
-                                           fname[end-length(".ns")+1:end] != ".ns")
-                             fname = fname * ".ns"
+                         if !forcename && (length(filename) < length("a.ns") ||
+                                           filename[end-length(".ns")+1:end] != ".ns")
+                             filename = filename * ".ns"
                          end
                          g = ns.export(atr...)
                          Serialization.serialize(filename, g)
