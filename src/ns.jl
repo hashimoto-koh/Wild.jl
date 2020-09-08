@@ -206,7 +206,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 #     : load "x.ns" and import properties :a, :b, :c from it
                 atr == :load &&
                     (return
-                     (filename::AbstractString, atr::Varargs{Symbol};
+                     (filename::AbstractString, atr::Vararg{Symbol};
                       forcename=false) ->
                      begin
                          if !forcename && (length(fname) < length("a.ns") ||
@@ -214,11 +214,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                              fname = fname * ".ns"
                          end
                          ns.import(Serialization.deserialize(filename), atr...)
-                     end
-                    )
+                     end)
                 atr == :save &&
                     (return
-                     (filename::AbstractString, atr::Varargs{Symbol};
+                     (filename::AbstractString, atr::Vararg{Symbol};
                       forcename=false) ->
                      begin
                          if !forcename && (length(fname) < length("a.ns") ||
@@ -228,8 +227,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          g = ns.export(atr...)
                          Serialization.serialize(filename, g)
                          g
-                     end
-                    )
+                     end)
                 atr == :haskey   && return NShaskey(ns)
                 atr == :del      && return NSdel(ns)
                 atr == :cstize   && return NScstize(ns)
