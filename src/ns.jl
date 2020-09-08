@@ -1,4 +1,5 @@
 import DataStructures.OrderedDict
+import Serialization
 import SHA
 
 ################
@@ -39,6 +40,8 @@ const _NS_fields = Set([:_keys,
                         :export,
                         :deepimport,
                         :deepexport,
+                        :load,
+                        :save,
                         :haskey,
                         :del,
                         :cstize,
@@ -131,7 +134,12 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (d = ns.__dict;
                      return [k for k in ns._keys if isa(d[k], NSnoncst_item)])
             else
-                # mths
+                ############# mths
+
+                # g.import(h)
+                #     : import all properties from h
+                # g.import(h, :a, :b, :c)
+                #     : import properties :a, :b, :c from h
                 atr == :import &&
                     (return (g::AbstNS, a::Vararg{Symbol}) ->
                         begin
@@ -146,6 +154,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                             end
                             ns
                         end)
+                # g.export()
+                #     : export all properties from g to new ns
+                # g.export(:a, :b, :c) #
+                #     : export properties :a, :b, :c from g to new ns
                 atr == :export &&
                     (return (a::Vararg{Symbol}) ->
                         begin
@@ -189,7 +201,37 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                 end
                             end
                             g
-                        end)
+                     end)
+                # g.load("x.ns")
+                #     : load "x.ns" and import all properties from it
+                # g.load("x.ns", :a, :b, :c)
+                #     : load "x.ns" and import properties :a, :b, :c from it
+                atr == :load &&
+                    (return
+                     (filename::AbstractString, atr::Varargs{:Symbol};
+                      forcename=false) ->
+                     begin
+                         if !forcename && (length(fname) < length("a.ns") ||
+                                           fname[end-length(".ns")+1:end] != ".ns")
+                             fname = fname * ".ns"
+                         end
+                         ns.import(Serialization.deserialize(filename), atr...)
+                     end
+                    )
+                atr == :save &&
+                    (return
+                     (filename::AbstractString, atr::Varargs{:Symbol};
+                      forcename=false) ->
+                     begin
+                         if !forcename && (length(fname) < length("a.ns") ||
+                                           fname[end-length(".ns")+1:end] != ".ns")
+                             fname = fname * ".ns"
+                         end
+                         g = ns.export(atr...)
+                         Serialization.serialize(filename, g)
+                         g
+                     end
+                    )
                 atr == :haskey   && return NShaskey(ns)
                 atr == :del      && return NSdel(ns)
                 atr == :cstize   && return NScstize(ns)
