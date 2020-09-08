@@ -1,6 +1,20 @@
 ###############################
 # @dfn, @prp, @mth, @sprp
 ###############################
+#=
+(Example)
+
+@prp type = x -> Base.typeof(x)
+[1,2,3].type == Array{Int64,1}
+
+@mth sz = (x,i) -> size(x,i)
+[1,2,3].sz(1) == 3
+
+g = NS()
+g.a = 3
+@prp g.b = g -> 3 * g.a
+@mth g.f = (g,x) ->  g.a + x
+=#
 
 abstract type AbstTagFunc <: Function end
 
@@ -31,6 +45,12 @@ end
 ###############################
 # @prpfnc, @mthfnc
 ###############################
+#=
+(Example)
+@prpfnc dtype
+(::dtype.type)(itr) = eltype(itr)
+(::dtype.type)(itr::Base.Generator) = Base.return_types(itr.f, (dtype(itr.iter),))[1]
+=#
 
 abstract type AbstFunc <: AbstTagFunc end
 
