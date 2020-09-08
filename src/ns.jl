@@ -205,7 +205,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.load("x.ns", :a, :b, :c)
                 #     : load "x.ns" and import properties :a, :b, :c from it
                 atr == :load &&
-                    (return (filename::AbstractString, atr...; forcename=false) ->
+                    (return (filename::AbstractString, atr::Vararg{Symbol};
+                             forcename=false) ->
                      begin
                          if !forcename && (length(fname) < length("a.ns") ||
                                            fname[end-length(".ns")+1:end] != ".ns")
