@@ -214,9 +214,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          ns.import(Serialization.deserialize(filename), atr...)
                      end)
                 atr == :save &&
-                    (return
-                     (filename::AbstractString, atr::Vararg{Symbol};
-                      forcename=false) ->
+                    (return (filename::AbstractString, atr::Vararg{Symbol};
+                             forcename=false) ->
                      begin
                          if !forcename && (length(fname) < length("a.ns") ||
                                            fname[end-length(".ns")+1:end] != ".ns")
