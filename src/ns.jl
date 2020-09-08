@@ -65,21 +65,20 @@ end
 
 Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
     begin
-        hasfield(typeof(ns), atr) && (Base.setfield!(ns, atr, x); return)
-
-        atr == :exe && (x(ns); return;)
-
-        (atr in _NS_fields) &&
+        if hasfield(typeof(ns), atr)
+            Base.setfield!(ns, atr, x)
+        elseif atr == :exe
+            x(ns)
+        elseif atr in _NS_fields
             Base.error("'" * string(:atr) * "' can't be used for property")
-
-        if haskey(ns.__dict, atr)
+        elseif haskey(ns.__dict, atr)
             ns._fixed && Base.error("this NS is fixed!")
             ns.__dict[atr].obj = isa(x, AbstNSitem) ? x.obj : x
-            return
+        else
+            ns._lcked && Base.error("this NS is locked!")
+            ns.__dict[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
-
-        ns._lcked && Base.error("this NS is locked!")
-        ns.__dict[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
+        ns
     end
 
 Base.haskey(o::AbstNS, key::Symbol) = key in o._keys
@@ -99,7 +98,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
 
         if atr in _NS_fields
-            # prps
+            ############# prps
             if string(atr)[1] == '_'
                 atr == :_fixed && (return ns.__fix_lck[1])
                 atr == :_fixed && (return ns.__fix_lck[1])
@@ -133,9 +132,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :_noncst_keys &&
                     (d = ns.__dict;
                      return [k for k in ns._keys if isa(d[k], NSnoncst_item)])
+            ############# mths
             else
-                ############# mths
-
                 # g.import(h)
                 #     : import all properties from h
                 # g.import(h, :a, :b, :c)
@@ -246,11 +244,13 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
             error("SOMETHING WRONG. THIS IS BUG!!!" )
         end
 
-        haskey((local d = ns.__dict), atr) &&
-            (x = d[atr].obj; return isa(x, Union{Prp, Mth}) ? x(ns) : x)
-
-        # x -> (Base.setproperty!(ns, atr, x); ns)
-        error("""This NS does not have a property named "$(atr)".""")
+        if haskey((local d = ns.__dict), atr)
+            x = d[atr].obj;
+            isa(x, Union{Prp, Mth}) ? x(ns) : x
+        else
+            # x -> (Base.setproperty!(ns, atr, x); ns)
+            error("""This NS does not have a property named "$(atr)".""")
+        end
     end
 
 ################
