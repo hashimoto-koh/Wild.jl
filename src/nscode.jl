@@ -194,7 +194,7 @@ Base.setproperty!(tag::AbstNSCodetag, atr::Symbol, f) =
 # NSCodecst
 ################
 
-struct NSCodecst{T} where T <: AbstNSCode nsc::T end
+struct NSCodecst{T <: AbstNSCode} nsc::T end
 
 Base.getproperty(cst::NSCodecst, atr::Symbol) =
     begin
@@ -225,8 +225,8 @@ _MakeItem(x::NSCodecst, o) = NSCodecst_item(o)
 # NSCodedfn
 ################
 
-struct NSCodedfn{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
-struct NSCodecstdfn{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
+struct NSCodedfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
+struct NSCodecstdfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
 _MakeItem(x::NSCodedfn, f) = NSCodenoncst_item(dfn(f))
 _MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(dfn(f))
@@ -235,8 +235,8 @@ _MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(dfn(f))
 # NSCodeprp
 ################
 
-struct NSCodeprp{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
-struct NSCodecstprp{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
+struct NSCodeprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
+struct NSCodecstprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
 _MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(prp(f))
 _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
@@ -245,8 +245,8 @@ _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
 # NSCodemth
 ################
 
-struct NSCodemth{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
-struct NSCodecstmth{T} <: AbstNSCodetag where T <: AbstNSCode nsc::T end
+struct NSCodemth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
+struct NSCodecstmth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
 _MakeItem(x::NSCodemth, f) = NSCodenoncst_item(mth(f))
 _MakeItem(x::NSCodecstmth, f) = NSCodecst_item(mth(f))
