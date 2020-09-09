@@ -5,6 +5,10 @@ import SHA
 import DataStructures: OrderedDict
 import Wild: AbstNSitem, AbstNS
 
+################
+# NSCodeGenNS{X}
+################
+
 struct NSCodeGenNS{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::Array{Bool, 1}
@@ -28,8 +32,6 @@ struct NSCode <: AbstNSCode
     __kargs
     __code::Array{Tuple{Symbol,Any},1}
     __type
-#    __mdl
-#    __gentypecode
     __instances
     __link_instances::Bool
     __init::Array{Function}
@@ -38,37 +40,16 @@ struct NSCode <: AbstNSCode
     _clr_instances::Nothing
 
     NSCode(args...;
-#           __mdl=nothing,
            __link_instances=false,
            kargs...) =
         begin
-#            __mdl == nothing && (__mdl = @__MODULE__)
             name = Symbol("NSCodeGenType_" *
                           string(bytes2hex(SHA.sha256(string(time_ns())))))
-            #=
-            gentypecode = quote
-                              import DataStructures: OrderedDict
-                              import Wild: AbstNSitem, AbstNS
-
-                              struct $name <: AbstNS
-                              __dict::OrderedDict{Symbol, AbstNSitem}
-                              __fix_lck::Array{Bool, 1}
-
-                              $name() = new(OrderedDict{Symbol, AbstNSitem}(),
-                                            [false, false])
-                              end
-                          end
-            tp = (Core.eval(__mdl, gentypecode);
-                  Core.eval(__mdl, name))
-            =#
             tp = NSCodeGenNS{name}
-            new(args, kargs, [], tp,
-#                __mdl, gentypecode,
-                [], __link_instances,
+            new(args, kargs, [], tp, [], __link_instances,
                 [(o ; ka...) -> (for (atr, val) in ka
-                                 Base.setproperty!(o, atr, val)
-                                 end
-                                 )],
+                                     Base.setproperty!(o, atr, val)
+                                 end)],
                 nothing,
                 nothing)
 
