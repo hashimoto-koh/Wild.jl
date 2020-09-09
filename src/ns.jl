@@ -8,12 +8,12 @@ import SHA
 
 abstract type AbstNSitem end
 
-struct NScst_item <: AbstNSitem
-    obj
+struct NScst_item{T} <: AbstNSitem
+    obj::T
 end
 
-mutable struct NSnoncst_item <: AbstNSitem
-    obj
+mutable struct NSnoncst_item{T} <: AbstNSitem
+    obj::T
 end
 
 ################
@@ -259,7 +259,7 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 ################
 # NShaskey
 ################
-struct NShaskey <: Function ns::AbstNS end
+struct NShaskey{T} <: Function where T <:AbstNS ns::T end
 
 Base.getproperty(x::NShaskey, atr::Symbol) =
     hasfield(typeof(x), atr) ? Base.getfield(x, atr) : (atr in x.ns._keys)
@@ -271,7 +271,7 @@ Base.getproperty(x::NShaskey, atr::Symbol) =
 # NSdel
 ################
 
-struct NSdel <: Function ns::AbstNS end
+struct NSdel{T} <: Function where T <: AbstNS ns::T end
 
 Base.getproperty(x::NSdel, atr::Symbol) =
     begin
@@ -300,8 +300,8 @@ Base.getproperty(x::NSdel, atr::Symbol) =
 # NScstize, NSdecstize
 ################
 
-struct NScstize <: Function ns::AbstNS end
-struct NSdecstize <: Function ns::AbstNS end
+struct NScstize{T} <: Function where T <: AbstNS ns::T end
+struct NSdecstize{T} <: Function where T <: AbstNS ns::T end
 
 Base.getproperty(x::NScstize, atr::Symbol) =
     begin
@@ -352,7 +352,7 @@ Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
 # NScst
 ################
 
-struct NScst ns::AbstNS end
+struct NScst{T} where T <: AbstNS ns::T end
 
 Base.getproperty(x::NScst, atr::Symbol) =
     begin
@@ -379,9 +379,9 @@ Base.setproperty!(x::NScst, atr::Symbol, o) =
 # NSdfn
 ################
 
-struct NSdfn <: AbstNStag ns::AbstNS end
+struct NSdfn{T} <: AbstNStag where T <: AbstNS ns::T end
 
-struct NScstdfn <: AbstNStag ns::AbstNS end
+struct NScstdfn{T} <: AbstNStag where T <: AbstNS ns::T end
 
 _MakeItem(x::NSdfn, f) = NSnoncst_item(f(x.ns))
 _MakeItem(x::NScstdfn, f) = NScst_item(f(x.ns))
@@ -390,8 +390,8 @@ _MakeItem(x::NScstdfn, f) = NScst_item(f(x.ns))
 # NSprp
 ################
 
-struct NSprp <: AbstNStag ns::AbstNS end
-struct NScstprp <: AbstNStag ns::AbstNS end
+struct NSprp{T} <: AbstNStag where T <: AbstNS ns::T end
+struct NScstprp{T} <: AbstNStag where T <: AbstNS ns::T end
 
 _MakeItem(x::NSprp, f) = NSnoncst_item(prp(f))
 _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
@@ -400,8 +400,8 @@ _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
 # NSmth
 ################
 
-struct NSmth <: AbstNStag ns::AbstNS end
-struct NScstmth <: AbstNStag ns::AbstNS end
+struct NSmth{T} <: AbstNStag where T <: AbstNS ns::T end
+struct NScstmth{T} <: AbstNStag where T <: AbstNS ns::T end
 
 _MakeItem(x::NSmth, f) = NSnoncst_item(mth(f))
 _MakeItem(x::NScstmth, f) = NScst_item(mth(f))

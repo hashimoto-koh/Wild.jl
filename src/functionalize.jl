@@ -1,7 +1,7 @@
 ###############################
 # functionalize
 ###############################
-struct _functionalize <: Function; f; end
+struct _functionalize{F} <: Function; f::F; end
 @inline (f::_functionalize)(a...; ka...) = f.f(a...; ka...)
 
 @inline functionalize(f) = _functionalize(f)
