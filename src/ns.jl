@@ -419,7 +419,7 @@ abstract type AbstNSmth <: AbstNStag end
 struct _NSmthDummySingleton end
 
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
-    if !haskey(x.ns)
+    if !haskey(x.ns, atr)
         Base.setproperty!(x.ns. atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
         return Base.getproperty(Base.getproperty(x, :prp), atr)
     end
