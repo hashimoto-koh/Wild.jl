@@ -420,7 +420,7 @@ struct _NSmthDummySingleton end
 
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     if !haskey(x.ns, atr)
-        Base.setproperty!(x.ns. atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
+        Base.setproperty!(x.ns, atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
         return Base.getproperty(Base.getproperty(x, :prp), atr)
     end
     if isa(x.ns.__dict[atr], NSnoncst_item)
