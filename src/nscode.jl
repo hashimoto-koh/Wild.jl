@@ -1,6 +1,18 @@
 import Dates
 import SHA
 
+
+import DataStructures: OrderedDict
+import Wild: AbstNSitem, AbstNS
+
+struct NSCodeGenNS{X} <: AbstNS
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::Array{Bool, 1}
+
+    NSCodeGenNS{X}() where X = new{X}(OrderedDict{Symbol, AbstNSitem}(),
+                                      [false, false])
+end
+
 ################
 # AbstNSCode
 ################
@@ -16,8 +28,8 @@ struct NSCode <: AbstNSCode
     __kargs
     __code::Array{Tuple{Symbol,Any},1}
     __type
-    __mdl
-    __gentypecode
+#    __mdl
+#    __gentypecode
     __instances
     __link_instances::Bool
     __init::Array{Function}
@@ -25,11 +37,15 @@ struct NSCode <: AbstNSCode
     _instances::Nothing
     _clr_instances::Nothing
 
-    NSCode(args...; __mdl=nothing, __link_instances=false, kargs...) =
+    NSCode(args...;
+#           __mdl=nothing,
+           __link_instances=false,
+           kargs...) =
         begin
-            __mdl == nothing && (__mdl = @__MODULE__)
+#            __mdl == nothing && (__mdl = @__MODULE__)
             name = Symbol("NSCodeGenType_" *
                           string(bytes2hex(SHA.sha256(string(time_ns())))))
+            #=
             gentypecode = quote
                               import DataStructures: OrderedDict
                               import Wild: AbstNSitem, AbstNS
@@ -44,14 +60,18 @@ struct NSCode <: AbstNSCode
                           end
             tp = (Core.eval(__mdl, gentypecode);
                   Core.eval(__mdl, name))
-
-            new(args, kargs, [], tp, __mdl, gentypecode, [], __link_instances,
+            =#
+            tp = NSCodeGenNS{name}
+            new(args, kargs, [], tp,
+#                __mdl, gentypecode,
+                [], __link_instances,
                 [(o ; ka...) -> (for (atr, val) in ka
                                  Base.setproperty!(o, atr, val)
                                  end
                                  )],
                 nothing,
                 nothing)
+
         end
 end
 
