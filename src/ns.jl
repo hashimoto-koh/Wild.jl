@@ -415,9 +415,29 @@ _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
 ################
 # NSmth
 ################
+abstract type AbstNSmth <: AbstNStag end
+struct _NSmthDummySingleton end
 
-struct NSmth{T <: AbstNS} <: AbstNStag ns::T end
-struct NScstmth{T <: AbstNS} <: AbstNStag ns::T end
+Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
+    if !haskey(x.ns)
+        Base.setproperty!(x.ns.prp, atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
+        return Base.getproperty(Base.getproperty(x, :prp), atr)
+    end
+    if isa(x.ns.__dict[atr], NSnoncst_item)
+        if isa(x.ns.__dict[atr].obj, Mth)
+            return x.ns.__dict[atr].obj.fnc
+        else
+            x.del(atr)
+            return Base.getproperty(Base.getproperty(x, :prp), atr)
+        end
+    else
+        Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
+    end
+
+end
+
+struct NSmth{T <: AbstNS} <: AbstNSmth ns::T end
+struct NScstmth{T <: AbstNS} <: AbstNSmth ns::T end
 
 _MakeItem(x::NSmth, f) = NSnoncst_item(mth(f))
 _MakeItem(x::NScstmth, f) = NScst_item(mth(f))
