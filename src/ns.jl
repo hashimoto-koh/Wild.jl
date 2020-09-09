@@ -12,8 +12,8 @@ struct NScst_item{T} <: AbstNSitem
     obj::T
 end
 
-mutable struct NSnoncst_item{T} <: AbstNSitem
-    obj::T
+mutable struct NSnoncst_item <: AbstNSitem
+    obj
 end
 
 ################
