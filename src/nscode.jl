@@ -1,22 +1,6 @@
 import Dates
 import SHA
 
-
-import DataStructures: OrderedDict
-import Wild: AbstNSitem, AbstNS
-
-################
-# NSCodeGenNS{X}
-################
-
-struct NSCodeGenNS{X} <: AbstNS
-    __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::Array{Bool, 1}
-
-    NSCodeGenNS{X}() where X = new{X}(OrderedDict{Symbol, AbstNSitem}(),
-                                      [false, false])
-end
-
 ################
 # AbstNSCode
 ################
@@ -43,9 +27,8 @@ struct NSCode <: AbstNSCode
            __link_instances=false,
            kargs...) =
         begin
-            name = Symbol("NSCodeGenType_" *
-                          string(bytes2hex(SHA.sha256(string(time_ns())))))
-            tp = NSCodeGenNS{name}
+            name = Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))
+            tp = NSGen{name}
             new(args, kargs, [], tp, [], __link_instances,
                 [(o ; ka...) -> (for (atr, val) in ka
                                      Base.setproperty!(o, atr, val)

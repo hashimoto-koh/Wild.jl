@@ -55,12 +55,28 @@ const _NS_fields = Set([:_keys,
 
 abstract type AbstNS end
 
+################
+# NS
+################
+
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::Vector{Bool}
 
     NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
                #= __fix_lck =# [false, false])
+end
+
+################
+# NSGen{X}
+################
+
+struct NSGen{X} <: AbstNS
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::Vector{Bool}
+
+    NSGen{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+                                #= __fix_lck =# [false, false])
 end
 
 Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
@@ -410,33 +426,11 @@ _MakeItem(x::NScstmth, f) = NScst_item(mth(f))
 # ns
 ################
 
-ns(name::Union{Nothing, Symbol, AbstractString}=nothing,
-   mdl::Union{Nothing, Module}=nothing) =
+ns(name::Union{Nothing, Symbol, AbstractString}=nothing) =
 begin
-    mdl == nothing && (mdl = @__MODULE__)
-    if (mdl != @__MODULE__) && !isnothing(name)
-        !isa(name, Symbol) && (name = Symbol(name))
-    else
-        name = Symbol("NSType_" *
-                      string(isnothing(name)
-                             ? bytes2hex(SHA.sha256(string(time_ns())))
-                             : name))
-    end
-    tp = (Core.eval(mdl,
-            quote
-                import DataStructures: OrderedDict
-                import Wild: AbstNSitem
-
-                struct $name <: AbstNS
-                    __dict::OrderedDict{Symbol, AbstNSitem}
-                    __fix_lck::Vector{Bool}
-
-                    $name() = new(OrderedDict{Symbol, AbstNSitem}(),
-                                  [false, false])
-                end
-                end);
-        Core.eval(mdl, name))
-    Base.invokelatest(tp)
+    isnothing(name) &&
+        (name = Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns()))))))
+    NSGen{name}
 end
 
 ################
