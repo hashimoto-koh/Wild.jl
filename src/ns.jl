@@ -421,14 +421,14 @@ struct _NSmthDummySingleton end
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     if !haskey(x.ns, atr)
         Base.setproperty!(x.ns, atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
-        return Base.getproperty(Base.getproperty(x, :mth), atr)
+        return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
     end
     if isa(x.ns.__dict[atr], NSnoncst_item)
         if isa(x.ns.__dict[atr].obj, Mth)
             return x.ns.__dict[atr].obj.fnc
         else
             x.del(atr)
-            return Base.getproperty(Base.getproperty(x, :mth), atr)
+            return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
         end
     else
         Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
