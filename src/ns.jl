@@ -452,7 +452,7 @@ ns(name::Union{Nothing, Symbol, AbstractString}=nothing) =
 begin
     isnothing(name) &&
         (name = Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns()))))))
-    NSGen{name}
+    NSGen{name}()
 end
 
 ################
