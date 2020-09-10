@@ -422,20 +422,17 @@ Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
     if !haskey(x.ns, atr)
-        Base.setproperty!(x.ns, atr, Mth((::_NSmthDummySingleton) -> nothing))
+        Base.setproperty!(x.ns, atr,
+                          Mth((f() = nothing; Base.delete_method(@which f()); f)))
         return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
     end
     if isa(x.ns.__dict[atr], NSnoncst_item)
-        if isa(x.ns.__dict[atr].obj, Mth)
-            return x.ns.__dict[atr].obj.fnc
-        else
-            x.del(atr)
-            return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
-        end
-    else
-        Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
+        return (isa(x.ns.__dict[atr].obj, Mth)
+                ? x.ns.__dict[atr].obj.fnc
+                : (x.del(atr); Base.getproperty(Base.getproperty(x.ns, :mth), atr)))
     end
 
+    Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
 end
 
 struct NSmth{T <: AbstNS} <: AbstNSmth ns::T end
