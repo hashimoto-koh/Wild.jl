@@ -428,7 +428,7 @@ Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
             return x.ns.__dict[atr].obj.fnc
         else
             x.del(atr)
-            return Base.getproperty(Base.getproperty(x, :prp), atr)
+            return Base.getproperty(Base.getproperty(x, :mth), atr)
         end
     else
         Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
