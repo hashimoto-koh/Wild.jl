@@ -128,7 +128,7 @@ cry(f, n::Integer=1) =
             (x...; xkwa...) -> ((y...; ykwa...) ->f(x[1:n-1]...,
                                                     y...,
                                                     x[n:end]...;
-                                                     merge(xkwa, ykwa)...))
+                                                    merge(xkwa, ykwa)...))
         else # n == 0
             cry(f,1)
         end
