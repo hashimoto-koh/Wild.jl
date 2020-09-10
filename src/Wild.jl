@@ -13,7 +13,7 @@ include("functionalize.jl")
 export arg, cry, wc, wd, @cry
 
 include("ns.jl")
-export AbstNS, NS, ns, AbstNSitem
+export AbstNS, NS, NSGen, nsgen, ns, AbstNSitem
 
 include("nscode.jl")
 export AbstNSCode, NSCode

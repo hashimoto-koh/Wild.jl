@@ -445,15 +445,13 @@ _MakeItem(x::NSmth, f) = NSnoncst_item(mth(f))
 _MakeItem(x::NScstmth, f) = NScst_item(mth(f))
 
 ################
-# ns
+# nsgen, ns
 ################
 
-ns(name::Union{Nothing, Symbol, AbstractString}=nothing) =
-begin
-    isnothing(name) &&
-        (name = Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns()))))))
-    NSGen{name}()
-end
+nsgen() = NSGen{Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
+nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
+
+ns(name::Union{Nothing, Symbol, AbstractString}=nothing) = nsgen(name)()
 
 ################
 # New NS macro

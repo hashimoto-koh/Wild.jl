@@ -23,20 +23,18 @@ struct NSCode <: AbstNSCode
     _instances::Nothing
     _clr_instances::Nothing
 
-    NSCode(args...;
-           __link_instances=false,
-           kargs...) =
-        begin
-            name = Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))
-            tp = NSGen{name}
-            new(args, kargs, [], tp, [], __link_instances,
-                [(o ; ka...) -> (for (atr, val) in ka
-                                     Base.setproperty!(o, atr, val)
-                                 end)],
-                nothing,
-                nothing)
-
-        end
+    NSCode(args...; __link_instances=false, kargs...) =
+        new(#= __args           =# args,
+            #= __kargs          =# kargs,
+            #= __code           =# [],
+            #= __type           =# nsgen(),
+            #= __instances      =# [],
+            #= __link_instances =# __link_instances,
+            #= __init           =# [(o ; ka...) -> (for (atr, val) in ka
+                                                        Base.setproperty!(o, atr, val)
+                                                    end)],
+            #= _instances       =# nothing,
+            #= _clr_instances   =# nothing)
 end
 
 function push_to_instance(o, atr, val)
