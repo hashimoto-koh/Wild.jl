@@ -224,8 +224,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (return (filename::AbstractString, atr::Vararg{Symbol};
                              forcename=false) ->
                      begin
-                         if !forcename && (length(filename) < length("a.ns") ||
-                                           filename[end-length(".ns")+1:end] != ".ns")
+                         if !forcename &&
+                            (length(filename) < length("a.ns") ||
+                             filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
                          ns.import(Serialization.deserialize(filename), atr...)
@@ -234,24 +235,25 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (return (filename::AbstractString, atr::Vararg{Symbol};
                              forcename=false) ->
                      begin
-                         if !forcename && (length(filename) < length("a.ns") ||
-                                           filename[end-length(".ns")+1:end] != ".ns")
+                         if !forcename &&
+                            (length(filename) < length("a.ns") ||
+                             filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
                          g = ns.export(atr...)
                          Serialization.serialize(filename, g)
                          g
                      end)
-                atr == :haskey   && return NShaskey(ns)
-                atr == :del      && return NSdel(ns)
-                atr == :cstize   && return NScstize(ns)
-                atr == :decstize && return NSdecstize(ns)
+                atr == :haskey   && (return NShaskey(ns))
+                atr == :del      && (return NSdel(ns))
+                atr == :cstize   && (return NScstize(ns))
+                atr == :decstize && (return NSdecstize(ns))
 
                 # tags
-                atr == :cst && return NScst(ns)
-                atr == :prp && return NSprp(ns)
-                atr == :mth && return NSmth(ns)
-                atr == :dfn && return NSdfn(ns)
+                atr == :cst && (return NScst(ns))
+                atr == :prp && (return NSprp(ns))
+                atr == :mth && (return NSmth(ns))
+                atr == :dfn && (return NSdfn(ns))
             end
             error("SOMETHING WRONG. THIS IS BUG!!!" )
         end
@@ -362,7 +364,6 @@ Base.getproperty(x::AbstNStag, atr::Symbol) =
 =#
 Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
     Base.setproperty!(x.ns, atr, _MakeItem(x, f))
-
 
 ################
 # NScst

@@ -74,9 +74,8 @@ end
         na = length(nsc.__args)
         nka = length(nsc.__kargs)
 
-        if(length(args) < na)
+        length(args) < na &&
             Base.error("number of args should be equal to or larger than $na")
-        end
 
         for (atr, val) in zip(nsc.__args, args[1:na])
             Base.setproperty!(o, atr, val)
@@ -101,19 +100,14 @@ end
 
 Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
     begin
-        if hasfield(typeof(nsc), atr)
-            Base.setfield!(nsc, atr, x)
-            return
-        end
+        hasfield(typeof(nsc), atr) &&
+            (Base.setfield!(nsc, atr, x); return)
 
-        if atr == :init
-            nsc.__init[1] = x
-            return
-        end
+        atr == :init &&
+            (nsc.__init[1] = x; return)
 
-        if atr in (:cst, :dfn, :prp, :mth)
+        atr in (:cst, :dfn, :prp, :mth) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
-        end
 
         nsc.__link_instances &&
             tfary(i->push_to_instance(i, atr, x),
@@ -128,17 +122,15 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         if atr == :exe return f -> Base.setproperty!(nsc, atr, f) end
         =#
 
-        if atr == :cst return NSCodecst(nsc) end
+        atr == :cst && (return NSCodecst(nsc))
 
-        if atr == :dfn return NSCodedfn(nsc) end
-        if atr == :prp return NSCodeprp(nsc) end
-        if atr == :mth return NSCodemth(nsc) end
+        atr == :dfn && (return NSCodedfn(nsc))
+        atr == :prp && (return NSCodeprp(nsc))
+        atr == :mth && (return NSCodemth(nsc))
 
-        if atr == :_instances; return [i for (a, k, i) in nsc.__instances]; end
-        if atr == :_clr_instances
-            deleteat!(nsc.__instances, 1:length(nsc.__instances))
-            return
-        end
+        atr == :_instances && (return [i for (a, k, i) in nsc.__instances])
+        atr == :_clr_instances &&
+            (deleteat!(nsc.__instances, 1:length(nsc.__instances)); return)
 
         Base.getfield(nsc, atr)
     end
@@ -194,9 +186,9 @@ Base.getproperty(cst::NSCodecst, atr::Symbol) =
         o -> (Base.setproperty!(cst, atr, o); cst.nsc)
         =#
 
-        if atr == :dfn return NSCodecstdfn(cst.nsc) end
-        if atr == :prp return NSCodecstprp(cst.nsc) end
-        if atr == :mth return NSCodecstmth(cst.nsc) end
+        atr == :dfn && (return NSCodecstdfn(cst.nsc))
+        atr == :prp && (return NSCodecstprp(cst.nsc))
+        atr == :mth && (return NSCodecstmth(cst.nsc))
         return Base.getfield(cst, atr)
     end
 
