@@ -422,8 +422,11 @@ Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
     if !haskey(x.ns, atr)
-        Base.setproperty!(x.ns, atr,
-                          Mth((f() = nothing; Base.delete_method(@which f()); f)))
+        Base.setproperty!(x.ns,
+                          atr,
+                          Mth((f() = nothing;
+                               Base.delete_method(Base.which(f, Tuple{}));
+                               f)))
         return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
     end
     if isa(x.ns.__dict[atr], NSnoncst_item)
