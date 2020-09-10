@@ -419,8 +419,10 @@ abstract type AbstNSmth <: AbstNStag end
 struct _NSmthDummySingleton end
 
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
+    Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
+
     if !haskey(x.ns, atr)
-        Base.setproperty!(x.ns, atr, Mth((g, ::_NSmthDummySingleton) -> nothing))
+        Base.setproperty!(x.ns, atr, Mth((::_NSmthDummySingleton) -> nothing))
         return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
     end
     if isa(x.ns.__dict[atr], NSnoncst_item)
