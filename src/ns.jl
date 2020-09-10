@@ -416,7 +416,6 @@ _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
 # NSmth
 ################
 abstract type AbstNSmth <: AbstNStag end
-struct _NSmthDummySingleton end
 
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
@@ -429,6 +428,7 @@ Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
                                f)))
         return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
     end
+
     if isa(x.ns.__dict[atr], NSnoncst_item)
         return (isa(x.ns.__dict[atr].obj, Mth)
                 ? x.ns.__dict[atr].obj.fnc
