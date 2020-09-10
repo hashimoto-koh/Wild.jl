@@ -50,15 +50,18 @@ Base.:/(f, g) = functionalize(g) ∘ functionalize(f)
 
 # [5]
 # x | f == f(x)
-Base.:|(x::T, f) where T <: Any =
+Base.:|(x, f) =
 begin
+    functionalize(f)(x)
+    #=
     g = functionalize(f)
     try
         g(x)
     catch
         g(x...)
     end
-#        hasmethod(g, Tuple{T}) ? g(x) : g(x...)
+    =#
+    # hasmethod(g, Tuple{T}) ? g(x) : g(x...)
 end
 
 # args(x...;ka...) | f == f(x...;ka...)
@@ -86,6 +89,7 @@ to_rng(x) = x
 @inline ⊗(x::Base.Iterators.ProductIterator, y::Base.Iterators.ProductIterator) =
     Iterators.product(x, y)
 @inline ⊗(x...) = Iterators.product(x...)
+
 #=
 ###############################
 # concatenate
