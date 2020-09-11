@@ -161,8 +161,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :import &&
                     (return (g::AbstNS,
                              a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[]) ->
+                             exclude::AbstractVector{Symbol}=[]) ->
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             if length(a) > 0
                                 for k in a
@@ -181,8 +182,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 #     : export properties :a, :b, :c from g to new ns
                 atr == :export &&
                     (return (a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[]) ->
+                             exclude::AbstractVector{Symbol}=[]) ->
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
@@ -199,8 +201,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :deepimport &&
                     (return (g::AbstNS,
                              a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[]) ->
+                             exclude::AbstractVector{Symbol}=[]) ->
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             if length(a) > 0
                                 for k in a
@@ -217,8 +220,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                         end)
                 atr == :deepexport &&
                     (return (a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[]) ->
+                             exclude::AbstractVector{Symbol}=[]) ->
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
@@ -240,8 +244,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :load &&
                     (return (filename::AbstractString,
                              atr::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[],
+                             exclude::AbstractVector{Symbol}=[],
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
@@ -255,8 +260,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :save &&
                     (return (filename::AbstractString,
                              atr::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            NTuple{N,Symbol} where N}=[],
+                             exclude::AbstractVector{Symbol}=[],
+#                             exclude::Union{AbstractVector{Symbol},
+#                                            NTuple{N,Symbol} where N}=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
