@@ -37,6 +37,8 @@ x |> _mthd.a[10](3) == x.a[10](3)
 
 x |> _set.a(3) ===> (x.a = 3; x)
 x |> _set.a[10](3) ===> (x.a[10] = 3; x)
+x |> _set[10](3) ===> (x[10] = 3; x)
+x |> _set(:a)(3) ===> (x.a = 3; x)
 
 x |> _gets[:a, 3] ===> [x.a, x[3]]
 x |> _sets[:a, 3](10, 20) ===> (x.a = 10; x[3] = 20; x)
@@ -50,6 +52,8 @@ const _mthd = _MthdSingleton()
 
 struct _SetSingleton end
 const _set = _SetSingleton()
+(::_SetSingleton)(atr::Symbol) = x -> (o -> Base.setproperty!(o, atr, x))
+(s::_SetSingleton)(atr::AbstractString) = s(Symbol(atr))
 
 struct _GetsSingleton end
 const _gets = _GetsSingleton()
