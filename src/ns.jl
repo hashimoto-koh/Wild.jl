@@ -162,19 +162,36 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                     (return (g::AbstNS,
                              a::Vararg{Symbol};
                              exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[]) ->
-                        begin
-                            if length(a) > 0
-                                for k in a
-                                    (k in exclude) || (ns.__dict[k] = g.__dict[k])
+                                            Tuple{Vararg{Symbol}}}=[],
+                             deep=false) ->
+                            begin
+                                if deep
+                                    if length(a) > 0
+                                        for k in a
+                                            (k in exclude) ||
+                                                (ns.__dict[k] =
+                                                 deepcopy(g.__dict[k]))
+                                        end
+                                    else
+                                        for (k, v) in pairs(g.__dict)
+                                            (k in exclude) ||
+                                                (ns.__dict[k] = deepcopy(v))
+                                        end
+                                    end
+                                else
+                                    if length(a) > 0
+                                        for k in a
+                                            (k in exclude) ||
+                                                (ns.__dict[k] = g.__dict[k])
+                                        end
+                                    else
+                                        for (k, v) in pairs(g.__dict)
+                                            (k in exclude) || (ns.__dict[k] = v)
+                                        end
+                                    end
                                 end
-                            else
-                                for (k, v) in pairs(g.__dict)
-                                    (k in exclude) || (ns.__dict[k] = v)
-                                end
-                            end
-                            ns
-                        end)
+                                ns
+                            end)
                 # g.export()
                 #     : export all properties from g to new ns
                 # g.export(:a, :b, :c) #
@@ -182,57 +199,48 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :export &&
                     (return (a::Vararg{Symbol};
                              exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[]) ->
-                        begin
-                            g = typeof(ns)()
-                            if length(a) > 0
-                                for k in a
-                                    (k in exclude) || (g.__dict[k] = ns.__dict[k])
+                                            Tuple{Vararg{Symbol}}}=[],
+                             deep=false) ->
+                            begin
+                                g = typeof(ns)()
+                                if deep
+                                    if length(a) > 0
+                                        for k in a
+                                            (k in exclude) ||
+                                                (g.__dict[k] =
+                                                 deepcopy(ns.__dict[k]))
+                                        end
+                                    else
+                                        for (k, v) in pairs(ns.__dict)
+                                            (k in exclude) ||
+                                                 (g.__dict[k] = deepcopy(v))
+                                        end
+                                    end
+                                else
+                                    if length(a) > 0
+                                        for k in a
+                                            (k in exclude) ||
+                                                (g.__dict[k] = ns.__dict[k])
+                                        end
+                                    else
+                                        for (k, v) in pairs(ns.__dict)
+                                            (k in exclude) || (g.__dict[k] = v)
+                                        end
+                                    end
                                 end
-                            else
-                                for (k, v) in pairs(ns.__dict)
-                                    (k in exclude) || (g.__dict[k] = v)
-                                end
-                            end
-                            g
-                        end)
+                                g
+                            end)
                 atr == :deepimport &&
                     (return (g::AbstNS,
                              a::Vararg{Symbol};
                              exclude::Union{AbstractVector{Symbol},
                                             Tuple{Vararg{Symbol}}}=[]) ->
-                        begin
-                            if length(a) > 0
-                                for k in a
-                                    (k in exclude) ||
-                                        (ns.__dict[k] = deepcopy(g.__dict[k]))
-                                end
-                            else
-                                for (k, v) in pairs(g.__dict)
-                                    (k in exclude) ||
-                                        (ns.__dict[k] = deepcopy(v))
-                                end
-                            end
-                            ns
-                        end)
+                            ns.import(g, a...; exclude=exclude, deep=true))
                 atr == :deepexport &&
                     (return (a::Vararg{Symbol};
                              exclude::Union{AbstractVector{Symbol},
                                             Tuple{Vararg{Symbol}}}=[]) ->
-                        begin
-                            g = typeof(ns)()
-                            if length(a) > 0
-                                for k in a
-                                    (k in exclude) ||
-                                        (g.__dict[k] = deepcopy(ns.__dict[k]))
-                                end
-                            else
-                                for (k, v) in pairs(ns.__dict)
-                                    (k in exclude) || (g.__dict[k] = deepcopy(v))
-                                end
-                            end
-                            g
-                     end)
+                            ns.export(a...; exclude=exclude, deep=true))
                 # g.load("x.ns")
                 #     : load "x.ns" and import all properties from it
                 # g.load("x.ns", :a, :b, :c)
