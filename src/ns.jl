@@ -159,11 +159,8 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.import(h, :a, :b, :c)
                 #     : import properties :a, :b, :c from h
                 atr == :import &&
-                    (return (g::AbstNS,
-                             a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[],
-                             deep=false) ->
+                    (return (g::AbstNS, a::Vararg{Symbol};
+                             exclude=[], deep=false) ->
                             begin
                                 if deep
                                     if length(a) > 0
@@ -197,10 +194,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.export(:a, :b, :c) #
                 #     : export properties :a, :b, :c from g to new ns
                 atr == :export &&
-                    (return (a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[],
-                             deep=false) ->
+                    (return (a::Vararg{Symbol}; exclude=[], deep=false) ->
                             begin
                                 g = typeof(ns)()
                                 if deep
@@ -231,15 +225,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                 g
                             end)
                 atr == :deepimport &&
-                    (return (g::AbstNS,
-                             a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[]) ->
+                    (return (g::AbstNS, a::Vararg{Symbol}; exclude=[]) ->
                             ns.import(g, a...; exclude=exclude, deep=true))
                 atr == :deepexport &&
-                    (return (a::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[]) ->
+                    (return (a::Vararg{Symbol}; exclude=[]) ->
                             ns.export(a...; exclude=exclude, deep=true))
                 # g.load("x.ns")
                 #     : load "x.ns" and import all properties from it
@@ -248,8 +237,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :load &&
                     (return (filename::AbstractString,
                              atr::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[],
+                             exclude=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
@@ -263,8 +251,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :save &&
                     (return (filename::AbstractString,
                              atr::Vararg{Symbol};
-                             exclude::Union{AbstractVector{Symbol},
-                                            Tuple{Vararg{Symbol}}}=[],
+                             exclude=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
