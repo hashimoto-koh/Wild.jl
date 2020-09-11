@@ -264,7 +264,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                              filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
-                         length(atr) == 0 && atr = ns._keys
+                         length(atr) == 0 && (atr = ns._keys)
                          atr = [k for k in ns._keys if !(k in exclude)]
                          g = ns.export(atr...; exclude=exclude)
                          Serialization.serialize(filename, g)
