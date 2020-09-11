@@ -23,6 +23,7 @@ const _NS_fields = Set([:_keys,
                         :_vals,
                         :_keyvals,
                         :_printkeyvals,
+                        :_printkeytypes,
                         :_fixed,
                         :_lcked,
                         :_frzed,
@@ -128,6 +129,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :_keyvals && (return (; zip(ns._keys, ns._vals)...))
                 atr == :_printkeyvals &&
                     ([println(k, ": ", v) for (k,v) in pairs(ns._keyvals)]; return)
+                atr == :_printkeytypes &&
+                    ([println(k, ": ", typeof(v))
+                      for (k,v) in pairs(ns._keyvals)]; return)
 
                 atr == :_fix   && (ns.__fix_lck[1] = true;  return ns)
                 atr == :_unfix && (ns.__fix_lck[1] = false; return ns)
