@@ -159,15 +159,18 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.import(h, :a, :b, :c)
                 #     : import properties :a, :b, :c from h
                 atr == :import &&
-                    (return (g::AbstNS, a::Vararg{Symbol}) ->
+                    (return (g::AbstNS,
+                             a::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             if length(a) > 0
                                 for k in a
-                                    ns.__dict[k] = g.__dict[k]
+                                    (k in exclude) || (ns.__dict[k] = g.__dict[k])
                                 end
                             else
                                 for (k, v) in pairs(g.__dict)
-                                    ns.__dict[k] = v
+                                    (k in exclude) || (ns.__dict[k] = v)
                                 end
                             end
                             ns
@@ -177,45 +180,55 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.export(:a, :b, :c) #
                 #     : export properties :a, :b, :c from g to new ns
                 atr == :export &&
-                    (return (a::Vararg{Symbol}) ->
+                    (return (a::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
                                 for k in a
-                                    g.__dict[k] = ns.__dict[k]
+                                    (k in exclude) || (g.__dict[k] = ns.__dict[k])
                                 end
                             else
                                 for (k, v) in pairs(ns.__dict)
-                                    g.__dict[k] = v
+                                    (k in exclude) || (g.__dict[k] = v)
                                 end
                             end
                             g
                         end)
                 atr == :deepimport &&
-                    (return (g::AbstNS, a::Vararg{Symbol}) ->
+                    (return (g::AbstNS,
+                             a::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             if length(a) > 0
                                 for k in a
-                                    ns.__dict[k] = deepcopy(g.__dict[k])
+                                    (k in exclude) ||
+                                        (ns.__dict[k] = deepcopy(g.__dict[k]))
                                 end
                             else
                                 for (k, v) in pairs(g.__dict)
-                                    ns.__dict[k] = deepcopy(v)
+                                    (k in exclude) ||
+                                        (ns.__dict[k] = deepcopy(v))
                                 end
                             end
                             ns
                         end)
                 atr == :deepexport &&
-                    (return (a::Vararg{Symbol}) ->
+                    (return (a::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[]) ->
                         begin
                             g = typeof(ns)()
                             if length(a) > 0
                                 for k in a
-                                    g.__dict[k] = deepcopy(ns.__dict[k])
+                                    (k in exclude) ||
+                                        (g.__dict[k] = deepcopy(ns.__dict[k]))
                                 end
                             else
                                 for (k, v) in pairs(ns.__dict)
-                                    g.__dict[k] = deepcopy(v)
+                                    (k in exclude) || (g.__dict[k] = deepcopy(v))
                                 end
                             end
                             g
@@ -225,7 +238,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # g.load("x.ns", :a, :b, :c)
                 #     : load "x.ns" and import properties :a, :b, :c from it
                 atr == :load &&
-                    (return (filename::AbstractString, atr::Vararg{Symbol};
+                    (return (filename::AbstractString,
+                             atr::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
@@ -233,10 +249,14 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                              filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
-                         ns.import(Serialization.deserialize(filename), atr...)
+                         ns.import(Serialization.deserialize(filename), atr...;
+                                   exclude=exclude)
                      end)
                 atr == :save &&
-                    (return (filename::AbstractString, atr::Vararg{Symbol};
+                    (return (filename::AbstractString,
+                             atr::Vararg{Symbol};
+                             exclude::Union{AbstractVector{Symbol},
+                                            NTuple{N,Symbol} where N}=[],
                              forcename=false) ->
                      begin
                          if !forcename &&
@@ -244,7 +264,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                              filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
-                         g = ns.export(atr...)
+                         length(atr) == 0 && atr = ns._keys
+                         atr = [k for k in ns._keys if !(k in exclude)]
+                         g = ns.export(atr...; exclude=exclude)
                          Serialization.serialize(filename, g)
                          g
                      end)
