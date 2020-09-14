@@ -493,7 +493,9 @@ NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 
 [3] type parameter を指定する必要がなければ
 G = nsx()
-NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
+NSX{prm(G)}() = (g = NSXinit{G}(); g.a = 10; g)
+NSX{prm(G)}(a) = (g = G(); g.a = g.a + a; g)
+NSX{prm(G)}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 =#
 
 struct NSXinit{X} end
