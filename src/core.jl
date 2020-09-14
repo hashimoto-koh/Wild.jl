@@ -98,7 +98,7 @@ mutable struct Dfn{T <: Any} <: AbstClassFunc fnc::T end
 dfn = fnc -> Dfn(fnc)
 
 mutable struct Req{T <: Any} <: AbstClassFunc fnc::T end
-(req::Dfn)(self) = req.fnc(self)
+(req::Req)(self) = req.fnc(self)
 req = fnc -> Req(fnc)
 
 mutable struct Prp{T <: Any} <: AbstClassFunc fnc::T end
