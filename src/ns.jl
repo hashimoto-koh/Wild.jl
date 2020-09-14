@@ -480,15 +480,20 @@ ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
 # AbstNSX, NSX, NSXinit, prm, nsx
 ################
 #=
+[1] default constructor が必要ないなら
+G = NSX{:G}
+NSX{:G}(a::Integer) = (g = G(); g.a = lapd(a, 3, "0"); g)
+NSX{:G}(a::Union{String, Symbol}) = (g = G(); g.a = Symbol(a); g)
+
+[2] default constructor が必要なら
 G = NSX{:G}
 NSX{:G}() = (g = NSXinit{G}(); g.a = 10; g)
-NSX{:G}(a) = (g = NSXinit{G}(); g.a = a; g)
-NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a; g.b = b; g)
+NSX{:G}(a) = (g = G(); g.a = g.a + a; g)
+NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 
-H = nsx()
-NSX{prm(H)}() = (g = NSXinit{H}(); g.a = 10; g)
-NSX{prm(H)}(a) = (g = NSXinit{H}(); g.a = a; g)
-NSX{prm(H)}(a,b) = (g = NSXinit{H}(); g.a = a; g.b = b; g)
+[3] type parameter を指定する必要がなければ
+G = nsx()
+NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 =#
 
 struct NSXinit{X} end
@@ -501,7 +506,7 @@ struct NSX{X} <: AbstNSX
         new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(), [false, false])
 end
 
-NSX{X}() where X = NSXinit{MSX{X}}()
+NSX{X}() where X = NSXinit{NSX{X}}()
 
 prm(X) = X.parameters[1]
 
