@@ -126,13 +126,11 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :_keys && (return Tuple(Base.keys(ns.__dict)))
                 atr == :_vals &&
                     (return Tuple(x.obj for x in Base.values(ns.__dict)))
-
                 atr == :_keyvals && (return (; zip(ns._keys, ns._vals)...))
                 atr == :_printkeyvals &&
-                    ([println(k, ": ", v) for (k,v) in pairs(ns._keyvals)]; return)
+                    ([println(k, ": ", v) for (k,v) in ns.__dict]; return)
                 atr == :_printkeytypes &&
-                    ([println(k, ": ", typeof(v))
-                      for (k,v) in pairs(ns._keyvals)]; return)
+                    ([println(k, ": ", typeof(v)) for (k,v) in ns.__dict]; return)
 
                 atr == :_fix   && (ns.__fix_lck[1] = true;  return ns)
                 atr == :_unfix && (ns.__fix_lck[1] = false; return ns)
