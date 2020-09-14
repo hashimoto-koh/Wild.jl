@@ -473,7 +473,49 @@ _MakeItem(x::NScstmth, f) = NScst_item(mth(f))
 nsgen() = NSGen{Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
 nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
 
-ns(name::Union{Nothing, Symbol, AbstractString}=nothing) = nsgen(name)()
+ns() = nsgen()()
+ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
+
+struct NSXinit{X} end
+
+abstruct type AbstNSX{X} <: AbstNS end
+struct NSX{X} <: AbstNSX{X}
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::Vector{Bool}
+    global NSXinit{X} where X =
+        new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(), [false, false])
+end
+
+################
+# AbstNSX, NSX, NSXinit, prm, nsx
+################
+#=
+G = NSX{:G}
+NSX{:G}() = (g = NSXinit{G}(); g.a = 10; g)
+NSX{:G}(a) = (g = NSXinit{G}(); g.a = a; g)
+NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a; g.b = b; g)
+
+H = nsx()
+NSX{prm(H)}() = (g = NSXinit{H}(); g.a = 10; g)
+NSX{prm(H)}(a) = (g = NSXinit{H}(); g.a = a; g)
+NSX{prm(H)}(a,b) = (g = NSXinit{H}(); g.a = a; g.b = b; g)
+=#
+
+struct NSXinit{X} end
+
+abstract type AbstNSX <: AbstNS end
+struct NSX{X} <: AbstNSX
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::Vector{Bool}
+    global NSXinit{X}() where X =
+        new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(), [false, false])
+end
+
+NSX{X}() where X = NSXinit{MSX{X}}()
+
+prm(X) = X.parameters[1]
+
+nsx() = NSX{Symbol("NSX_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
 
 ################
 # New NS macro
