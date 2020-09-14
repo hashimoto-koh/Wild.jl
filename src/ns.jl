@@ -281,15 +281,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 
         if haskey((local d = ns.__dict), atr)
             x = d[atr].obj;
-            if isa(x, Union{Prp, Mth})
-                return x(ns)
-            elseif isa(x, Req)
-                y = x(ns)
-                d[atr] = typeof(d[atr])(y)
-                return y
-            else
-                return x
-            end
+            isa(x, Union{Prp, Mth}) && (return x(ns))
+            isa(x, Req) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
+            return x
         else
             # x -> (Base.setproperty!(ns, atr, x); ns)
             error("""This NS does not have a property named "$(atr)".""")
