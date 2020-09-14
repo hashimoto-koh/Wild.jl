@@ -1,5 +1,5 @@
 ###############################
-# @dfn, @prp, @mth, @sprp
+# @dfn, @req, @prp, @mth, @sprp
 ###############################
 #=
 (Example)
@@ -22,6 +22,12 @@ macro dfn(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=), ex.args[1], Expr(:call, :Dfn, ex.args[2]))
                : Expr(:call, :Dfn, ex))
+end
+
+macro req(ex)
+    return esc(ex.head == :(=)
+               ? Expr(:(=), ex.args[1], Expr(:call, :Req, ex.args[2]))
+               : Expr(:call, :Req, ex))
 end
 
 macro prp(ex)
@@ -82,7 +88,7 @@ macro mthfnc(name)
 end
 
 ###############################
-# dfn, prp, mth, sprp
+# dfn, req, prp, mth, sprp
 ###############################
 
 abstract type AbstClassFunc <: AbstTagFunc end
@@ -90,6 +96,10 @@ abstract type AbstClassFunc <: AbstTagFunc end
 mutable struct Dfn{T <: Any} <: AbstClassFunc fnc::T end
 (dfn::Dfn)(self) = dfn.fnc(self)
 dfn = fnc -> Dfn(fnc)
+
+mutable struct Req{T <: Any} <: AbstClassFunc fnc::T end
+(req::Dfn)(self) = req.fnc(self)
+req = fnc -> Req(fnc)
 
 mutable struct Prp{T <: Any} <: AbstClassFunc fnc::T end
 (prp::Prp)(self) =
