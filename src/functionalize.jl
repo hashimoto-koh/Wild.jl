@@ -23,10 +23,16 @@ struct Args; a; ka; end
 @inline arg(a...; ka...) = Args(a, ka)
 
 ###############################
-# _get, _mthd, _set, _gets, _sets
+# _grb, _get, _mthd, _set, _gets, _sets
 ###############################
 
 #=
+x |> _grb.a = x.a
+x |> _grb[10] = x[10]
+x |> _grb.a[10] = x.a[10]
+x |> _grb("a") = x.a
+x |> _grb(:a) = x.a
+
 x |> _get.a == x.a
 x |> _get[10,3] == x[10,3]
 x |> _get.a[1:10,4:5] == x.a[1:10,4:5]
@@ -47,6 +53,11 @@ x |> _sets[:a, 3](10, 20) ===> (x.a = 10; x[3] = 20; x)
 struct _GetSingleton end
 const _get = _GetSingleton()
 
+struct _GrbSingleton end
+const _grb = _GrbSingleton()
+(::_GrbSingleton)(atr::Symbol) = o -> Base.getproperty(o, atr)
+(s::_GrbSingleton)(atr::AbstractString) = s(Symbol(atr))
+
 struct _MthdSingleton end
 const _mthd = _MthdSingleton()
 
@@ -62,6 +73,10 @@ struct _SetsSingleton end
 const _sets = _SetsSingleton()
 
 abstract type _AbstGet <: Function end
+
+mutable struct _Grb <: _AbstGet
+    __itms::Vector{Any}
+end
 
 mutable struct _Get <: _AbstGet
     __itms::Vector{Any}
@@ -82,6 +97,9 @@ end
 mutable struct _Sets <: _AbstGet
     __itms::Tuple
 end
+
+Base.getproperty(g::_GrbSingleton, a::Symbol) = _Grb([a])
+Base.getindex(g::_GrbSingleton, a...) = _Grb([a])
 
 Base.getproperty(g::_GetSingleton, a::Symbol) = _Get([a])
 Base.getindex(g::_GetSingleton, a...) = _Get([a])
@@ -107,6 +125,7 @@ _get_prp_idx(o, a) = Base.getindex(o, a...)
 _set_prp_idx(o, a::Symbol, x) = Base.setproperty!(o, a, x)
 _set_prp_idx(o, a, x) = Base.setindex!(o, x, a...)
 
+(g::_Grb)(obj::Any) = reduce(_get_prp_idx, g.__itms; init=obj)
 (g::_Get)(obj::Any) = reduce(_get_prp_idx, g.__itms; init=obj)
 (g::_Mthd)(a...; ka...) =
     obj -> reduce(_get_prp_idx, g.__itms; init=obj)(a...;ka...)
