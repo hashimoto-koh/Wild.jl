@@ -476,16 +476,6 @@ nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
 ns() = nsgen()()
 ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
 
-struct NSXinit{X} end
-
-abstruct type AbstNSX{X} <: AbstNS end
-struct NSX{X} <: AbstNSX{X}
-    __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::Vector{Bool}
-    global NSXinit{X} where X =
-        new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(), [false, false])
-end
-
 ################
 # AbstNSX, NSX, NSXinit, prm, nsx
 ################
