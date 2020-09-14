@@ -43,6 +43,8 @@ function push_to_instance(o, atr, val)
     if isa(val, AbstNSCodeitem)
         if isa(val.obj, Dfn)
             y = Base.getproperty(x, :dfn)
+        elseif isa(val.obj, Req)
+            y = Base.getproperty(x, :req)
         elseif isa(val.obj, Prp)
             y = Base.getproperty(x, :prp)
         elseif isa(val.obj, Mth)
@@ -106,7 +108,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         atr == :init &&
             (nsc.__init[1] = x; return)
 
-        atr in (:cst, :dfn, :prp, :mth) &&
+        atr in (:cst, :dfn, :req, :prp, :mth) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
 
         nsc.__link_instances &&
@@ -125,6 +127,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         atr == :cst && (return NSCodecst(nsc))
 
         atr == :dfn && (return NSCodedfn(nsc))
+        atr == :req && (return NSCodereq(nsc))
         atr == :prp && (return NSCodeprp(nsc))
         atr == :mth && (return NSCodemth(nsc))
 
@@ -187,6 +190,7 @@ Base.getproperty(cst::NSCodecst, atr::Symbol) =
         =#
 
         atr == :dfn && (return NSCodecstdfn(cst.nsc))
+        atr == :req && (return NSCodecstreq(cst.nsc))
         atr == :prp && (return NSCodecstprp(cst.nsc))
         atr == :mth && (return NSCodecstmth(cst.nsc))
         return Base.getfield(cst, atr)
@@ -206,6 +210,16 @@ struct NSCodecstdfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
 _MakeItem(x::NSCodedfn, f) = NSCodenoncst_item(dfn(f))
 _MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(dfn(f))
+
+################
+# NSCodereq
+################
+
+struct NSCodereq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
+struct NSCodecstreq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
+
+_MakeItem(x::NSCodereq, f) = NSCodenoncst_item(req(f))
+_MakeItem(x::NSCodecstreq, f) = NSCodecst_item(req(f))
 
 ################
 # NSCodeprp
