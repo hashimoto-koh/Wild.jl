@@ -49,6 +49,7 @@ const _NS_fields = Set([:_keys,
                         :decstize,
                         :cst,
                         :dfn,
+                        :req,
                         :prp,
                         :mth,
                         :exe
@@ -275,13 +276,22 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :prp && (return NSprp(ns))
                 atr == :mth && (return NSmth(ns))
                 atr == :dfn && (return NSdfn(ns))
+                atr == :req && (return NSreq(ns))
             end
             error("SOMETHING WRONG. THIS IS BUG!!!" )
         end
 
         if haskey((local d = ns.__dict), atr)
             x = d[atr].obj;
-            isa(x, Union{Prp, Mth}) ? x(ns) : x
+            if isa(x, Union{Prp, Mth})
+                return x(ns)
+            elseif isa(x, Req)
+                y = x(ns)
+                d[atr] = typeof(d[atr])(y)
+                return y
+            else
+                return x
+            end
         else
             # x -> (Base.setproperty!(ns, atr, x); ns)
             error("""This NS does not have a property named "$(atr)".""")
@@ -405,6 +415,7 @@ Base.getproperty(x::NScst, atr::Symbol) =
         =#
 
         atr == :dfn && (return NScstdfn(x.ns))
+        atr == :req && (return NScstreq(x.ns))
         atr == :prp && (return NScstprp(x.ns))
         atr == :mth && (return NScstmth(x.ns))
         return Base.getfield(x, atr)
@@ -423,6 +434,17 @@ struct NScstdfn{T <: AbstNS} <: AbstNStag ns::T end
 
 _MakeItem(x::NSdfn, f) = NSnoncst_item(f(x.ns))
 _MakeItem(x::NScstdfn, f) = NScst_item(f(x.ns))
+
+################
+# NSreq
+################
+
+struct NSreq{T <: AbstNS} <: AbstNStag ns::T end
+
+struct NScstreq{T <: AbstNS} <: AbstNStag ns::T end
+
+_MakeItem(x::NSreq, f) = NSnoncst_item(req(f))
+_MakeItem(x::NScstreq, f) = NScst_item(req(f))
 
 ################
 # NSprp
