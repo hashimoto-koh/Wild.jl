@@ -55,7 +55,7 @@ const _get = _GetSingleton()
 
 struct _GrbSingleton end
 const _grb = _GrbSingleton()
-(::_GrbSingleton)(atr::Symbol) = o -> Base.getproperty(o, atr)
+(s::_GrbSingleton)(atr::Symbol) = Base.getproperty(s, atr)
 (s::_GrbSingleton)(atr::AbstractString) = s(Symbol(atr))
 
 struct _MthdSingleton end
