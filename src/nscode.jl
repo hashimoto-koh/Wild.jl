@@ -115,7 +115,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
             tfary(i->push_to_instance(i, atr, x),
                   (i for (a, k, i) in nsc.__instances))
 
-        append!(nsc.__code, [(atr, x)])
+        push!(nsc.__code, (atr, x))
     end
 
 Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
