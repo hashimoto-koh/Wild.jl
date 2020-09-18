@@ -134,7 +134,7 @@ begin
         return (mth ->
                 (eval(:($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
 
-    atr == :append! && mthds -> (for f in mthds push!(fnc, f) end; fnc)
+    atr == :append! && (return mthds -> (for f in mthds push!(fnc, f) end; fnc))
 
     atr == :reset! &&
         (for m in methods(fnc.f) Base.delete_method(m) end; return fnc)

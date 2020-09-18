@@ -95,10 +95,6 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             ns._fixed && Base.error("this NS is fixed!")
             if isa(x, AbstNSitem) && isa(x.obj, Fnc)
                 if isa(ns.__dict[atr].obj, Fnc)
-                    println(typeof(x))
-                    println(typeof(x.obj))
-                    println(typeof(x.obj.fnclist))
-                    println(typeof(x.obj.fnc))
                     ns.__dict[atr].obj.append!(x.obj.fnclist)
                 else
                     ns.__dict[atr].obj = x.obj
