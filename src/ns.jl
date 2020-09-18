@@ -360,6 +360,18 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          end
                          ns.import(Serialization.deserialize(filename), atr...;
                                    exclude=exclude)
+                         _init_fnc(x::AbstNS) = begin
+                             for key in x._keys
+                                 if isa(x.__dict[key].obj, Fnc)
+                                     x.__dict[key].obj.init!
+                                 elseif isa(x.__dict[key].obj, AbstNS)
+                                     _init_fnc(x.__dict[key].obj)
+                                 end
+                             end
+                         end
+
+
+
                      end)
                 atr == :save &&
                     (return (filename::AbstractString,
