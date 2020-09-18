@@ -148,7 +148,7 @@ mutable struct Fnc <: AbstClassFunc
     Fnc(f) = new([f], _FncWrapper(f))
 end
 
-Fnc(flst::Vector{Function}) = (fnc = Fnc(); fnc.append!(flst); fnc)
+Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
 Fnc(f::Function) = (fnc = Fnc(); fnc.push!(f); fnc)
 
 (fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(tuple(self, a...); ka...)
