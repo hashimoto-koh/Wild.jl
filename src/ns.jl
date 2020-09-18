@@ -369,9 +369,6 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                  end
                              end
                          end
-
-
-
                      end)
                 atr == :save &&
                     (return (filename::AbstractString,
