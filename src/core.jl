@@ -160,7 +160,7 @@ function Base.push!(fnc::Fnc, mth::Function)
     fnc
 end
 
-function Base.append!(fnc::_FncWrapper, mths::AbstractVector{Function})
+function Base.append!(fnc::Fnc, mths::AbstractVector{Function})
     for f in mths push!(fnc, f) end
     fnc
 end
