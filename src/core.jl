@@ -124,7 +124,7 @@ struct _FncWrapper <: Function
     _FncWrapper(f) = new(f)
 end
 
-(fnc::_FncWrapper)(a; ka...) = fnc.f(a...; ka...)
+(fnc::_FncWrapper)(a...; ka...) = fnc.f(a; ka...)
 
 Base.getproperty(fnc::_FncWrapper, atr::Symbol) =
 begin
@@ -154,7 +154,7 @@ mutable struct Fnc <: AbstClassFunc
 end
 Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
 
-(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(tuple(self, a...); ka...)
+(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
 fnc(f) = Fnc(f)
 
 function Base.push!(fnc::Fnc, mth::Function)
