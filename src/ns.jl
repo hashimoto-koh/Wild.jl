@@ -386,7 +386,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          end
                          length(atr) == 0 && (atr = ns._keys)
                          atr = [k for k in ns._keys if !(k in exclude)]
-                         g = ns.export(atr...; exclude=exclude)
+                         g = ns.copy(atr...; exclude=exclude)
 
                          _remove_fnc(x::AbstNS) = begin
                              for key in x._keys
@@ -492,8 +492,12 @@ Base.getproperty(x::NScstize, atr::Symbol) =
 
         x.ns._fixed && error("this NS is fixed!")
 
-        isa(x.ns.__dict[atr], NSnoncst_item) &&
-            (x.ns.__dict[atr] = NScst_item(x.ns.__dict[atr].obj))
+        if haskey((local d = x.ns.__dict), atr)
+            isa(d[atr], NSnoncst_item) && (d[atr] = NScst_item(d[atr].obj))
+        else
+            error("""This NS does not have a property named "$(atr)".""")
+        end
+
         x.ns
     end
 
@@ -503,8 +507,13 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 
         x.ns._fixed && error("this NS is fixed!")
 
-        isa(x.ns.__dict[atr], NScst_item) &&
-            (x.ns.__dict[atr] = NSnoncst_item(x.ns.__dict[atr].obj))
+        if haskey((local d = x.ns.__dict), atr)
+            isa(x.ns.__dict[atr], NScst_item) &&
+                (x.ns.__dict[atr] = NSnoncst_item(x.ns.__dict[atr].obj))
+        else
+            error("""This NS does not have a property named "$(atr)".""")
+        end
+
         x.ns
     end
 
@@ -538,16 +547,6 @@ struct NScst{T <: AbstNS} ns::T end
 
 Base.getproperty(x::NScst, atr::Symbol) =
     begin
-        #=
-        hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
-
-        atr == :dfn && (return NScstdfn(x.ns))
-        atr == :prp && (return NScstprp(x.ns))
-        atr == :mth && (return NScstmth(x.ns))
-
-        o -> (Base.setproperty!(x, atr, o); x.ns)
-        =#
-
         atr == :dfn && (return NScstdfn(x.ns))
         atr == :req && (return NScstreq(x.ns))
         atr == :prp && (return NScstprp(x.ns))
@@ -595,10 +594,8 @@ _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
 # NSfnc
 ################
 
-abstract type AbstNSfnc <: AbstNStag end
-
-struct NSfnc{T <: AbstNS} <: AbstNSfnc ns::T end
-struct NScstfnc{T <: AbstNS} <: AbstNSfnc ns::T end
+struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
+struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
 
 _MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f))
 _MakeItem(x::NScstfnc, f) = NScst_item(fnc(f))
@@ -606,31 +603,8 @@ _MakeItem(x::NScstfnc, f) = NScst_item(fnc(f))
 ################
 # NSmth
 ################
-abstract type AbstNSmth <: AbstNStag end
-#=
-Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
-    Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
-
-    if !haskey(x.ns, atr)
-        Base.setproperty!(x.ns,
-                          atr,
-                          Mth((f() = nothing;
-                               Base.delete_method(Base.which(f, Tuple{}));
-                               f)))
-        return Base.getproperty(Base.getproperty(x.ns, :mth), atr)
-    end
-
-    if isa(x.ns.__dict[atr], NSnoncst_item)
-        return (isa(x.ns.__dict[atr].obj, Mth)
-                ? x.ns.__dict[atr].obj.fnc
-                : (x.del(atr); Base.getproperty(Base.getproperty(x.ns, :mth), atr)))
-    end
-
-    Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
-end
-=#
-struct NSmth{T <: AbstNS} <: AbstNSmth ns::T end
-struct NScstmth{T <: AbstNS} <: AbstNSmth ns::T end
+struct NSmth{T <: AbstNS} <: AbstNStag ns::T end
+struct NScstmth{T <: AbstNS} <: AbstNStag ns::T end
 
 _MakeItem(x::NSmth, f) = NSnoncst_item(mth(f))
 _MakeItem(x::NScstmth, f) = NScst_item(mth(f))
