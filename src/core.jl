@@ -145,7 +145,7 @@ end
 mutable struct Fnc <: AbstClassFunc
     fnclist::Vector{Function}
     fnc::_FncWrapper
-    Fnc(f) = new([f], _FncWrapper(f)
+    Fnc(f) = new([f], _FncWrapper(f))
 end
 
 Fnc(flst::Vector{Function}) = (fnc = Fnc(); fnc.append!(flst); fnc)
