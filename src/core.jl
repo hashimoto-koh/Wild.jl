@@ -138,6 +138,8 @@ begin
 
     atr == :reset! &&
         (for m in methods(fnc.f) Base.delete_method(m) end; return fnc)
+
+    Base.getfield(fnc, atr)
 end
 
 mutable struct Fnc <: AbstClassFunc
@@ -151,7 +153,7 @@ end
 Fnc(flst::Vector{Function}) = (fnc = Fnc(); fnc.append!(flst); fnc)
 Fnc(f::Function) = (fnc = Fnc(); fnc.push!(f); fnc)
 
-(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(tuple(self, a...); ka...)
+(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
 fnc(f) = Fnc(f)
 
 function Base.push!(fnc::Fnc, mth::Function)
@@ -180,4 +182,6 @@ begin
         (f() = nothing;
          fnc.fnc = _FncWrapper(f);
          return fnc.reset!)
+
+    Base.getfield(fnc, atr)
 end
