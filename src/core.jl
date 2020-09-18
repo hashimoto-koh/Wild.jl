@@ -154,7 +154,7 @@ end
 Fnc(flst::Vector{Function}) = (fnc = Fnc(); fnc.append!(flst); fnc)
 Fnc(f::Function) = (fnc = Fnc(); fnc.push!(f); fnc)
 
-(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
+(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(tuple(self, a...); ka...)
 fnc(f) = Fnc(f)
 
 function Base.push!(fnc::Fnc, mth::Function)
