@@ -170,7 +170,7 @@ begin
     Base.hasfield(Fnc, atr) && (return Base.getfield(fnc, atr))
 
     atr == :push! && (return f -> push!(fnc, f))
-
+    atr == :append! && (return fncs -> append!(fnc, fncs))
     atr == :reset! &&
         (fnc.fnc.reset!;
          for f in fnc.fnclist push!(fnc.fnc, f) end;
