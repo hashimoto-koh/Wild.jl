@@ -44,6 +44,7 @@ const _NS_fields = Set([:_keys,
                         :load,
                         :save,
                         :haskey,
+                        :iscst,
                         :del,
                         :cstize,
                         :decstize,
@@ -52,6 +53,7 @@ const _NS_fields = Set([:_keys,
                         :req,
                         :prp,
                         :mth,
+                        :fnc,
                         :exe
                         ])
 
@@ -91,7 +93,15 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             Base.error("'" * string(:atr) * "' can't be used for property")
         elseif haskey(ns.__dict, atr)
             ns._fixed && Base.error("this NS is fixed!")
-            ns.__dict[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            if isa(x, AbstNSitem) && isa(x.obj, Fnc)
+                if isa(ns.__dict[atr].obj, Fnc)
+                    ns.__dict[atr].obj.append!(x.obj.fnclist)
+                else
+                    ns.__dict[atr].obj = x.obj
+                end
+            else
+                ns.__dict[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            end
         else
             ns._lcked && Base.error("this NS is locked!")
             ns.__dict[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
@@ -265,7 +275,12 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          Serialization.serialize(filename, g)
                          g
                      end)
-                atr == :haskey   && (return NShaskey(ns))
+                atr == :haskey && (return NShaskey(ns))
+                atr == :iscst &&
+                    (return key ->
+                     (!haskey(ns.__dict, ) &&
+                          error("This NS does not have a key named $(atr)." );
+                      isa(ns.__dict[key], NScst_item)))
                 atr == :del      && (return NSdel(ns))
                 atr == :cstize   && (return NScstize(ns))
                 atr == :decstize && (return NSdecstize(ns))
@@ -273,6 +288,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 # tags
                 atr == :cst && (return NScst(ns))
                 atr == :prp && (return NSprp(ns))
+                atr == :fnc && (return NSfnc(ns))
                 atr == :mth && (return NSmth(ns))
                 atr == :dfn && (return NSdfn(ns))
                 atr == :req && (return NSreq(ns))
@@ -282,7 +298,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 
         if haskey((local d = ns.__dict), atr)
             x = d[atr].obj;
-            isa(x, Union{Prp, Mth}) && (return x(ns))
+            isa(x, Union{Prp, Mth, Fnc}) && (return x(ns))
             isa(x, Req) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
             return x
         else
@@ -410,6 +426,7 @@ Base.getproperty(x::NScst, atr::Symbol) =
         atr == :dfn && (return NScstdfn(x.ns))
         atr == :req && (return NScstreq(x.ns))
         atr == :prp && (return NScstprp(x.ns))
+        atr == :fnc && (return NScstfnc(x.ns))
         atr == :mth && (return NScstmth(x.ns))
         return Base.getfield(x, atr)
     end
@@ -450,10 +467,22 @@ _MakeItem(x::NSprp, f) = NSnoncst_item(prp(f))
 _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
 
 ################
+# NSfnc
+################
+
+abstract type AbstNSfnc <: AbstNStag end
+
+struct NSfnc{T <: AbstNS} <: AbstNSfnc ns::T end
+struct NScstfnc{T <: AbstNS} <: AbstNSfnc ns::T end
+
+_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f))
+_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f))
+
+################
 # NSmth
 ################
 abstract type AbstNSmth <: AbstNStag end
-
+#=
 Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
     Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
@@ -474,7 +503,7 @@ Base.getproperty(x::AbstNSmth, atr::Symbol) = begin
 
     Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
 end
-
+=#
 struct NSmth{T <: AbstNS} <: AbstNSmth ns::T end
 struct NScstmth{T <: AbstNS} <: AbstNSmth ns::T end
 

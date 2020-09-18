@@ -114,3 +114,70 @@ mth(fnc) = Mth(fnc)
 mutable struct SetPrp{T <: Any} <: AbstClassFunc fnc::T end
 (sprp::SetPrp)(self) = (a...; ka...)->sprp.fnc(self, a...; ka...)
 sprp(fnc) = SetPrp(fnc)
+
+###############################
+# fnc
+###############################
+
+struct _FncWrapper <: Function
+    f
+    _FncWrapper(f) = new(f)
+end
+
+(fnc::_FncWrapper)(a...; ka...) = fnc.f(a...; ka...)
+
+Base.getproperty(fnc::_FncWrapper, atr::Symbol) =
+begin
+    Base.hasfield(_FncWrapper, atr) && (return Base.getfield(fnc, atr))
+
+    atr == :push! &&
+        return (mth ->
+                (eval(:($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
+
+    atr == :append! && mthds -> (for f in mthds push!(fnc, f) end; fnc)
+
+    atr == :reset! &&
+        (for m in methods(fnc.f) Base.delete_method(m) end; return fnc)
+end
+
+mutable struct Fnc <: AbstClassFunc
+    fnclist::Vector{Function}
+    fnc::_FncWrapper
+    Fnc() = (f() = nothing;
+             for m in methods(f) Base.delete_method(m) end;
+             new(Vector{Function}[], _FncWrapper(f)))
+end
+
+Fnc(flst::Vector{Function}) = (fnc = Fnc(); fnc.append!(flst); fnc)
+Fnc(f::Function) = (fnc = Fnc(); fnc.push!(f); fnc)
+
+(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(tuple(self, a...); ka...)
+fnc(f) = Fnc(f)
+
+function Base.push!(fnc::Fnc, mth::Function)
+    push!(fnc.fnclist, mth)
+    fnc.fnc.push!(mth)
+    fnc
+end
+
+function Base.append!(fnc::_FncWrapper, mths::AbstractVector{Function})
+    for f in mths push!(fnc, f) end
+    fnc
+end
+
+Base.getproperty(fnc::Fnc, atr::Symbol) =
+begin
+    Base.hasfield(Fnc, atr) && (return Base.getfield(fnc, atr))
+
+    atr == :push! && (return f -> push!(fnc, f))
+
+    atr == :reset! &&
+        (fnc.fnc.reset!;
+         for f in fnc.fnclist push!(fnc.fnc, f) end;
+         return fnc)
+    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
+    atr == :init! &&
+        (f() = nothing;
+         fnc.fnc = _FncWrapper(f);
+         return fnc.reset!)
+end

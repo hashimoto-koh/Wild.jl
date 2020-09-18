@@ -235,6 +235,34 @@ _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
 # NSCodemth
 ################
 
+#=
+abstract type AbstNSCodemth <: AbstNSCodetag end
+
+Base.getproperty(x::AbstNSCodemth, atr::Symbol) = begin
+    Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
+
+    if !haskey(x.nsc, atr)
+        Base.setproperty!(x.nsc,
+                          atr,
+                          Mth((f() = nothing;
+                               Base.delete_method(Base.which(f, Tuple{}));
+                               f)))
+        return Base.getproperty(Base.getproperty(x.nsc, :mth), atr)
+    end
+
+    if isa(x.ns.__dict[atr], NSCodenoncst_item)
+        isa(x.nsc.__dict[atr].obj, Mth) && (return x.nsc.__dict[atr].obj.fnc)
+
+        x.nsc.__dict[atr] = Mth((f() = nothing;
+                               Base.delete_method(Base.which(f, Tuple{}));
+                               f))
+        return Base.getproperty(Base.getproperty(x.nsc, :mth), atr)
+    end
+
+    Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
+end
+=#
+
 struct NSCodemth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstmth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
