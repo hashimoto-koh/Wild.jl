@@ -124,7 +124,7 @@ struct _FncWrapper <: Function
     _FncWrapper(f) = new(f)
 end
 
-(fnc::_FncWrapper)(a...; ka...) = fnc.f(a...; ka...)
+(fnc::_FncWrapper)(a; ka...) = fnc.f(a...; ka...)
 
 Base.getproperty(fnc::_FncWrapper, atr::Symbol) =
 begin
