@@ -37,6 +37,8 @@ const _NS_fields = Set([:_keys,
                         :_noncst_keys,
                         :_clr,
                         :_copy,
+                        :copyout,
+                        :copyfrom,
                         :import,
                         :export,
                         :deepimport,
@@ -203,6 +205,107 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 #     : export all properties from g to new ns
                 # g.export(:a, :b, :c) #
                 #     : export properties :a, :b, :c from g to new ns
+                atr == :copyout &&
+                    (return (a::Vararg{Symbol}; exclude=[], deep=false) ->
+                     begin
+                         g = typeof(ns)()
+                         if deep
+                             if length(a) > 0
+                                 for k in a
+                                     if !(k in exclude)
+                                         x = deepcopy(ns.__dict[k].obj)
+                                         g.__dict[k] = (ns.iscst(k)
+                                                        ? NScst_item
+                                                        : NSnoncst_item)(x)
+                                     end
+                                 end
+                             else
+                                 for (k, w) in pairs(ns.__dict)
+                                     if !(k in exclude)
+                                         x = deepcopy(w.obj)
+                                         g.__dict[k] = (ns.iscst(k)
+                                                        ? NScst_item
+                                                        : NSnoncst_item)(x)
+                                     end
+                                 end
+                             end
+                         else
+                             if length(a) > 0
+                                 for k in a
+                                     if !(k in exclude)
+                                         v = ns.__dict[k].obj
+                                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                                         g.__dict[k] = (ns.iscst(k)
+                                                        ? NScst_item
+                                                        : NSnoncst_item)(x)
+                                     end
+                                 end
+                             else
+                                 for (k, w) in pairs(ns.__dict)
+                                     if !(k in exclude)
+                                         v = w.obj
+                                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                                         g.__dict[k] = (ns.iscst(k)
+                                                        ? NScst_item
+                                                        : NSnoncst_item)(x)
+                                     end
+                                 end
+                             end
+                         end
+                         g
+                     end
+                    )
+                atr == :copyfrom &&
+                    (return (g::AbstNS, a::Vararg{Symbol};
+                             exclude=[], deep=false) ->
+                         # ns.import(g.copyout(a...; exclude=exclude, deep=deep))
+                         begin
+                             if deep
+                                 if length(a) > 0
+                                     for k in a
+                                         if !(k in exclude)
+                                             x = deepcopy(g.__dict[k].obj)
+                                             ns.__dict[k] = (g.iscst(k)
+                                                             ? NScst_item
+                                                             : NSnoncst_item)(x)
+                                         end
+                                     end
+                                 else
+                                     for (k, w) in pairs(g.__dict)
+                                         if !(k in exclude)
+                                             x = deepcopy(w.obj)
+                                             ns.__dict[k] = (g.iscst(k)
+                                                             ? NScst_item
+                                                             : NSnoncst_item)(x)
+                                         end
+                                     end
+                                 end
+                             else
+                                 if length(a) > 0
+                                     for k in a
+                                         if !(k in exclude)
+                                             v = g.__dict[k].obj
+                                             x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                                             ns.__dict[k] = (g.iscst(k)
+                                                             ? NScst_item
+                                                             : NSnoncst_item)(x)
+                                         end
+                                     end
+                                 else
+                                     for (k, w) in pairs(g.__dict)
+                                         if !(k in exclude)
+                                             v = w.obj
+                                             x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                                             ns.__dict[k] = (g.iscst(k)
+                                                             ? NScst_item
+                                                             : NSnoncst_item)(x)
+                                         end
+                                     end
+                                 end
+                             end
+                             ns
+                         end
+                    )
                 atr == :export &&
                     (return (a::Vararg{Symbol}; exclude=[], deep=false) ->
                             begin
@@ -272,7 +375,17 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          length(atr) == 0 && (atr = ns._keys)
                          atr = [k for k in ns._keys if !(k in exclude)]
                          g = ns.export(atr...; exclude=exclude)
-                         Serialization.serialize(filename, g)
+
+                         _remove_fnc(x::AbstNS) = begin
+                             for key in x._keys
+                                 if isa(x.__dict[key].obj, Fnc)
+                                     x.__dict[key].obj.fnc = _FncWrapper(nothing)
+                                 elseif isa(x.__dict[key].obj, AbstNS)
+                                     _remove_fnc(x.__dict[key].obj)
+                                 end
+                             end
+                         end
+                         Serialization.serialize(filename, _remove_fnc(g))
                          g
                      end)
                 atr == :haskey && (return NShaskey(ns))
