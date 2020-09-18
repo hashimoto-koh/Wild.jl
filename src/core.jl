@@ -179,10 +179,7 @@ begin
          for f in fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
     atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
-    atr == :init! &&
-        (f() = nothing;
-         fnc.fnc = _FncWrapper(f);
-         return fnc.reset!)
+    atr == :init! && (fnc.fnc = _FncWrapper(fnclist); return fnc)
 
     Base.getfield(fnc, atr)
 end
