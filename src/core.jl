@@ -146,9 +146,9 @@ mutable struct Fnc <: AbstClassFunc
     fnclist::Vector{Function}
     fnc::_FncWrapper
     Fnc(f) = begin
-        fname =
-        g = eval(:((Symbol("_FncWrapper_"
-                       * string(bytes2hex(SHA.sha256(string(time_ns()))))))(a::Tuple{methods($(f)).mt.defs.sig.parameters[2:end]...}; ka...) = $(f)(a...; ka...)))
+        fname = Symbol("_FncWrapper_"
+                       * string(bytes2hex(SHA.sha256(string(time_ns())))))
+        g = eval(:($(fname)(a::Tuple{methods($(f)).mt.defs.sig.parameters[2:end]...}; ka...) = $(f)(a...; ka...)))
         new([f], _FncWrapper(g))
     end
 end
