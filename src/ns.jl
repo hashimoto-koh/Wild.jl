@@ -366,6 +366,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                      _init_fnc(x.__dict[key].obj)
                                  end
                              end
+                             x
                          end
                          ns.import(_init_fnc(Serialization.deserialize(filename)),
                                    atr...;
@@ -394,6 +395,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                      _remove_fnc(x.__dict[key].obj)
                                  end
                              end
+                             x
                          end
                          Serialization.serialize(filename, _remove_fnc(g))
                          g
