@@ -153,6 +153,7 @@ mutable struct Fnc <: AbstClassFunc
     end
 end
 Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
+Fnc(fnc::Fnc) = Fnc(fnc.fnclist)
 
 (fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
 fnc(f) = Fnc(f)
@@ -179,7 +180,7 @@ begin
          for f in fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
     atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
-    atr == :init! && (fnc.fnc = _FncWrapper(fnc.fnclist); return fnc)
+    atr == :init! && (fnc.fnc = Fnc(fnc).fnc; fnc)
 
     Base.getfield(fnc, atr)
 end
