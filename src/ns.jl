@@ -401,7 +401,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                 atr == :haskey && (return NShaskey(ns))
                 atr == :iscst &&
                     (return key ->
-                     (!haskey(ns.__dict, ) &&
+                     (!haskey(ns.__dict, key) &&
                           error("This NS does not have a key named $(atr)." );
                       isa(ns.__dict[key], NScst_item)))
                 atr == :del      && (return NSdel(ns))
