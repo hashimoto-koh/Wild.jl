@@ -358,8 +358,6 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                              filename[end-length(".ns")+1:end] != ".ns")
                              filename = filename * ".ns"
                          end
-                         ns.import(Serialization.deserialize(filename), atr...;
-                                   exclude=exclude)
                          _init_fnc(x::AbstNS) = begin
                              for key in x._keys
                                  if isa(x.__dict[key].obj, Fnc)
@@ -369,6 +367,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                                  end
                              end
                          end
+                         ns.import(_init_fnc(Serialization.deserialize(filename)),
+                                   atr...;
+                                   exclude=exclude)
                      end)
                 atr == :save &&
                     (return (filename::AbstractString,
