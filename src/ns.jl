@@ -384,7 +384,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
                          end
                          length(atr) == 0 && (atr = ns._keys)
                          atr = [k for k in ns._keys if !(k in exclude)]
-                         g = ns.copy(atr...; exclude=exclude)
+                         g = ns.copyout(atr...; exclude=exclude)
 
                          _remove_fnc(x::AbstNS) = begin
                              for key in x._keys
