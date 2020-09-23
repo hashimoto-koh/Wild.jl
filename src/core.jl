@@ -180,7 +180,7 @@ begin
          for f in fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
     atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
-    atr == :init! && (fnc.fnc = Fnc(fnc).fnc; fnc)
+    atr == :init! && (fnc.fnc = Fnc(fnc).fnc; return fnc)
 
     Base.getfield(fnc, atr)
 end
