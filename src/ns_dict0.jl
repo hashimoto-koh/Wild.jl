@@ -255,6 +255,7 @@ _NSdict0[:decstize] = ns -> NSdecstize(ns)
 # tags
 _NSdict0[:cst] = ns -> NScst(ns)
 _NSdict0[:prp] = ns -> NSprp(ns)
+_NSdict0[:sprp] = ns -> NSsprp(ns)
 _NSdict0[:fnc] = ns -> NSfnc(ns)
 _NSdict0[:mth] = ns -> NSmth(ns)
 _NSdict0[:dfn] = ns -> NSdfn(ns)

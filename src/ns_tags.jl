@@ -109,6 +109,7 @@ Base.getproperty(x::NScst, atr::Symbol) =
         atr == :dfn && (return NScstdfn(x.ns))
         atr == :req && (return NScstreq(x.ns))
         atr == :prp && (return NScstprp(x.ns))
+        atr == :sprp && (return NScstsprp(x.ns))
         atr == :fnc && (return NScstfnc(x.ns))
         atr == :mth && (return NScstmth(x.ns))
         return Base.getfield(x, atr)
@@ -148,6 +149,16 @@ struct NScstprp{T <: AbstNS} <: AbstNStag ns::T end
 
 _MakeItem(x::NSprp, f) = NSnoncst_item(prp(f))
 _MakeItem(x::NScstprp, f) = NScst_item(prp(f))
+
+################
+# NSsprp
+################
+
+struct NSsprp{T <: AbstNS} <: AbstNStag ns::T end
+struct NScstsprp{T <: AbstNS} <: AbstNStag ns::T end
+
+_MakeItem(x::NSsprp, f) = NSnoncst_item(sprp(f))
+_MakeItem(x::NScstsprp, f) = NScst_item(sprp(f))
 
 ################
 # NSfnc
