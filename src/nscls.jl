@@ -15,8 +15,8 @@ end
 
 c.fnc.init = (ns, g, i, x, y) -> c.init(g, i,, x, y, 10x+y)
 
-g1 = c(3,4,5)
-g2 = c(30,4)
+g1 = c(1, 3, 4, 5)
+g2 = c(2, 30, 4)
 
 c.toinstances = g ->
 begin
