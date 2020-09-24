@@ -30,7 +30,7 @@ struct NSCode <: AbstNSCode
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [(o ; ka...) -> (for (atr, val) in ka
+            #= __init           =# [(o ; ka...) -> (for (atr, val) ∈ ka
                                                         Base.setproperty!(o, atr, val)
                                                     end)],
             #= __cls            =# NS(),
@@ -84,19 +84,19 @@ end
         length(args) < na &&
             Base.error("number of args should be equal to or larger than $na")
 
-        for (atr, val) in zip(nsc.__args, args[1:na])
+        for (atr, val) ∈ zip(nsc.__args, args[1:na])
             Base.setproperty!(o, atr, val)
         end
 
-        for (atr, val) in nsc.__kargs
-            Base.setproperty!(o, atr, atr in keys(kargs) ? kargs[atr] : val)
+        for (atr, val) ∈ nsc.__kargs
+            Base.setproperty!(o, atr, atr ∈ keys(kargs) ? kargs[atr] : val)
         end
 
         nsc.__init[1](o, args[na+1:end]...;
                       Dict((k,v)
-                           for (k,v) in kargs if !(k in keys(nsc.__kargs)))...)
+                           for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
-        for (atr, val) in nsc.__code
+        for (atr, val) ∈ nsc.__code
             push_to_instance(o, atr, val)
         end
 
@@ -113,12 +113,12 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         atr == :init &&
             (nsc.__init[1] = x; return)
 
-        atr in (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
+        atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
 
         nsc.__link_instances &&
             tfary(i->push_to_instance(i, atr, x),
-                  (i for (a, k, i) in nsc.__instances))
+                  (i for (a, k, i) ∈ nsc.__instances))
 
         push!(nsc.__code, (atr, x))
     end
@@ -141,7 +141,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         atr == :fnc && (return NSCodefnc(nsc))
         atr == :mth && (return NSCodemth(nsc))
 
-        atr == :_instances && (return [i for (a, k, i) in nsc.__instances])
+        atr == :_instances && (return [i for (a, k, i) ∈ nsc.__instances])
         atr == :_clr_instances &&
             (deleteat!(nsc.__instances, 1:length(nsc.__instances)); return)
 

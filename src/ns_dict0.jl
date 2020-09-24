@@ -14,12 +14,12 @@ _NSdict0[:_fixed] = ns -> ns.__fix_lck[1]
 _NSdict0[:_lcked] = ns -> ns.__fix_lck[2]
 _NSdict0[:_frzed] = ns -> all(ns.__fix_lck)
 _NSdict0[:_keys] = ns -> Tuple(Base.keys(ns.__dict))
-_NSdict0[:_vals] = ns -> Tuple(x.obj for x in Base.values(ns.__dict))
+_NSdict0[:_vals] = ns -> Tuple(x.obj for x ∈ Base.values(ns.__dict))
 _NSdict0[:_keyvals] = ns -> (; zip(ns._keys, ns._vals)...)
 _NSdict0[:_printkeyvals] =
-    ns -> ([println(k, ": ", v) for (k,v) in pairs(ns._keyvals)]; return)
+    ns -> ([println(k, ": ", v) for (k,v) ∈ pairs(ns._keyvals)]; return)
 _NSdict0[:_printkeytypes] =
-    ns -> ([println(k, ": ", typeof(v)) for (k,v) in pairs(ns._keyvals)]; return)
+    ns -> ([println(k, ": ", typeof(v)) for (k,v) ∈ pairs(ns._keyvals)]; return)
 _NSdict0[:_fix] = ns -> (ns.__fix_lck[1] = true; ns)
 _NSdict0[:_unfix] = ns -> (ns.__fix_lck[1] = false; ns)
 _NSdict0[:_lck] = ns -> (ns.__fix_lck[2] = true;  ns)
@@ -29,9 +29,9 @@ _NSdict0[:_unfrz] = ns -> (ns.__fix_lck[1] = ns.__fix_lck[2] = false; ns)
 _NSdict0[:_clr] = ns -> (ns.del(); ns)
 _NSdict0[:_copy] = ns -> deepcopy(ns)
 _NSdict0[:_cst_keys] =
-    ns -> (d = ns.__dict; [k for k in Base.keys(d) if isa(d[k], NScst_item)])
+    ns -> (d = ns.__dict; [k for k ∈ Base.keys(d) if isa(d[k], NScst_item)])
 _NSdict0[:_noncst_keys] =
-    ns -> (d = ns.__dict; [k for k in Base.keys(d) if isa(d[k], NSnoncst_item)])
+    ns -> (d = ns.__dict; [k for k ∈ Base.keys(d) if isa(d[k], NSnoncst_item)])
 _NSdict0[:import] = ns ->
     ((g::AbstNS, a::Vararg{Symbol}; exclude=[], deep=false) ->
      begin
@@ -39,22 +39,22 @@ _NSdict0[:import] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a
-                     (k in exclude) || (d[k] = deepcopy(gd[k]))
+                 for k ∈ a
+                     k ∉ exclude && (d[k] = deepcopy(gd[k]))
                  end
              else
-                 for (k, v) in pairs(gd)
-                     (k in exclude) || (d[k] = deepcopy(v))
+                 for (k, v) ∈ pairs(gd)
+                     k ∉ exclude && (d[k] = deepcopy(v))
                  end
              end
          else
              if length(a) > 0
-                 for k in a
-                     (k in exclude) || (d[k] = gd[k])
+                 for k ∈ a
+                     k ∉ exclude && (d[k] = gd[k])
                  end
              else
-                 for (k, v) in pairs(gd)
-                     (k in exclude) || (d[k] = v)
+                 for (k, v) ∈ pairs(gd)
+                     k ∉ exclude && (d[k] = v)
                  end
              end
          end
@@ -68,15 +68,15 @@ _NSdict0[:copyout] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a
-                     if !(k in exclude)
+                 for k ∈ a
+                     if k ∉ exclude
                          x = deepcopy(d[k].obj)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
              else
-                 for (k, w) in pairs(d)
-                     if !(k in exclude)
+                 for (k, w) ∈ pairs(d)
+                     if k ∉ exclude
                          x = deepcopy(w.obj)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
@@ -84,16 +84,16 @@ _NSdict0[:copyout] = ns ->
              end
          else
              if length(a) > 0
-                 for k in a
-                     if !(k in exclude)
+                 for k ∈ a
+                     if k ∉ exclude
                          v = d[k].obj
                          x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
              else
-                 for (k, w) in pairs(d)
-                     if !(k in exclude)
+                 for (k, w) ∈ pairs(d)
+                     if k ∉ exclude
                          v = w.obj
                          x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
@@ -111,15 +111,15 @@ _NSdict0[:copyfrom] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a
-                     if !(k in exclude)
+                 for k ∈ a
+                     if k ∉ exclude
                          x = deepcopy(gd[k].obj)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
              else
-                 for (k, w) in pairs(gd)
-                     if !(k in exclude)
+                 for (k, w) ∈ pairs(gd)
+                     if k ∉ exclude
                          x = deepcopy(w.obj)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
@@ -127,16 +127,16 @@ _NSdict0[:copyfrom] = ns ->
              end
          else
              if length(a) > 0
-                 for k in a
-                     if !(k in exclude)
+                 for k ∈ a
+                     if k ∉ exclude
                          v = gd[k].obj
                          x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
              else
-                 for (k, w) in pairs(gd)
-                     if !(k in exclude)
+                 for (k, w) ∈ pairs(gd)
+                     if k ∉ exclude
                          v = w.obj
                          x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
@@ -158,22 +158,22 @@ _NSdict0[:export] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a
-                     (k in exclude) || (gd[k] = deepcopy(d[k]))
+                 for k ∈ a
+                     k ∉ exclude && (gd[k] = deepcopy(d[k]))
                  end
              else
-                 for (k, v) in pairs(d)
-                     (k in exclude) || (gd[k] = deepcopy(v))
+                 for (k, v) ∈ pairs(d)
+                     k ∉ exclude && (gd[k] = deepcopy(v))
                  end
              end
          else
              if length(a) > 0
-                 for k in a
-                     (k in exclude) || (gd[k] = d[k])
+                 for k ∈ a
+                     k ∉ exclude && (gd[k] = d[k])
                  end
              else
-                 for (k, v) in pairs(ns.__dict)
-                     (k in exclude) || (gd[k] = v)
+                 for (k, v) ∈ pairs(ns.__dict)
+                     k ∉ exclude && (gd[k] = v)
                  end
              end
          end
@@ -202,7 +202,7 @@ _NSdict0[:load] = ns ->
      end
 
          _init_fnc(x::AbstNS) = begin
-             for key in x._keys
+             for key ∈ x._keys
                  if isa(x.__dict[key].obj, Fnc)
                      x.__dict[key].obj.init!
                  elseif isa(x.__dict[key].obj, AbstNS)
@@ -227,11 +227,11 @@ _NSdict0[:save] = ns ->
              filename = filename * ".ns"
          end
          length(atr) == 0 && (atr = ns._keys)
-         atr = [k for k in ns._keys if !(k in exclude)]
+         atr = [k for k ∈ ns._keys if k ∉ exclude]
          g = ns.copyout(atr...; exclude=exclude)
 
          _remove_fnc(x::AbstNS) = begin
-             for key in x._keys
+             for key ∈ x._keys
                  if isa(x.__dict[key].obj, Fnc)
                      x.__dict[key].obj.fnc = _FncWrapper(nothing)
                  elseif isa(x.__dict[key].obj, AbstNS)

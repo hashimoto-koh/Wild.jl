@@ -51,7 +51,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         atr == :exe && (return x(ns))
 
-        atr in Base.keys(_NSdict0) &&
+        atr ∈ Base.keys(_NSdict0) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
         if haskey(ns.__dict, atr)
@@ -75,7 +75,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         ns
     end
 
-Base.haskey(o::AbstNS, key::Symbol) = key in o._keys
+Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
 
 Base.propertynames(ns::AbstNS, private=false) =
     tuple(Base.keys(ns.__dict)...,
@@ -94,10 +94,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
 
         d = ns.__dict
-        if !haskey(d, atr)
-            # x -> (Base.setproperty!(ns, atr, x); ns)
+
+        haskey(d, atr) ||
             error("""This NS does not have a property named "$(atr)".""")
-        end
+            # x -> (Base.setproperty!(ns, atr, x); ns)
 
         x = d[atr].obj;
         isa(x, Union{Prp, Mth, Fnc}) && (return x(ns))

@@ -53,7 +53,7 @@ struct NSCls <: AbstNSCls
                     #= __instances =#
                     keep_instances ? Vector{AbstNS}() : nothing)
             x.cst.sprp.toinstances = (cls, f) -> isnothing(cls.__instances) ||
-                                                 [f(g) for g in cls.__instances]
+                                                 [f(g) for g ∈ cls.__instances]
             x
         end
 end

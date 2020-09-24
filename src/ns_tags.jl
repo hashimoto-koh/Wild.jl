@@ -4,10 +4,10 @@
 struct NShaskey{T <: AbstNS} <: Function ns::T end
 
 Base.getproperty(x::NShaskey, atr::Symbol) =
-    hasfield(typeof(x), atr) ? Base.getfield(x, atr) : (atr in x.ns._keys)
+    hasfield(typeof(x), atr) ? Base.getfield(x, atr) : (atr ∈ x.ns._keys)
 
-(x::NShaskey)(atr::Symbol) = atr in x.ns._keys
-(x::NShaskey)(atr::Symbol...) = (keys = x.ns._keys; collect(a in keys for a in atr))
+(x::NShaskey)(atr::Symbol) = atr ∈ x.ns._keys
+(x::NShaskey)(atr::Symbol...) = (keys = x.ns._keys; collect(a ∈ keys for a ∈ atr))
 
 ################
 # NSdel
@@ -33,7 +33,7 @@ Base.getproperty(x::NSdel, atr::Symbol) =
             x.ns._lcked && error("this NS is locked!")
             empty!(x.ns.__dict)
         else
-            for a in atr; Base.getproperty(x, a); end
+            for a ∈ atr; Base.getproperty(x, a); end
         end
         x.ns
     end
@@ -51,11 +51,12 @@ Base.getproperty(x::NScstize, atr::Symbol) =
 
         x.ns._fixed && error("this NS is fixed!")
 
-        if haskey((local d = x.ns.__dict), atr)
-            isa(d[atr], NSnoncst_item) && (d[atr] = NScst_item(d[atr].obj))
-        else
+        d = x.ns.__dict
+
+        haskey(d, atr) ||
             error("""This NS does not have a property named "$(atr)".""")
-        end
+
+        isa(d[atr], NSnoncst_item) && (d[atr] = NScst_item(d[atr].obj))
 
         x.ns
     end
@@ -66,12 +67,13 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 
         x.ns._fixed && error("this NS is fixed!")
 
-        if haskey((local d = x.ns.__dict), atr)
-            isa(x.ns.__dict[atr], NScst_item) &&
-                (x.ns.__dict[atr] = NSnoncst_item(x.ns.__dict[atr].obj))
-        else
+        d = x.ns.__dict
+
+        haskey(d, atr) ||
             error("""This NS does not have a property named "$(atr)".""")
-        end
+
+        isa(x.ns.__dict[atr], NScst_item) &&
+            (x.ns.__dict[atr] = NSnoncst_item(x.ns.__dict[atr].obj))
 
         x.ns
     end
@@ -80,7 +82,7 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
     begin
         length(atr) == 0 && (return x(x.ns._keys...))
 
-        for a in atr; Base.getproperty(x, a); end
+        for a ∈ atr; Base.getproperty(x, a); end
         x.ns
     end
 

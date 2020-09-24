@@ -140,10 +140,10 @@ begin
         return (mth ->
                 (eval(:($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
 
-    atr == :append! && (return mthds -> (for f in mthds push!(fnc, f) end; fnc))
+    atr == :append! && (return mthds -> (for f ∈ mthds push!(fnc, f) end; fnc))
 
     atr == :reset! &&
-        (for m in methods(fnc.f) Base.delete_method(m) end; return fnc)
+        (for m ∈ methods(fnc.f) Base.delete_method(m) end; return fnc)
 
     Base.getfield(fnc, atr)
 end
@@ -171,7 +171,7 @@ function Base.push!(fnc::Fnc, mth::Function)
 end
 
 function Base.append!(fnc::Fnc, mths::AbstractVector{Function})
-    for f in mths push!(fnc, f) end
+    for f ∈ mths push!(fnc, f) end
     fnc
 end
 
@@ -183,7 +183,7 @@ begin
     atr == :append! && (return fncs -> append!(fnc, fncs))
     atr == :reset! &&
         (fnc.fnc.reset!;
-         for f in fnc.fnclist push!(fnc.fnc, f) end;
+         for f ∈ fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
     atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
     atr == :init! && (fnc.fnc = Fnc(fnc).fnc; return fnc)
