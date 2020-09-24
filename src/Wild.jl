@@ -12,6 +12,7 @@ export dfn, req, prp, mth, sprp
 include("functionalize.jl")
 export arg, cry, wc, wd, @cry
 
+include("ns_dict0.jl")
 include("ns.jl")
 export AbstNS, NS
 export NSGen, nsgen, ns, AbstNSitem
