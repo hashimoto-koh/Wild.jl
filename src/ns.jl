@@ -57,7 +57,9 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         if haskey(ns.__dict, atr)
             ns._fixed && Base.error("this NS is fixed!")
 
-            if isa(x, AbstNSitem) && isa(x.obj, Fnc)
+            if isa(ns.__dict[atr].obj, SetPrp)
+                ns.__dict[atr].obj.fnc(ns, x)
+            elseif isa(x, AbstNSitem) && isa(x.obj, Fnc)
                 if isa(ns.__dict[atr].obj, Fnc)
                     ns.__dict[atr].obj.append!(x.obj.fnclist)
                 else
