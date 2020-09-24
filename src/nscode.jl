@@ -129,6 +129,8 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         if atr == :exe return f -> Base.setproperty!(nsc, atr, f) end
         =#
 
+        atr == :cls && (return nsc.__cls)
+
         atr == :cst && (return NSCodecst(nsc))
 
         atr == :dfn && (return NSCodedfn(nsc))
