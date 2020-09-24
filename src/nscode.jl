@@ -65,10 +65,12 @@ function push_to_instance(o, atr, val)
         else
             Base.setproperty!(y, atr, val)
         end
-    elseif !hasfield(typeof(val.obj), :fnc)
-        Base.setproperty!(y, atr, val.obj)
-    else
+    elseif isa(val.obj, Union{Dfn, Prp, SetPrp, Mth})
         Base.setproperty!(y, atr, val.obj.fnc)
+    elseif isa(val.obj, Fnc)
+        Base.setproperty!(y, atr, val.obj.fnclist[1])
+    else
+        Base.setproperty!(y, atr, val.obj)
     end
 end
 
