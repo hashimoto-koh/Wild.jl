@@ -21,19 +21,19 @@ _NSdict0[:_printkeyvals] =
 _NSdict0[:_printkeytypes] =
     ns -> ([println(k, ": ", typeof(v)) for (k,v) in pairs(ns._keyvals)]; return)
 _NSdict0[:_fix] = ns -> (ns.__fix_lck[1] = true; ns)
-_NSdict0[:_unfix] = ns -> (ns.__fix_lck[1] = false; return ns)
-_NSdict0[:_lck] = ns -> (ns.__fix_lck[2] = true;  return ns)
-_NSdict0[:_unlck] = ns -> (ns.__fix_lck[2] = false; return ns)
-_NSdict0[:_frz] = ns -> (ns.__fix_lck[1] = ns.__fix_lck[2] = true; return ns)
-_NSdict0[:_unfrz] = ns -> (ns.__fix_lck[1] = ns.__fix_lck[2] = false; return ns)
-_NSdict0[:_clr] = ns -> (ns.del(); return ns)
+_NSdict0[:_unfix] = ns -> (ns.__fix_lck[1] = false; ns)
+_NSdict0[:_lck] = ns -> (ns.__fix_lck[2] = true;  ns)
+_NSdict0[:_unlck] = ns -> (ns.__fix_lck[2] = false; ns)
+_NSdict0[:_frz] = ns -> (ns.__fix_lck[1] = ns.__fix_lck[2] = true; ns)
+_NSdict0[:_unfrz] = ns -> (ns.__fix_lck[1] = ns.__fix_lck[2] = false; ns)
+_NSdict0[:_clr] = ns -> (ns.del(); ns)
 _NSdict0[:_copy] = ns -> deepcopy(ns)
 _NSdict0[:_cst_keys] =
     ns -> (d = ns.__dict; [k for k in ns._keys if isa(d[k], NScst_item)])
 _NSdict0[:_noncst_keys] =
     ns -> (d = ns.__dict; [k for k in ns._keys if isa(d[k], NSnoncst_item)])
 _NSdict0[:import] = ns ->
-    (return (g::AbstNS, a::Vararg{Symbol}; exclude=[], deep=false) ->
+    ((g::AbstNS, a::Vararg{Symbol}; exclude=[], deep=false) ->
      begin
          if deep
              if length(a) > 0
@@ -59,7 +59,7 @@ _NSdict0[:import] = ns ->
          ns
      end)
 _NSdict0[:copyout] = ns ->
-    (return (a::Vararg{Symbol}; exclude=[], deep=false) ->
+    ((a::Vararg{Symbol}; exclude=[], deep=false) ->
      begin
          g = typeof(ns)()
          if deep
@@ -108,7 +108,7 @@ _NSdict0[:copyout] = ns ->
          g
      end)
 _NSdict0[:copyfrom] = ns ->
-    (return (g::AbstNS, a::Vararg{Symbol}; exclude=[], deep=false) ->
+    ((g::AbstNS, a::Vararg{Symbol}; exclude=[], deep=false) ->
      # ns.import(g.copyout(a...; exclude=exclude, deep=deep))
      begin
          if deep
@@ -161,7 +161,7 @@ _NSdict0[:copyfrom] = ns ->
 # g.export(:a, :b, :c) #
 #     : export properties :a, :b, :c from g to new ns
 _NSdict0[:export] = ns ->
-    (return (a::Vararg{Symbol}; exclude=[], deep=false) ->
+    ((a::Vararg{Symbol}; exclude=[], deep=false) ->
      begin
          g = typeof(ns)()
          if deep
@@ -188,20 +188,20 @@ _NSdict0[:export] = ns ->
          g
      end)
 _NSdict0[:deepimport] = ns ->
-    (return (g::AbstNS, a::Vararg{Symbol}; exclude=[]) ->
-             ns.import(g, a...; exclude=exclude, deep=true))
+    ((g::AbstNS, a::Vararg{Symbol}; exclude=[]) ->
+     ns.import(g, a...; exclude=exclude, deep=true))
 _NSdict0[:deepexport] = ns ->
-    (return (a::Vararg{Symbol}; exclude=[]) ->
-            ns.export(a...; exclude=exclude, deep=true))
+    ((a::Vararg{Symbol}; exclude=[]) -> ns.export(a...; exclude=exclude, deep=true))
+
 # g.load("x.ns")
 #     : load "x.ns" and import all properties from it
 # g.load("x.ns", :a, :b, :c)
 #     : load "x.ns" and import properties :a, :b, :c from it
 _NSdict0[:load] = ns ->
-    (return (filename::AbstractString,
-             atr::Vararg{Symbol};
-             exclude=[],
-             forcename=false) ->
+    ((filename::AbstractString,
+      atr::Vararg{Symbol};
+      exclude=[],
+      forcename=false) ->
      begin
          if !forcename &&
             (length(filename) < length("a.ns") ||
@@ -223,10 +223,10 @@ _NSdict0[:load] = ns ->
                    exclude=exclude)
      end)
 _NSdict0[:save] = ns ->
-    (return (filename::AbstractString,
-             atr::Vararg{Symbol};
-             exclude=[],
-             forcename=false) ->
+    ((filename::AbstractString,
+      atr::Vararg{Symbol};
+      exclude=[],
+      forcename=false) ->
      begin
          if !forcename &&
             (length(filename) < length("a.ns") ||
