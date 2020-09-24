@@ -23,10 +23,10 @@ end
 
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2,Bool}
+    __fix_lck::MVector{2, Bool}
 
     NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-               #= __fix_lck =# MVector{2,Bool}(false, false))
+               #= __fix_lck =# MVector{2, Bool}(false, false))
 end
 
 ################
@@ -35,10 +35,10 @@ end
 
 struct NSGen{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2,Bool}
+    __fix_lck::MVector{2, Bool}
 
     NSGen{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-                                #= __fix_lck =# MVector{2,Bool}(false, false))
+                                #= __fix_lck =# MVector{2, Bool}(false, false))
 end
 
 ################
@@ -147,10 +147,10 @@ struct NSXinit{X} end
 abstract type AbstNSX <: AbstNS end
 struct NSX{X} <: AbstNSX
     __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2,Bool}
+    __fix_lck::MVector{2, Bool}
     global NSXinit{X}() where X =
         new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(),
-                             MVector{2,Bool}(false, false))
+                             MVector{2, Bool}(false, false))
 end
 
 NSX{X}() where X = NSXinit{NSX{X}}()
