@@ -42,6 +42,12 @@ macro mth(ex)
                : Expr(:call, :Mth, ex))
 end
 
+macro fnc(ex)
+    return esc(ex.head == :(=)
+               ? Expr(:(=), ex.args[1], Expr(:call, :Fnc, ex.args[2]))
+               : Expr(:call, :Fnc, ex))
+end
+
 macro sprp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=), ex.args[1], Expr(:call, :SetPrp, ex.args[2]))

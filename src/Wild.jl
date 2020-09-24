@@ -2,12 +2,12 @@ module Wild
 
 include("core.jl")
 export AbstTagFunc
-export @dfn, @req, @prp, @mth, @sprp
+export @dfn, @req, @prp, @mth, @fnc, @sprp
 export AbstFunc, AbstPrpFunc, AbstMthFunc
 export @prpfnc, @mthfnc
 export AbstClassFunc
-export Dfn, Req, Prp, Mth, SetPrp
-export dfn, req, prp, mth, sprp
+export Dfn, Req, Prp, Mth, SetPrp, Fnc
+export dfn, req, prp, mth, sprp, fnc
 
 include("functionalize.jl")
 export arg, cry, wc, wd, @cry
