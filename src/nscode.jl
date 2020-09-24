@@ -18,7 +18,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Function}
+    __init::Array{Fnc}
     __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
@@ -30,9 +30,10 @@ struct NSCode <: AbstNSCode
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [(o ; ka...) -> (for (atr, val) ∈ ka
-                                                        Base.setproperty!(o, atr, val)
-                                                    end)],
+            #= __init           =# [Fnc((o ; ka...) ->
+                                        (for (atr, val) ∈ ka
+                                         Base.setproperty!(o, atr, val)
+                                         end))],
             #= __cls            =# NS(),
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
@@ -92,9 +93,8 @@ end
             Base.setproperty!(o, atr, atr ∈ keys(kargs) ? kargs[atr] : val)
         end
 
-        nsc.__init[1](o, args[na+1:end]...;
-                      Dict((k,v)
-                           for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
+        nsc.__init[1](o)(args[na+1:end]...;
+                         Dict((k,v) for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
         for (atr, val) ∈ nsc.__code
             push_to_instance(o, atr, val)
@@ -111,7 +111,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
             (Base.setfield!(nsc, atr, x); return)
 
         atr == :init &&
-            (nsc.__init[1] = x; return)
+            (nsc.__init[1].push!(x); return)
 
         atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
@@ -131,6 +131,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         =#
 
         atr == :cls && (return nsc.__cls)
+        atr == :init && (return nsc.__init[1])
 
         atr == :cst && (return NSCodecst(nsc))
 
