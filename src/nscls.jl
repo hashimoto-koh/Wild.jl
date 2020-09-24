@@ -30,7 +30,7 @@ c.toinstances = g -> g.f(cos);
 
 =#
 
-struct AbstNSCls <: AbstNS end
+abstract type AbstNSCls <: AbstNS end
 
 struct NSCls <: AbstNSCls
     __dict::OrderedDict{Symbol, AbstNSitem}
