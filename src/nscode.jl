@@ -19,7 +19,7 @@ struct NSCode <: AbstNSCode
     __instances
     __link_instances::Bool
     __init::Array{Function}
-
+    __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
 
@@ -33,6 +33,7 @@ struct NSCode <: AbstNSCode
             #= __init           =# [(o ; ka...) -> (for (atr, val) in ka
                                                         Base.setproperty!(o, atr, val)
                                                     end)],
+            #= __cls            =# NS(),
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
 end
@@ -110,7 +111,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         atr == :init &&
             (nsc.__init[1] = x; return)
 
-        atr in (:cst, :dfn, :req, :prp, :mth, :fnc) &&
+        atr in (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
 
         nsc.__link_instances &&
@@ -122,6 +123,8 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
 
 Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
     begin
+        Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
+
         #=
         if atr == :exe return f -> Base.setproperty!(nsc, atr, f) end
         =#
@@ -137,6 +140,8 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
         atr == :_instances && (return [i for (a, k, i) in nsc.__instances])
         atr == :_clr_instances &&
             (deleteat!(nsc.__instances, 1:length(nsc.__instances)); return)
+
+        haskey(nsc.__cls, atr) && (return Base.getproperty(nsc.__cls, atr))
 
         Base.getfield(nsc, atr)
     end
