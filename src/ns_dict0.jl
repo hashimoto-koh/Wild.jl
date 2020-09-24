@@ -39,15 +39,23 @@ _NSdict0[:import] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a (k in exclude) || (d[k] = deepcopy(gd[k])) end
+                 for k in a
+                     (k in exclude) || (d[k] = deepcopy(gd[k]))
+                 end
              else
-                 for (k, v) in pairs(gd) (k in exclude) || (d[k] = deepcopy(v)) end
+                 for (k, v) in pairs(gd)
+                     (k in exclude) || (d[k] = deepcopy(v))
+                 end
              end
          else
              if length(a) > 0
-                 for k in a (k in exclude) || (d[k] = gd[k]) end
+                 for k in a
+                     (k in exclude) || (d[k] = gd[k])
+                 end
              else
-                 for (k, v) in pairs(gd) (k in exclude) || (d[k] = v) end
+                 for (k, v) in pairs(gd)
+                     (k in exclude) || (d[k] = v)
+                 end
              end
          end
          ns
@@ -150,15 +158,23 @@ _NSdict0[:export] = ns ->
          gd = g.__dict
          if deep
              if length(a) > 0
-                 for k in a (k in exclude) || (gd[k] = deepcopy(d[k])) end
+                 for k in a
+                     (k in exclude) || (gd[k] = deepcopy(d[k]))
+                 end
              else
-                 for (k, v) in pairs(d) (k in exclude) || (gd[k] = deepcopy(v)) end
+                 for (k, v) in pairs(d)
+                     (k in exclude) || (gd[k] = deepcopy(v))
+                 end
              end
          else
              if length(a) > 0
-                 for k in a (k in exclude) || (gd[k] = d[k]) end
+                 for k in a
+                     (k in exclude) || (gd[k] = d[k])
+                 end
              else
-                 for (k, v) in pairs(ns.__dict) (k in exclude) || (gd[k] = v) end
+                 for (k, v) in pairs(ns.__dict)
+                     (k in exclude) || (gd[k] = v)
+                 end
              end
          end
          g
