@@ -1,5 +1,5 @@
-import DataStructures.OrderedDict
-import StaticArrays:MVector
+import DataStructures: OrderedDict
+import StaticArrays: MVector
 import Serialization
 import SHA
 
