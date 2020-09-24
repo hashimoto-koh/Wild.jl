@@ -37,7 +37,8 @@ struct NSCls <: AbstNSCls
     __fix_lck::MVector{2, Bool}
     __type::Type
     __instances::Union{Nothing, Vector{AbstNS}}
-    NSCls(name=nothing, keep_instances=false) =
+    NSCls(name::Union{Nothing, AbstractString, Symbol}=nothing,
+          keep_instances::Bool=false) =
         begin
             name = (isnothing(name)
                     ? Symbol("NS_"*string(bytes2hex(SHA.sha256(string(time_ns())))))
@@ -50,7 +51,7 @@ struct NSCls <: AbstNSCls
                     #= __type    =#
                     Type,
                     #= __instances =#
-                    keep_instances ? Vector{Type}() : nothing)
+                    keep_instances ? Vector{AbstNS}() : nothing)
             x.cst.sprp.toinstances = (cls, f) -> isnothing(cls.__instances) ||
                                                  [f(g) for g in cls.__instances]
             x
