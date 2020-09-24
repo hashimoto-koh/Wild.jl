@@ -19,6 +19,9 @@ export AbstNS, NS
 export NSGen, nsgen, ns, AbstNSitem
 export AbstNSX, NSX, NSXinit, prm, nsx
 
+include("nscls.jl")
+export AbstNSCls, NSCls
+
 include("nscode.jl")
 export AbstNSCode, NSCode
 
