@@ -117,8 +117,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
             Base.error("'" * string(:atr) * "' can't be used for property")
 
         nsc.__link_instances &&
-            tfary(i->push_to_instance(i, atr, x),
-                  (i for (a, k, i) ∈ nsc.__instances))
+            [push_to_instance(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
         push!(nsc.__code, (atr, x))
     end
