@@ -14,6 +14,7 @@ export arg, cry, wc, wd, @cry
 
 include("ns_dict0.jl")
 include("ns.jl")
+include("ns_tags.jl")
 export AbstNS, NS
 export NSGen, nsgen, ns, AbstNSitem
 export AbstNSX, NSX, NSXinit, prm, nsx
