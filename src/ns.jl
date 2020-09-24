@@ -21,8 +21,6 @@ end
 # NS
 ################
 
-abstract type AbstNS end
-
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2,Bool}
