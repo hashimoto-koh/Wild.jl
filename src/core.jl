@@ -165,7 +165,7 @@ Fnc(flst::Vector{Function}, mdl=@__MODULE__) = (fnc = Fnc(flst[1], mdl); fnc.app
 Fnc(fnc::Fnc, mdl=@__MODULE__) = Fnc(fnc.fnclist, mdl)
 
 (fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
-fnc(f) = Fnc(f)
+fnc(f, mdl=@__MODULE__) = Fnc(f, mdl)
 
 function Base.push!(fnc::Fnc, mth::Function)
     push!(fnc.fnclist, mth)
