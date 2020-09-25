@@ -70,10 +70,8 @@ function push_to_instance(o, atr, val)
         else
             Base.setproperty!(y, atr, val)
         end
-    elseif isa(val.obj, Union{Dfn, Prp, SetPrp, Mth})
+    elseif isa(val.obj, Union{Dfn, Prp, SetPrp, Mth, Fnc})
         Base.setproperty!(y, atr, val.obj.fnc)
-    elseif isa(val.obj, Fnc)
-        Base.setproperty!(y, atr, val.obj.fnclist[1])
     else
         Base.setproperty!(y, atr, val.obj)
     end
