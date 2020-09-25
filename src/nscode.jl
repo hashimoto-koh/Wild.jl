@@ -18,7 +18,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Fnc}
+    __init::Array{Mth}
     __cls::NS
     __mdl::Module
     _instances::Nothing
@@ -31,10 +31,10 @@ struct NSCode <: AbstNSCode
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [Fnc((o ; ka...) ->
+            #= __init           =# [Mth((o ; ka...) ->
                                         (for (atr, val) ∈ ka
                                          Base.setproperty!(o, atr, val)
-                                         end), __mdl)],
+                                         end))],
             #= __cls            =# NS(__mdl),
             #= __mdl            =# __mdl,
             #= _instances       =# nothing,
@@ -117,7 +117,8 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
             (Base.setfield!(nsc, atr, x); return)
 
         atr == :init &&
-            (nsc.__init[1].push!(x); return)
+            (nsc.__init[1] = Mth(x); return)
+#            (nsc.__init[1].push!(x); return)
 
         atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
