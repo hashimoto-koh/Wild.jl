@@ -34,7 +34,7 @@ struct NSCode <: AbstNSCode
             #= __init           =# [Fnc((o ; ka...) ->
                                         (for (atr, val) ∈ ka
                                          Base.setproperty!(o, atr, val)
-                                         end))],
+                                         end), mdl)],
             #= __cls            =# NS(__mdl),
             #= __mdl            =# __mdl,
             #= _instances       =# nothing,
