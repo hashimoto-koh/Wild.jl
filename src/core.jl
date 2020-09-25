@@ -188,8 +188,8 @@ begin
         (fnc.fnc.reset!;
          for f ∈ fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
-    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing, fnc.mdl); return fnc)
-    atr == :init! && (fnc.fnc = Fnc(fnc, fnc.mdl).fnc; return fnc)
+    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing, fnc.fnc._mdl); return fnc)
+    atr == :init! && (fnc.fnc = Fnc(fnc, fnc.fnc._mdl).fnc; return fnc)
 
     Base.getfield(fnc, atr)
 end
