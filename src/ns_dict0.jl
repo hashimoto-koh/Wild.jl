@@ -233,7 +233,8 @@ _NSdict0[:save] = ns ->
          _remove_fnc(x::AbstNS) = begin
              for key ∈ x._keys
                  if isa(x.__dict[key].obj, Fnc)
-                     x.__dict[key].obj.fnc = _FncWrapper(nothing)
+                     x.__dict[key].obj.fnc = _FncWrapper(nothing,
+                                                         x.__dict[key].obj.fnc._mdl)
                  elseif isa(x.__dict[key].obj, AbstNS)
                      _remove_fnc(x.__dict[key].obj)
                  end

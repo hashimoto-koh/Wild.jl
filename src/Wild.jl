@@ -23,7 +23,7 @@ include("nscls.jl")
 export AbstNSCls, NSCls
 
 include("nscode.jl")
-export AbstNSCode, NSCode
+export AbstNSCode, NSCode, @NSCode
 
 include("operators.jl")
 
