@@ -87,7 +87,7 @@ _NSdict0[:copyout] = ns ->
                  for k ∈ a
                      if k ∉ exclude
                          v = d[k].obj
-                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
@@ -95,7 +95,7 @@ _NSdict0[:copyout] = ns ->
                  for (k, w) ∈ pairs(d)
                      if k ∉ exclude
                          v = w.obj
-                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
@@ -130,7 +130,7 @@ _NSdict0[:copyfrom] = ns ->
                  for k ∈ a
                      if k ∉ exclude
                          v = gd[k].obj
-                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
@@ -138,7 +138,7 @@ _NSdict0[:copyfrom] = ns ->
                  for (k, w) ∈ pairs(gd)
                      if k ∉ exclude
                          v = w.obj
-                         x = (isa(v, Fnc) ? Fnc(v.fnclist) : v)
+                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
                          d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
                      end
                  end
@@ -199,8 +199,8 @@ _NSdict0[:load] = ns ->
             (length(filename) < length("a.ns") ||
              filename[end-length(".ns")+1:end] != ".ns")
              filename = filename * ".ns"
-     end
-
+         end
+         #=
          _init_fnc(x::AbstNS) = begin
              for key ∈ x._keys
                  if isa(x.__dict[key].obj, Fnc)
@@ -212,6 +212,8 @@ _NSdict0[:load] = ns ->
              x
          end
          ns.import(_init_fnc(Serialization.deserialize(filename)),
+         =#
+         ns.import(Serialization.deserialize(filename),
                    atr...;
                    exclude=exclude)
      end)
@@ -229,7 +231,7 @@ _NSdict0[:save] = ns ->
          length(atr) == 0 && (atr = ns._keys)
          atr = [k for k ∈ ns._keys if k ∉ exclude]
          g = ns.copyout(atr...; exclude=exclude)
-
+         #=
          _remove_fnc(x::AbstNS) = begin
              for key ∈ x._keys
                  if isa(x.__dict[key].obj, Fnc)
@@ -242,6 +244,8 @@ _NSdict0[:save] = ns ->
              x
          end
          Serialization.serialize(filename, _remove_fnc(g))
+         =#
+         Serialization.serialize(filename, g)
          g
      end)
 _NSdict0[:haskey] = ns -> NShaskey(ns)

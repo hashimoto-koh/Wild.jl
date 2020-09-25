@@ -1,3 +1,13 @@
+import CodeTransformation: addmethod!
+
+_addmth!(f, mth) =
+begin
+    for (m,c) in zip(methods(mth).ms, code_lowered(mth))
+        addmethod!(f, tuple(m.sig.parameters[2:end]...), c)
+    end
+    f
+end
+
 ###############################
 # @dfn, @req, @prp, @mth, @sprp
 ###############################
@@ -124,7 +134,7 @@ sprp(fnc) = SetPrp(fnc)
 ###############################
 # fnc
 ###############################
-
+#=
 struct _FncWrapper <: Function
     f
     _mdl
@@ -149,7 +159,35 @@ begin
 
     Base.getfield(fnc, atr)
 end
+=#
 
+mutable struct Fnc <: AbstClassFunc
+    fnc
+end
+
+Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
+Fnc(fnc::Fnc) = Fnc(fnc.fnc)
+
+(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
+fnc(f) = Fnc(f)
+
+function Base.push!(fnc::Fnc, mth::Function)
+    _addmth!(fnc.fnc, mth)
+end
+
+function Base.append!(fnc::Fnc, mths::AbstractVector{Function})
+    for f ∈ mths push!(fnc, f) end
+    fnc
+end
+
+Base.getproperty(fnc::Fnc, atr::Symbol) =
+begin
+    atr == :push! && (return f -> push!(fnc, f))
+    atr == :append! && (return fncs -> append!(fnc, fncs))
+    Base.getfield(fnc, atr)
+end
+
+#=
 mutable struct Fnc <: AbstClassFunc
     fnclist::Vector{Function}
     fnc::_FncWrapper
@@ -193,3 +231,4 @@ begin
 
     Base.getfield(fnc, atr)
 end
+=#

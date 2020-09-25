@@ -15,15 +15,15 @@ export arg, cry, wc, wd, @cry
 include("ns_dict0.jl")
 include("ns.jl")
 include("ns_tags.jl")
-export AbstNS, NS, @NS
-export NSGen, @NSGen, nsgen, ns, @ns, AbstNSitem
-export AbstNSX, NSX, @NSX, NSXinit, prm, nsx
+export AbstNS, NS
+export NSGen, nsgen, ns, AbstNSitem
+export AbstNSX, NSX, NSXinit, prm, nsx
 
 include("nscls.jl")
 export AbstNSCls, NSCls
 
 include("nscode.jl")
-export AbstNSCode, NSCode, @NSCode
+export AbstNSCode, NSCode
 
 include("operators.jl")
 

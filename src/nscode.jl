@@ -18,33 +18,31 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Mth}
+    __init::Array{Fnc}
     __cls::NS
-    __mdl::Module
     _instances::Nothing
     _clr_instances::Nothing
 
-    NSCode(args...; __link_instances=false, __mdl=@__MODULE__, kargs...) =
+    NSCode(args...; __link_instances=false, kargs...) =
         new(#= __args           =# args,
             #= __kargs          =# kargs,
             #= __code           =# [],
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [Mth((o ; ka...) ->
+            #= __init           =# [Fnc((o ; ka...) ->
                                         (for (atr, val) ∈ ka
                                          Base.setproperty!(o, atr, val)
                                          end))],
-            #= __cls            =# NS(__mdl),
-            #= __mdl            =# __mdl,
+            #= __cls            =# NS(),
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
 end
-
+#=
 macro NSCode()
     return esc(:(NSCode(; __mdl=@__MODULE__)))
 end
-
+=#
 function push_to_instance(o, atr, val)
     x = isa(val, NSCodecst_item) ? Base.getproperty(o, :cst) : o
 
@@ -83,7 +81,7 @@ end
 
 (nsc::NSCode)(args...; kargs...) =
     begin
-        o = nsc.__type(nsc.__mdl)
+        o = nsc.__type()
 
         na = length(nsc.__args)
         nka = length(nsc.__kargs)
@@ -117,8 +115,8 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
             (Base.setfield!(nsc, atr, x); return)
 
         atr == :init &&
-            (nsc.__init[1] = Mth(x); return)
-#            (nsc.__init[1].push!(x); return)
+#            (nsc.__init[1] = Mth(x); return)
+            (nsc.__init[1].push!(x); return)
 
         atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
@@ -258,8 +256,8 @@ _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
 struct NSCodefnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstfnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(fnc(f, x.nsc.__mdl))
-_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(fnc(f, x.nsc.__mdl))
+_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(fnc(f))
+_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(fnc(f))
 
 ################
 # NSCodemth

@@ -24,18 +24,15 @@ end
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
-    __mdl::Module
 
-    NS(mdl=@__MODULE__) =
-        new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-            #= __fix_lck =# MVector{2, Bool}(false, false),
-            #= __mdl     =# mdl)
+    NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+               #= __fix_lck =# MVector{2, Bool}(false, false))
 end
-
+#=
 macro NS()
     return esc(:(NS(@__MODULE__)))
 end
-
+=#
 ################
 # NSGen{X}
 ################
@@ -43,18 +40,15 @@ end
 struct NSGen{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
-    __mdl::Module
 
-    NSGen{X}(mdl=@__MODULE__) where X =
-        new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-               #= __fix_lck =# MVector{2, Bool}(false, false),
-               #= __mdl     =# mdl)
+    NSGen{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+                                #= __fix_lck =# MVector{2, Bool}(false, false))
 end
-
+#=
 macro NSGen(X)
     return esc(:(NSGen{$(X)}(@__MODULE__)))
 end
-
+=#
 ################
 # NS
 ################
@@ -75,7 +69,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
                 ns.__dict[atr].obj.fnc(ns, x)
             elseif isa(x, AbstNSitem) && isa(x.obj, Fnc)
                 if isa(ns.__dict[atr].obj, Fnc)
-                    ns.__dict[atr].obj.append!(x.obj.fnclist)
+                    ns.__dict[atr].obj.push!(x.obj.fnc)
                 else
                     ns.__dict[atr].obj = x.obj
                 end
@@ -133,12 +127,14 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 nsgen() = NSGen{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
 nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
 
-ns(mdl=@__MODULE__) = nsgen()(mdl)
-ns(name::Union{Symbol, AbstractString}, mdl=@__MODULE__) = nsgen(name)(mdl)
+ns() = nsgen()()
+ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
 
+#=
 macro ns(name)
     return esc(:(ns($(name), @__MODULE__)))
 end
+=#
 
 ################
 # AbstNSX, NSX, NSXinit, prm, nsx
@@ -169,19 +165,17 @@ abstract type AbstNSX <: AbstNS end
 struct NSX{X} <: AbstNSX
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
-    __mdl::Module
-    global NSXinit{X}(mdl=@__MODULE__) where X =
+    global NSXinit{X}() where X =
         new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(),
-                             MVector{2, Bool}(false, false),
-                             mdl)
+                             MVector{2, Bool}(false, false))
 end
 
-NSX{X}(mdl=@__MODULE__) where X = NSXinit{NSX{X}}(mdl)
-
+NSX{X}() where X = NSXinit{NSX{X}}()
+#=
 macro NSX(X)
     return esc(:(NSX{$(X)}(@__MODULE__)))
 end
-
+=#
 prm(X) = X.parameters[1]
 
 nsx() = NSX{Symbol("NSX_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
