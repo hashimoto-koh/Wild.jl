@@ -18,7 +18,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Fnc}
+    __init::Array{Union{Nothing, Fnc}}
     __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
@@ -30,10 +30,7 @@ struct NSCode <: AbstNSCode
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [eval(:(Fnc((o ; ka...) ->
-                                               (for (atr, val) ∈ ka
-                                                Base.setproperty!(o, atr, val)
-                                                end))))],
+            #= __init           =# [nothing],
             #= __cls            =# NS(),
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
@@ -95,8 +92,10 @@ end
             Base.setproperty!(o, atr, atr ∈ keys(kargs) ? kargs[atr] : val)
         end
 
-        nsc.__init[1](o)(args[na+1:end]...;
-                         Dict((k,v) for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
+        isnothing(nsc.__init[1]) ||
+            nsc.__init[1](o)(args[na+1:end]...;
+                             Dict((k,v)
+                                  for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
         for (atr, val) ∈ nsc.__code
             push_to_instance(o, atr, val)
@@ -112,9 +111,14 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         hasfield(typeof(nsc), atr) &&
             (Base.setfield!(nsc, atr, x); return)
 
-        atr == :init &&
-#            (nsc.__init[1] = Mth(x); return)
-            (nsc.__init[1].push!(x); return)
+        if atr == :init
+            if isnothing(nsc.__init[1])
+                nsc.__init[1] = Fnc(x)
+            else
+                nsc.__init[1].push!(x)
+            end
+            return
+        end
 
         atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
