@@ -30,10 +30,10 @@ struct NSCode <: AbstNSCode
             #= __type           =# nsgen(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
-            #= __init           =# [Fnc((o ; ka...) ->
-                                        (for (atr, val) ∈ ka
-                                         Base.setproperty!(o, atr, val)
-                                         end))],
+            #= __init           =# [eval(:(Fnc((o ; ka...) ->
+                                               (for (atr, val) ∈ ka
+                                                Base.setproperty!(o, atr, val)
+                                                end))))],
             #= __cls            =# NS(),
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
