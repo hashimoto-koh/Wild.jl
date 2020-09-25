@@ -32,8 +32,8 @@ struct NS <: AbstNS
             #= __mdl     =# mdl)
 end
 
-macro NS
-    NS(eval(:esc(:(@__MODULE__))))
+macro NS()
+    return NS(eval(:esc(:(@__MODULE__))))
 end
 
 ################
@@ -51,8 +51,8 @@ struct NSGen{X} <: AbstNS
                #= __mdl     =# mdl)
 end
 
-macro NSGen
-    NSGen(eval(:esc(:(@__MODULE__))))
+macro NSGen()
+    return NSGen(eval(:esc(:(@__MODULE__))))
 end
 
 ################
@@ -137,7 +137,7 @@ ns(mdl=@__MODULE__) = nsgen()(mdl)
 ns(name::Union{Symbol, AbstractString}, mdl=@__MODULE__) = nsgen(name)(mdl)
 
 macro ns(name)
-    ns(name, eval(:esc(:(@__MODULE__))))
+    return ns(name, eval(:esc(:(@__MODULE__))))
 end
 
 ################
@@ -179,7 +179,7 @@ end
 NSX{X}(mdl=@__MODULE__) where X = NSXinit{NSX{X}}(mdl)
 
 macro NSX(X)
-    NSX{X}(eval(:esc(:(@__MODULE__))))
+    return NSX{X}(eval(:esc(:(@__MODULE__))))
 end
 
 prm(X) = X.parameters[1]
