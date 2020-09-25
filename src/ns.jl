@@ -130,7 +130,7 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 # nsgen, ns
 ################
 
-nsgen() = NSGen{Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
+nsgen() = NSGen{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
 nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
 
 ns(mdl=@__MODULE__) = nsgen()(mdl)
@@ -184,7 +184,7 @@ end
 
 prm(X) = X.parameters[1]
 
-nsx() = NSX{Symbol("NSX_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
+nsx() = NSX{Symbol("NSX_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
 
 ################
 # New NS macro
