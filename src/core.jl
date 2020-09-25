@@ -127,7 +127,8 @@ sprp(fnc) = SetPrp(fnc)
 
 struct _FncWrapper <: Function
     f
-    _FncWrapper(f) = new(f)
+    _mdl
+    _FncWrapper(f, mdl=@__MODULE__) = new(f, mdl)
 end
 
 (fnc::_FncWrapper)(a...; ka...) = fnc.f(a; ka...)
@@ -138,7 +139,8 @@ begin
 
     atr == :push! &&
         return (mth ->
-                (eval(:($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
+                (Core.eval(fnc._mdl,
+                           :($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
 
     atr == :append! && (return mthds -> (for f ∈ mthds push!(fnc, f) end; fnc))
 
@@ -151,15 +153,16 @@ end
 mutable struct Fnc <: AbstClassFunc
     fnclist::Vector{Function}
     fnc::_FncWrapper
-    Fnc(f) = begin
+    Fnc(f, mdl=@__MODULE__) = begin
         fname = Symbol("_FncWrapper_"
                        * string(bytes2hex(SHA.sha256(string(time_ns())))))
-        g = eval(:($(fname)(a::Tuple{methods($(f)).mt.defs.sig.parameters[2:end]...}; ka...) = $(f)(a...; ka...)))
-        new([f], _FncWrapper(g))
+        g = Core.eval(mdl,
+                      :($(fname)(a::Tuple{methods($(f)).mt.defs.sig.parameters[2:end]...}; ka...) = $(f)(a...; ka...)))
+        new([f], _FncWrapper(g, mdl))
     end
 end
-Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
-Fnc(fnc::Fnc) = Fnc(fnc.fnclist)
+Fnc(flst::Vector{Function}, mdl=@__MODULE__) = (fnc = Fnc(flst[1], mdl); fnc.append!(flst[2:end]); fnc)
+Fnc(fnc::Fnc, mdl=@__MODULE__) = Fnc(fnc.fnclist, mdl)
 
 (fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
 fnc(f) = Fnc(f)
@@ -185,8 +188,8 @@ begin
         (fnc.fnc.reset!;
          for f ∈ fnc.fnclist push!(fnc.fnc, f) end;
          return fnc)
-    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing); return fnc)
-    atr == :init! && (fnc.fnc = Fnc(fnc).fnc; return fnc)
+    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing, fnc.mdl); return fnc)
+    atr == :init! && (fnc.fnc = Fnc(fnc, fnc.mdl).fnc; return fnc)
 
     Base.getfield(fnc, atr)
 end

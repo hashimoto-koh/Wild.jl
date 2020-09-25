@@ -24,9 +24,16 @@ end
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
+    __mdl::Module
 
-    NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-               #= __fix_lck =# MVector{2, Bool}(false, false))
+    NS(mdl=@__MODULE__) =
+        new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+            #= __fix_lck =# MVector{2, Bool}(false, false),
+            #= __mdl     =# mdl)
+end
+
+macro NS
+    NS(eval(:esc(:(@__MODULE__))))
 end
 
 ################
@@ -36,9 +43,16 @@ end
 struct NSGen{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
+    __mdl::Module
 
-    NSGen{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-                                #= __fix_lck =# MVector{2, Bool}(false, false))
+    NSGen{X}(mdl=@__MODULE__) where X =
+        new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+               #= __fix_lck =# MVector{2, Bool}(false, false),
+               #= __mdl     =# mdl)
+end
+
+macro NSGen
+    NSGen(eval(:esc(:(@__MODULE__))))
 end
 
 ################
@@ -119,8 +133,12 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 nsgen() = NSGen{Symbol("NS_" * string(bytes2hex(SHA.sha256(string(time_ns())))))}
 nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
 
-ns() = nsgen()()
-ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
+ns(mdl=@__MODULE__) = nsgen()(mdl)
+ns(name::Union{Symbol, AbstractString}, mdl=@__MODULE__) = nsgen(name)(mdl)
+
+macro ns(name)
+    ns(name, eval(:esc(:(@__MODULE__))))
+end
 
 ################
 # AbstNSX, NSX, NSXinit, prm, nsx
@@ -147,15 +165,22 @@ NSX{prm(G)}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 struct NSXinit{X} end
 
 abstract type AbstNSX <: AbstNS end
+
 struct NSX{X} <: AbstNSX
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
-    global NSXinit{X}() where X =
+    __mdl::Module
+    global NSXinit{X}(mdl=@__MODULE__) where X =
         new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(),
-                             MVector{2, Bool}(false, false))
+                             MVector{2, Bool}(false, false),
+                             mdl)
 end
 
-NSX{X}() where X = NSXinit{NSX{X}}()
+NSX{X}(mdl=@__MODULE__) where X = NSXinit{NSX{X}}(mdl)
+
+macro NSX(X)
+    NSX{X}(eval(:esc(:(@__MODULE__))))
+end
 
 prm(X) = X.parameters[1]
 

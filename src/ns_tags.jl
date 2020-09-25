@@ -169,8 +169,8 @@ _MakeItem(x::NScstsprp, f) = NScst_item(sprp(f))
 struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f))
-_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f))
+_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f, x.ns.__mdl))
+_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f, x.ns.__mdl))
 
 ################
 # NSmth
