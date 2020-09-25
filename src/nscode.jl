@@ -123,10 +123,14 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
             Base.error("'" * string(:atr) * "' can't be used for property")
 
-        nsc.__link_instances &&
-            [push_to_instance(i, atr, x) for (a, k, i) ∈ nsc.__instances]
+        if haskey(nsc.__cls, atr)
+            Base.setproperty!(nsc.__cls, atr, x)
+        else
+            nsc.__link_instances &&
+                [push_to_instance(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
-        push!(nsc.__code, (atr, x))
+            push!(nsc.__code, (atr, x))
+        end
     end
 
 Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
