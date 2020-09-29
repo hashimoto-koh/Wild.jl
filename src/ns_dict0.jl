@@ -260,50 +260,7 @@ _NSdict0[:decstize] = ns -> NSdecstize(ns)
 # tags
 _NSdict0[:cst] = ns -> NScst(ns)
 _NSdict0[:prp] = ns -> NSprp(ns)
-_NSdict0[:sprp] = ns -> NSsprp(ns)
 _NSdict0[:fnc] = ns -> NSfnc(ns)
 _NSdict0[:mth] = ns -> NSmth(ns)
 _NSdict0[:dfn] = ns -> NSdfn(ns)
 _NSdict0[:req] = ns -> NSreq(ns)
-
-#=
-const _NS_fields = Set([:_keys,
-                        :_vals,
-                        :_keyvals,
-                        :_printkeyvals,
-                        :_printkeytypes,
-                        :_fixed,
-                        :_lcked,
-                        :_frzed,
-                        :_fix,
-                        :_unfix,
-                        :_lck,
-                        :_unlck,
-                        :_frz,
-                        :_unfrz,
-                        :_cst_keys,
-                        :_noncst_keys,
-                        :_clr,
-                        :_copy,
-                        :copyout,
-                        :copyfrom,
-                        :import,
-                        :export,
-                        :deepimport,
-                        :deepexport,
-                        :load,
-                        :save,
-                        :haskey,
-                        :iscst,
-                        :del,
-                        :cstize,
-                        :decstize,
-                        :cst,
-                        :dfn,
-                        :req,
-                        :prp,
-                        :mth,
-                        :fnc,
-                        :exe
-                        ])
-=#
