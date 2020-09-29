@@ -59,7 +59,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         atr == :exe && (return x(ns))
 
-        atr ∈ Base.keys(_NSdict0) &&
+        haskey(_NSdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
         d = ns.__dict
