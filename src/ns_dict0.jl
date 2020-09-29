@@ -200,19 +200,6 @@ _NSdict0[:load] = ns ->
              filename[end-length(".ns")+1:end] != ".ns")
              filename = filename * ".ns"
          end
-         #=
-         _init_fnc(x::AbstNS) = begin
-             for key ∈ x._keys
-                 if isa(x.__dict[key].obj, Fnc)
-                     x.__dict[key].obj.init!
-                 elseif isa(x.__dict[key].obj, AbstNS)
-                     _init_fnc(x.__dict[key].obj)
-                 end
-             end
-             x
-         end
-         ns.import(_init_fnc(Serialization.deserialize(filename)),
-         =#
          ns.import(Serialization.deserialize(filename),
                    atr...;
                    exclude=exclude)
@@ -231,20 +218,6 @@ _NSdict0[:save] = ns ->
          length(atr) == 0 && (atr = ns._keys)
          atr = [k for k ∈ ns._keys if k ∉ exclude]
          g = ns.copyout(atr...; exclude=exclude)
-         #=
-         _remove_fnc(x::AbstNS) = begin
-             for key ∈ x._keys
-                 if isa(x.__dict[key].obj, Fnc)
-                     x.__dict[key].obj.fnc = _FncWrapper(nothing,
-                                                         x.__dict[key].obj.fnc._mdl)
-                 elseif isa(x.__dict[key].obj, AbstNS)
-                     _remove_fnc(x.__dict[key].obj)
-                 end
-             end
-             x
-         end
-         Serialization.serialize(filename, _remove_fnc(g))
-         =#
          Serialization.serialize(filename, g)
          g
      end)
