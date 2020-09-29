@@ -2,12 +2,6 @@ import Dates
 import SHA
 
 ################
-# AbstNSCode
-################
-
-abstract type AbstNSCode end
-
-################
 # NSCode
 ################
 
@@ -67,7 +61,7 @@ function push_to_instance(o, atr, val)
         else
             Base.setproperty!(y, atr, val)
         end
-    elseif isa(val.obj, Union{Dfn, Prp, SetPrp, Mth, Fnc})
+    elseif isa(val.obj, Union{Dfn, Prp, Mth, Fnc})
         Base.setproperty!(y, atr, val.obj.fnc)
     else
         Base.setproperty!(y, atr, val.obj)
@@ -113,15 +107,15 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
 
         if atr == :init
             if isnothing(nsc.__init[1])
-                nsc.__init[1] = Fnc(x)
+                nsc.__init[1] = fnc(x)
             else
                 nsc.__init[1].push!(x)
             end
             return
         end
 
-        atr ∈ (:cst, :dfn, :req, :prp, :mth, :fnc, :cls) &&
-            Base.error("'" * string(:atr) * "' can't be used for property")
+        haskey(_NSCodedict0, atr) &&
+            Base.error("'" * string(atr) * "' can't be used for property")
 
         haskey(nsc.__cls, atr) &&
             (Base.setproperty!(nsc.__cls, atr, x); return)
@@ -136,24 +130,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
     begin
         Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
 
-        #=
-        if atr == :exe return f -> Base.setproperty!(nsc, atr, f) end
-        =#
-
-        atr == :cls && (return nsc.__cls)
-        atr == :init && (return nsc.__init[1])
-
-        atr == :cst && (return NSCodecst(nsc))
-
-        atr == :dfn && (return NSCodedfn(nsc))
-        atr == :req && (return NSCodereq(nsc))
-        atr == :prp && (return NSCodeprp(nsc))
-        atr == :fnc && (return NSCodefnc(nsc))
-        atr == :mth && (return NSCodemth(nsc))
-
-        atr == :_instances && (return [i for (a, k, i) ∈ nsc.__instances])
-        atr == :_clr_instances &&
-            (deleteat!(nsc.__instances, 1:length(nsc.__instances)); return)
+        haskey(_NSCodedict0, atr) && (return _NSCodedict0[atr](nsc))
 
         haskey(nsc.__cls, atr) && (return Base.getproperty(nsc.__cls, atr))
 
@@ -251,8 +228,8 @@ _MakeItem(x::NSCodecstreq, f) = NSCodecst_item(req(f))
 struct NSCodeprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(prp(f))
-_MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
+_MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(prp(f; init=false))
+_MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f; init=false))
 
 ################
 # NSCodefnc
@@ -261,8 +238,8 @@ _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(prp(f))
 struct NSCodefnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstfnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(fnc(f))
-_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(fnc(f))
+_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(fnc(f; init=false))
+_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(fnc(f; init=false))
 
 ################
 # NSCodemth

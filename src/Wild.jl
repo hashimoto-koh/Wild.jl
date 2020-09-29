@@ -22,6 +22,7 @@ export AbstNSX, NSX, NSXinit, prm, nsx
 include("nscls.jl")
 export AbstNSCls, NSCls
 
+include("nscode_dict0.jl")
 include("nscode.jl")
 export AbstNSCode, NSCode
 
