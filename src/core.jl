@@ -1,17 +1,17 @@
 import CodeTransformation: addmethod!
 
-_add_lmd!(fnc, lmd) =
+_add_lmd!(fnc, lmd; mdl=nothing) =
 begin
-    mdl = methods(fnc).ms[1].module
+    mdl = isnothing(mdl) ? methods(fnc).ms[1].module : mdl
     ex = :((::typeof($(fnc)))(a::$(methods(lmd).ms[1].sig.parameters[2:end][1]);
                               ka...) = $(lmd)(a, ka...))
     Core.eval(mdl, ex)
     fnc
 end
 
-_addmth!(::Nothing, mth::Function) =
+_addmth!(::Nothing, mth::Function; mdl=nothing) =
 begin
-    mdl = methods(mth).ms[1].module
+    mdl = isnothing(mdl) ? methods(mth).ms[1].module : mdl
     f = [Core.eval(mdl,
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
@@ -22,12 +22,12 @@ begin
     f[1]
 end
 
-_addmth!(::Nothing, mth::AbstractVector{Function}) =
-    _addmth!(_addmth!(nothing, mth[1]), mth[2:end])
+_addmth!(::Nothing, mth::AbstractVector{Function}; mdl=nothing) =
+    _addmth!(_addmth!(nothing, mth[1]; mdl=mdl), mth[2:end])
 
-_addmth!(f::Function, mth::Function) =
+_addmth!(f::Function, mth::Function; mdl=nothing) =
 begin
-    mdl = methods(f).ms[1].module
+    mdl = isnothing(mdl) ? methods(f).ms[1].module : mdl
     for ms in methods(mth).ms
         ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                $(mth)(a...; ka...))
@@ -37,10 +37,10 @@ begin
     f
 end
 
-_addmth!(f::Function, mth::AbstractVector{Function}) =
+_addmth!(f::Function, mth::AbstractVector{Function}; mdl=nothing) =
 begin
     for m in mth
-        _addmth!(f, m)
+        _addmth!(f, m; mdl=mdl)
     end
     f
 end
@@ -79,8 +79,8 @@ end
 
 macro prp(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :prp, ex.args[2]))
-               : Expr(:call, :prp, ex))
+               ? Expr(:(=), ex.args[1], :(prp($(ex.args[2])).init(@__MODULE__)))
+               : :(prp($(ex)).init(@__MODULE__)))
 end
 
 macro mth(ex)
@@ -94,13 +94,7 @@ macro fnc(ex)
                ? Expr(:(=), ex.args[1], Expr(:call, :fnc, ex.args[2]))
                : Expr(:call, :Fnc, ex))
 end
-#=
-macro sprp(ex)
-    return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :SetPrp, ex.args[2]))
-               : Expr(:call, :SetPrp, ex))
-end
-=#
+
 ###############################
 # @prpfnc, @mthfnc
 ###############################
@@ -172,7 +166,8 @@ sprp(fnc) = SetPrp(fnc)
 # fnc
 ###############################
 
-fnc(f; init=true) = (fc = Fnc(f); init ? fc.init! : fc)
+fnc(f; init=true, mdl=nothing) =
+    (fc = Fnc(f); init ? fc.init!(mdl) : fc)
 
 mutable struct Fnc <: AbstClassFunc
     fnc::Union{Nothing, Function}
@@ -196,19 +191,21 @@ function Base.append!(f::Fnc, mths::AbstractVector{Function})
     f
 end
 
-Base.getproperty(fnc::Fnc, atr::Symbol) =
+Base.getproperty(f::Fnc, atr::Symbol) =
 begin
-    atr == :init! && (fnc.fnc = _addmth!(nothing, fnc.fnclist); return fnc)
-    atr == :push! && (return f -> push!(fnc, f))
-    atr == :append! && (return fncs -> append!(fnc, fncs))
-    Base.getfield(fnc, atr)
+    atr == :init! &&
+        (return (mdl=nothing) ->
+                (f.fnc = _addmth!(nothing, f.fnclist; mdl=mdl); return f))
+    atr == :push! && (return mth -> push!(f, mth))
+    atr == :append! && (return mths -> append!(f, mths))
+    Base.getfield(f, atr)
 end
 
 ###############################
 # prp
 ###############################
 
-prp(f; init=true) = (pr = Prp(f); init ? pr.init! : pr)
+prp(f; init=true, mdl=nothing) = (pr = Prp(f); init ? pr.init!(mdl) : pr)
 
 mutable struct Prp <: AbstClassFunc
     fnc::Union{Nothing, Function}
@@ -231,10 +228,12 @@ function Base.append!(p::Prp, mths::AbstractVector{Function})
     p
 end
 
-Base.getproperty(fnc::Prp, atr::Symbol) =
+Base.getproperty(p::Prp, atr::Symbol) =
 begin
-    atr == :init! && (fnc.fnc = _addmth!(nothing, fnc.fnclist); return fnc)
-    atr == :push! && (return f -> push!(fnc, f))
-    atr == :append! && (return fncs -> append!(fnc, fncs))
-    Base.getfield(fnc, atr)
+    atr == :init! &&
+        (return (mdl=nothing) ->
+                (p.fnc = _addmth!(nothing, p.fnclist; mdl=mdl); return p))
+    atr == :push! && (return mth -> push!(p, mth))
+    atr == :append! && (return mths -> append!(p, mths))
+    Base.getfield(p, atr)
 end
