@@ -11,7 +11,7 @@ end
 
 _addmth!(::Nothing, mth::Function) =
 begin
-    mdl methods(mth).ms[1].module
+    mdl = methods(mth).ms[1].module
     f = [Core.eval(mdl,
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
