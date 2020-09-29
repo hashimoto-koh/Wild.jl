@@ -79,8 +79,8 @@ end
 
 macro prp(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], :(prp($(ex.args[2])).init!(@__MODULE__)))
-               : :(prp($(ex)).init!(@__MODULE__)))
+               ? Expr(:(=), ex.args[1], :(prp($(ex.args[2]); mdl=@__MODULE__)))
+               : :(prp($(ex); mdl=@__MODULE__)))
 end
 
 macro mth(ex)
@@ -91,8 +91,8 @@ end
 
 macro fnc(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], :(fnc($(ex.args[2])).init!(@__MODULE__)))
-               : :(fnc($(ex)).init!(@__MODULE__)))
+               ? Expr(:(=), ex.args[1], :(fnc($(ex.args[2]); mdl=@__MODULE__)))
+               : :(fnc($(ex); mdl=@__MODULE__)))
 end
 
 ###############################
@@ -172,7 +172,7 @@ fnc(f; init=true, mdl=nothing) =
 mutable struct Fnc <: AbstClassFunc
     fnc::Union{Nothing, Function}
     fnclist::Vector{Function}
-    Fnc(f) = new(nothing, [f])
+    Fnc(f::Function) = new(nothing, [f])
 end
 
 Fnc(flst::Vector{Function}) = (f = Fnc(flst[1]); f.append!(flst[2:end]); f)
@@ -210,7 +210,7 @@ prp(f; init=true, mdl=nothing) = (pr = Prp(f); init ? pr.init!(mdl) : pr)
 mutable struct Prp <: AbstClassFunc
     fnc::Union{Nothing, Function}
     fnclist::Vector{Function}
-    Prp(f) = new(nothing, [f])
+    Prp(f::Function) = new(nothing, [f])
 end
 
 Prp(flst::Vector{Function}) = (p = Prp(flst[1]); p.append!(flst[2:end]); p)
