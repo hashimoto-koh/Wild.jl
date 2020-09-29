@@ -79,8 +79,8 @@ end
 
 macro prp(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], :(prp($(ex.args[2])).init(@__MODULE__)))
-               : :(prp($(ex)).init(@__MODULE__)))
+               ? Expr(:(=), ex.args[1], :(prp($(ex.args[2])).init!(@__MODULE__)))
+               : :(prp($(ex)).init!(@__MODULE__)))
 end
 
 macro mth(ex)
@@ -91,8 +91,8 @@ end
 
 macro fnc(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], :(fnc($(ex.args[2])).init(@__MODULE__)))
-               : :(fnc($(ex)).init(@__MODULE__)))
+               ? Expr(:(=), ex.args[1], :(fnc($(ex.args[2])).init!(@__MODULE__)))
+               : :(fnc($(ex)).init!(@__MODULE__)))
 end
 
 ###############################
