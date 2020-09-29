@@ -91,8 +91,8 @@ end
 
 macro fnc(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :fnc, ex.args[2]))
-               : Expr(:call, :Fnc, ex))
+               ? Expr(:(=), ex.args[1], :(fnc($(ex.args[2])).init(@__MODULE__)))
+               : :(fnc($(ex)).init(@__MODULE__)))
 end
 
 ###############################
