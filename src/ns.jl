@@ -90,9 +90,9 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             if isa(x, AbstNSitem)
                 xo = x.obj
                 if isa(xo, Fnc)
-                    d[atr] = fnc(xo.fnclist)
+                    d[atr] = typeof(x)(fnc(xo.fnclist))
                 elseif isa(x.obj, Prp)
-                    d[atr] = prp(xo.fnclist)
+                    d[atr] = typeof(x)(prp(xo.fnclist))
                 else
                     d[atr] = x
                 end
