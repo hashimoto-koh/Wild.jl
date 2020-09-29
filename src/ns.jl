@@ -71,13 +71,13 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
             if isa(o, Prp)
                 if isa(x, AbstNSitem) && isa(x.obj, Prp)
-                    o.push!(x.obj.fnc)
+                    o.append!(x.obj.fnclist)
                 else
                     o(ns, x)
                 end
             elseif isa(o, Fnc)
                 if isa(x, AbstNSitem) && isa(x.obj, Fnc)
-                    o.push!(x.obj.fnc)
+                    o.append!(x.obj.fnclist)
                 else
                     d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
                 end
@@ -90,9 +90,11 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             if isa(x, AbstNSitem)
                 xo = x.obj
                 if isa(xo, Fnc)
-                    d[atr] = typeof(x)(fnc(xo.fnclist))
+                    d[atr] = typeof(x)(fnc(xo.fnclist; init=false))
+                    d[atr].obj.init!()
                 elseif isa(x.obj, Prp)
-                    d[atr] = typeof(x)(prp(xo.fnclist))
+                    d[atr] = typeof(x)(prp(xo.fnclist; init=false))
+                    d[atr].obj.init!()
                 else
                     d[atr] = x
                 end
