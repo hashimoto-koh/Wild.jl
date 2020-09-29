@@ -79,8 +79,8 @@ end
 
 macro prp(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :Prp, ex.args[2]))
-               : Expr(:call, :Prp, ex))
+               ? Expr(:(=), ex.args[1], Expr(:call, :prp, ex.args[2]))
+               : Expr(:call, :prp, ex))
 end
 
 macro mth(ex)
@@ -91,7 +91,7 @@ end
 
 macro fnc(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :Fnc, ex.args[2]))
+               ? Expr(:(=), ex.args[1], Expr(:call, :fnc, ex.args[2]))
                : Expr(:call, :Fnc, ex))
 end
 #=
