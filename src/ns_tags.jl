@@ -91,12 +91,6 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 ################
 
 abstract type AbstNStag end
-#=
-Base.getproperty(x::AbstNStag, atr::Symbol) =
-    (hasfield(typeof(x), atr)
-     ? Base.getfield(x, atr)
-     : o -> (Base.setproperty!(x, atr, o); x.ns))
-=#
 Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
     Base.setproperty!(x.ns, atr, _MakeItem(x, f))
 
@@ -111,7 +105,6 @@ Base.getproperty(x::NScst, atr::Symbol) =
         atr == :dfn && (return NScstdfn(x.ns))
         atr == :req && (return NScstreq(x.ns))
         atr == :prp && (return NScstprp(x.ns))
-        atr == :sprp && (return NScstsprp(x.ns))
         atr == :fnc && (return NScstfnc(x.ns))
         atr == :mth && (return NScstmth(x.ns))
         return Base.getfield(x, atr)
@@ -149,18 +142,8 @@ _MakeItem(x::NScstreq, f) = NScst_item(req(f))
 struct NSprp{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstprp{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSprp, f) = NSnoncst_item(prp(f))
-_MakeItem(x::NScstprp, f) = NScst_item(prp(f))
-
-################
-# NSsprp
-################
-
-struct NSsprp{T <: AbstNS} <: AbstNStag ns::T end
-struct NScstsprp{T <: AbstNS} <: AbstNStag ns::T end
-
-_MakeItem(x::NSsprp, f) = NSnoncst_item(sprp(f))
-_MakeItem(x::NScstsprp, f) = NScst_item(sprp(f))
+_MakeItem(x::NSprp, f) = NSnoncst_item(prp(f; init=false))
+_MakeItem(x::NScstprp, f) = NScst_item(prp(f; init=false))
 
 ################
 # NSfnc
@@ -169,8 +152,8 @@ _MakeItem(x::NScstsprp, f) = NScst_item(sprp(f))
 struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f))
-_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f))
+_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f; init=false))
+_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f; init=false))
 
 ################
 # NSmth
