@@ -1,9 +1,46 @@
 import CodeTransformation: addmethod!
 
-_addmth!(f, mth) =
+_add_lmd!(fnc, lmd) =
 begin
-    for (m,c) in zip(methods(mth).ms, code_lowered(mth))
-        addmethod!(f, tuple(m.sig.parameters[2:end]...), c)
+    mdl = methods(fnc).ms[1].module
+    ex = :((::typeof($(fnc)))(a::$(methods(lmd).ms[1].sig.parameters[2:end][1]);
+                              ka...) = $(lmd)(a, ka...))
+    Core.eval(mdl, ex)
+    fnc
+end
+
+_addmth!(::Nothing, mth::Function) =
+begin
+    mdl methods(mth).ms[1].module
+    f = [Core.eval(mdl,
+                   :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
+                     $(mth)(a...; ka...)))
+         for ms in methods(mth).ms]
+    for g in f[begin+1:end]
+        _add_lmd!(f[1], g)
+    end
+    f[1]
+end
+
+_addmth!(::Nothing, mth::AbstractVector{Function}) =
+    _addmth!(_addmth!(nothing, mth[1]), mth[2:end])
+
+_addmth!(f::Function, mth::Function) =
+begin
+    mdl = methods(f).ms[1].module
+    for ms in methods(mth).ms
+        ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
+               $(mth)(a...; ka...))
+        g = Core.eval(mdl, ex)
+        _add_lmd!(f, g)
+    end
+    f
+end
+
+_addmth!(f::Function, mth::AbstractVector{Function}) =
+begin
+    for m in mth
+        _addmth!(f, m)
     end
     f
 end
@@ -57,13 +94,13 @@ macro fnc(ex)
                ? Expr(:(=), ex.args[1], Expr(:call, :Fnc, ex.args[2]))
                : Expr(:call, :Fnc, ex))
 end
-
+#=
 macro sprp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=), ex.args[1], Expr(:call, :SetPrp, ex.args[2]))
                : Expr(:call, :SetPrp, ex))
 end
-
+=#
 ###############################
 # @prpfnc, @mthfnc
 ###############################
@@ -116,119 +153,87 @@ dfn = fnc -> Dfn(fnc)
 mutable struct Req{T <: Any} <: AbstClassFunc fnc::T end
 (req::Req)(self) = req.fnc(self)
 req = fnc -> Req(fnc)
-
+#=
 mutable struct Prp{T <: Any} <: AbstClassFunc fnc::T end
 (prp::Prp)(self) =
     hasmethod(prp.fnc, Tuple{typeof(self)}) ? prp.fnc(self) : prp.fnc()
 (prp::Prp)() = prp.fnc()
 prp = fnc -> Prp(fnc)
-
+=#
 mutable struct Mth{T <: Any} <: AbstClassFunc fnc::T end
 (mth::Mth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
 mth(fnc) = Mth(fnc)
-
+#=
 mutable struct SetPrp{T <: Any} <: AbstClassFunc fnc::T end
 (sprp::SetPrp)(self) = (a...; ka...)->sprp.fnc(self, a...; ka...)
 sprp(fnc) = SetPrp(fnc)
-
+=#
 ###############################
 # fnc
 ###############################
-#=
-struct _FncWrapper <: Function
-    f
-    _mdl
-    _FncWrapper(f, mdl=@__MODULE__) = new(f, mdl)
-end
 
-(fnc::_FncWrapper)(a...; ka...) = fnc.f(a; ka...)
-
-Base.getproperty(fnc::_FncWrapper, atr::Symbol) =
-begin
-    Base.hasfield(_FncWrapper, atr) && (return Base.getfield(fnc, atr))
-
-    atr == :push! &&
-        return (mth ->
-                (Core.eval(fnc._mdl,
-                           :($(fnc).f(a::Tuple{methods($(mth)).mt.defs.sig.parameters[2:end]...}; ka...) = $(mth)(a...; ka...))); return fnc))
-
-    atr == :append! && (return mthds -> (for f ∈ mthds push!(fnc, f) end; fnc))
-
-    atr == :reset! &&
-        (for m ∈ methods(fnc.f) Base.delete_method(m) end; return fnc)
-
-    Base.getfield(fnc, atr)
-end
-=#
+fnc(f; init=true) = (fc = Fnc(f); init ? fc.init! : fc)
 
 mutable struct Fnc <: AbstClassFunc
-    fnc
-end
-
-Fnc(flst::Vector{Function}) = (fnc = Fnc(flst[1]); fnc.append!(flst[2:end]); fnc)
-Fnc(fnc::Fnc) = Fnc(fnc.fnc)
-
-(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
-fnc(f) = Fnc(f)
-
-function Base.push!(fnc::Fnc, mth::Function)
-    _addmth!(fnc.fnc, mth)
-end
-
-function Base.append!(fnc::Fnc, mths::AbstractVector{Function})
-    for f ∈ mths push!(fnc, f) end
-    fnc
-end
-
-Base.getproperty(fnc::Fnc, atr::Symbol) =
-begin
-    atr == :push! && (return f -> push!(fnc, f))
-    atr == :append! && (return fncs -> append!(fnc, fncs))
-    Base.getfield(fnc, atr)
-end
-
-#=
-mutable struct Fnc <: AbstClassFunc
+    fnc::Union{Nothing, Function}
     fnclist::Vector{Function}
-    fnc::_FncWrapper
-    Fnc(f, mdl=@__MODULE__) = begin
-        fname = Symbol("_FncWrapper_"
-                       * string(bytes2hex(SHA.sha256(string(time_ns())))))
-        g = Core.eval(mdl,
-                      :($(fname)(a::Tuple{methods($(f)).mt.defs.sig.parameters[2:end]...}; ka...) = $(f)(a...; ka...)))
-        new([f], _FncWrapper(g, mdl))
-    end
-end
-Fnc(flst::Vector{Function}, mdl=@__MODULE__) = (fnc = Fnc(flst[1], mdl); fnc.append!(flst[2:end]); fnc)
-Fnc(fnc::Fnc, mdl=@__MODULE__) = Fnc(fnc.fnclist, mdl)
-
-(fnc::Fnc)(self) = (a...; ka...) -> fnc.fnc(self, a...; ka...)
-fnc(f, mdl=@__MODULE__) = Fnc(f, mdl)
-
-function Base.push!(fnc::Fnc, mth::Function)
-    push!(fnc.fnclist, mth)
-    fnc.fnc.push!(mth)
-    fnc
+    Fnc(f) = new(nothing, [f])
 end
 
-function Base.append!(fnc::Fnc, mths::AbstractVector{Function})
-    for f ∈ mths push!(fnc, f) end
-    fnc
+Fnc(flst::Vector{Function}) = (f = Fnc(flst[1]); f.append!(flst[2:end]); f)
+Fnc(f::Fnc) = Fnc(f.fnclist)
+
+(f::Fnc)(self) = (a...; ka...) -> f.fnc((self, a...); ka...)
+
+function Base.push!(f::Fnc, mth::Function)
+    isnothing(f.fnc) || _addmth!(f.fnc, mth)
+    push!(f.fnclist, mth)
+end
+
+function Base.append!(f::Fnc, mths::AbstractVector{Function})
+    isnothing(f.fnc) || _addmth!(f.fnc, mths)
+    append!(f.fnclist, mths)
+    f
 end
 
 Base.getproperty(fnc::Fnc, atr::Symbol) =
 begin
-    Base.hasfield(Fnc, atr) && (return Base.getfield(fnc, atr))
-
+    atr == :init! && (fnc.fnc = _addmth!(nothing, fnc.fnclist); return fnc)
     atr == :push! && (return f -> push!(fnc, f))
     atr == :append! && (return fncs -> append!(fnc, fncs))
-    atr == :reset! &&
-        (fnc.fnc.reset!;
-         for f ∈ fnc.fnclist push!(fnc.fnc, f) end;
-         return fnc)
-    atr == :nothing! && (fnc.fnc = _FncWrapper(nothing, fnc.fnc._mdl); return fnc)
-    atr == :init! && (fnc.fnc = Fnc(fnc, fnc.fnc._mdl).fnc; return fnc)
-
     Base.getfield(fnc, atr)
 end
-=#
+
+###############################
+# prp
+###############################
+
+prp(f; init=true) = (pr = Prp(f); init ? pr.init! : pr)
+
+mutable struct Prp <: AbstClassFunc
+    fnc::Union{Nothing, Function}
+    fnclist::Vector{Function}
+    Prp(f) = new(nothing, [f])
+end
+
+Prp(flst::Vector{Function}) = (p = Prp(flst[1]); p.append!(flst[2:end]); p)
+Prp(p::Prp) = Prp(p.fnclist)
+
+function Base.push!(p::Prp, mth::Function)
+    isnothing(p.fnc) || _addmth!(p.fnc, mth)
+    push!(p.fnclist, mth)
+end
+
+function Base.append!(p::Prp, mths::AbstractVector{Function})
+    isnothing(p.fnc) || _addmth!(p.fnc, mths)
+    append!(p.fnclist, mths)
+    p
+end
+
+Base.getproperty(fnc::Prp, atr::Symbol) =
+begin
+    atr == :init! && (fnc.fnc = _addmth!(nothing, fnc.fnclist); return fnc)
+    atr == :push! && (return f -> push!(fnc, f))
+    atr == :append! && (return fncs -> append!(fnc, fncs))
+    Base.getfield(fnc, atr)
+end

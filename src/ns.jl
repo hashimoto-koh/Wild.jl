@@ -62,23 +62,43 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         atr ∈ Base.keys(_NSdict0) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
-        if haskey(ns.__dict, atr)
+        d = ns.__dict
+
+        if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
 
-            if isa(ns.__dict[atr].obj, SetPrp)
-                ns.__dict[atr].obj.fnc(ns, x)
-            elseif isa(x, AbstNSitem) && isa(x.obj, Fnc)
-                if isa(ns.__dict[atr].obj, Fnc)
-                    ns.__dict[atr].obj.push!(x.obj.fnc)
+            o = d[atr].obj
+
+            if isa(o, Prp)
+                if isa(x, AbstNSitem) && isa(x.obj, Prp)
+                    o.push!(x.obj.fnc)
                 else
-                    ns.__dict[atr].obj = x.obj
+                    o.fnc(ns, x)
+                end
+            elseif isa(o, Fnc)
+                if isa(x, AbstNSitem) && isa(x.obj, Fnc)
+                    o.push!(x.obj.fnc)
+                else
+                    o.fnc(ns, x)
                 end
             else
-                ns.__dict[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+                d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
             end
         else
             ns._lcked && Base.error("this NS is locked!")
-            ns.__dict[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
+
+            if isa(x, AbstNSitem)
+                xo = x.obj
+                if isa(xo, Fnc)
+                    d[atr] = fnc(xo.fnclist)
+                elseif isa(x.obj, Prp)
+                    d[atr] = prp(xo.fnclist)
+                else
+                    d[atr] = x
+                end
+            else
+                d[atr] = NSnoncst_item(x)
+            end
         end
         ns
     end
