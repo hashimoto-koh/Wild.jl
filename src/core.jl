@@ -218,6 +218,7 @@ end
 
 Prp(flst::Vector{Function}) = (p = Prp(flst[1]); p.append!(flst[2:end]); p)
 Prp(p::Prp) = Prp(p.fnclist)
+(p::Prp)(a...; ka...) = p.fnc(a; ka...)
 
 function Base.push!(p::Prp, mth::Function)
     isnothing(p.fnc) || _addmth!(p.fnc, mth)
