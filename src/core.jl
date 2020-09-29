@@ -3,8 +3,10 @@ import CodeTransformation: addmethod!
 _add_lmd!(fnc, lmd; mdl=nothing) =
 begin
     mdl = isnothing(mdl) ? methods(fnc).ms[1].module : mdl
-    ex = :((::typeof($(fnc)))(a::$(methods(lmd).ms[1].sig.parameters[2:end][1]);
+    ex = :((::typeof($(fnc)))(a::(methods($(lmd)).ms[1].sig.parameters[2:end][1]);
                               ka...) = $(lmd)(a, ka...))
+    println("#1")
+    println(ex)
     Core.eval(mdl, ex)
     fnc
 end
@@ -16,6 +18,11 @@ begin
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
          for ms in methods(mth).ms]
+    for ms in methods(mth).ms
+        println("#2")
+        println(:((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
+                  $(mth)(a...; ka...)))
+    end
     for g in f[begin+1:end]
         _add_lmd!(f[1], g)
     end
@@ -31,6 +38,8 @@ begin
     for ms in methods(mth).ms
         ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                $(mth)(a...; ka...))
+        println("#3")
+        println(ex)
         g = Core.eval(mdl, ex)
         _add_lmd!(f, g)
     end
@@ -81,7 +90,7 @@ macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(prp((a...; ka...) -> $(ex.args[2])(a...; ka...);
+                      :(prp((a...; ka...) -> $(ex).args[2](a...; ka...);
                             mdl=@__MODULE__)))
                : :(prp((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
@@ -96,7 +105,7 @@ macro fnc(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(fnc((a...; ka...) -> $(ex.args[2])(a...; ka...);
+                      :(fnc((a...; ka...) -> $(ex).args[2](a...; ka...);
                             mdl=@__MODULE__)))
                : :(fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
@@ -120,7 +129,7 @@ abstract type AbstMthFunc <: AbstFunc end
 macro prpfnc(name)
     typename = Base.gensym()
     ex = quote
-        struct $typename  <: AbstPrpFunc
+        struct $(typename)  <: AbstPrpFunc
             type::Type
         end
         $name = ($typename)(:($$typename))
@@ -131,7 +140,7 @@ end
 macro mthfnc(name)
     typename = Base.gensym()
     ex = quote
-        struct $typename  <: AbstMthFunc
+        struct $(typename)  <: AbstMthFunc
             type::Type
         end
         $name = ($typename)(:($$typename))
