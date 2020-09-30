@@ -10,7 +10,7 @@ export Dfn, Req, Prp, Mth, SetPrp, Fnc
 export dfn, req, prp, mth, sprp, fnc
 
 include("functionalize.jl")
-export arg, cry, wc, wd, @cry
+export arg, grb, asn, mthd, grbs, asns, cry, wc, wd, @cry
 
 include("ns_dict0.jl")
 include("ns.jl")

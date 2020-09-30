@@ -5,7 +5,6 @@ struct _functionalize{F} <: Function; f::F; end
 @inline (f::_functionalize)(a...; ka...) = f.f(a...; ka...)
 
 @inline functionalize(f) = _functionalize(f)
-# functionalize(f) = f
 @inline functionalize(f::Function) = f
 @inline functionalize(s::Symbol) = o -> getproperty(o, s)
 @inline functionalize(s::Union{Tuple, AbstractArray, Base.Generator}) =
@@ -17,128 +16,91 @@ struct _functionalize{F} <: Function; f::F; end
 # arg
 ###############################
 
-struct Args <: Function
+struct _Args <: Function
     a
     ka
 end
+@inline (a::_Args)(f) = functionalize(f)(a.a...; a.ka...)
 
-@inline (a::Args)(f) = functionalize(f)(a.a...; a.ka...)
-
-@inline arg(a...; ka...) = Args(a, ka)
+@inline arg(a...; ka...) = _Args(a, ka)
 
 ###############################
-# _grb, _get, _mthd, _set, _gets, _sets
+# grb, mthd, asn, grbs, asns
 ###############################
 
 #=
-x |> _grb.a = x.a
-x |> _grb[10] = x[10]
-x |> _grb.a[10] = x.a[10]
-x |> _grb("a") = x.a
-x |> _grb(:a) = x.a
+x |> grb.a = x.a
+x |> grb[10] = x[10]
+x |> grb.a[10] = x.a[10]
+x |> grb("a") = x.a
+x |> grb(:a) = x.a
 
-x |> _get.a == x.a
-x |> _get[10,3] == x[10,3]
-x |> _get.a[1:10,4:5] == x.a[1:10,4:5]
+x |> mth.a(10) == x.a(10)
+x |> mth[10](3) == x[10](3)
+x |> mth.a[10](3) == x.a[10](3)
 
-x |> _mthd.a(10) == x.a(10)
-x |> _mthd[10](3) == x[10](3)
-x |> _mthd.a[10](3) == x.a[10](3)
+x |> asn.a(3) ===> (x.a = 3; x)
+x |> asn.a[10](3) ===> (x.a[10] = 3; x)
+x |> asn[10](3) ===> (x[10] = 3; x)
+x |> asn(:a)(3) ===> (x.a = 3; x)
 
-x |> _set.a(3) ===> (x.a = 3; x)
-x |> _set.a[10](3) ===> (x.a[10] = 3; x)
-x |> _set[10](3) ===> (x[10] = 3; x)
-x |> _set(:a)(3) ===> (x.a = 3; x)
-
-x |> _gets[:a, 3] ===> [x.a, x[3]]
-x |> _sets[:a, 3](10, 20) ===> (x.a = 10; x[3] = 20; x)
+x |> grbs[:a, 3] ===> [x.a, x[3]]
+x |> asns[:a, 3](10, 20) ===> (x.a = 10; x[3] = 20; x)
 =#
-
-struct _GetSingleton end
-const _get = _GetSingleton()
-
-struct _GrbSingleton end
-const _grb = _GrbSingleton()
-(s::_GrbSingleton)(atr::Symbol) = Base.getproperty(s, atr)
-(s::_GrbSingleton)(atr::AbstractString) = s(Symbol(atr))
-
-struct _MthdSingleton end
-const _mthd = _MthdSingleton()
-
-struct _SetSingleton end
-const _set = _SetSingleton()
-(::_SetSingleton)(atr::Symbol) = x -> (o -> Base.setproperty!(o, atr, x))
-(s::_SetSingleton)(atr::AbstractString) = s(Symbol(atr))
-
-struct _GetsSingleton end
-const _gets = _GetsSingleton()
-
-struct _SetsSingleton end
-const _sets = _SetsSingleton()
-
 abstract type _AbstGet <: Function end
 
-mutable struct _Grb <: _AbstGet
-    __itms::Vector{Any}
-end
-
-mutable struct _Get <: _AbstGet
-    __itms::Vector{Any}
-end
-
-mutable struct _Mthd <: _AbstGet
-    __itms::Vector{Any}
-end
-
-mutable struct _Set <: _AbstGet
-    __itms::Vector{Any}
-end
-
-mutable struct _Gets <: _AbstGet
-    __itms::Tuple
-end
-
-mutable struct _Sets <: _AbstGet
-    __itms::Tuple
-end
-
-Base.getproperty(g::_GrbSingleton, a::Symbol) = _Grb([a])
-Base.getindex(g::_GrbSingleton, a...) = _Grb([a])
-
-Base.getproperty(g::_GetSingleton, a::Symbol) = _Get([a])
-Base.getindex(g::_GetSingleton, a...) = _Get([a])
-
-Base.getproperty(g::_MthdSingleton, a::Symbol) = _Mthd([a])
-Base.getindex(g::_MthdSingleton, a...) = _Mthd([a])
-
-Base.getproperty(g::_SetSingleton, a::Symbol) = _Set([a])
-Base.getindex(g::_SetSingleton, a...) = _Set([a])
-
-Base.getindex(g::_GetsSingleton, a...) = _Gets(a)
-Base.getindex(g::_SetsSingleton, a...) = _Sets(a)
-
 Base.getproperty(g::_AbstGet, a::Symbol) =
-    (
+    begin
         itms = Base.getfield(g, :__itms);
         a == :__itms ? itms : (append!(itms, [a]); g)
-    )
+    end
 Base.getindex(g::_AbstGet, a...) = (append!(g.__itms, a); g)
 
-_get_prp_idx(o, a::Symbol) = Base.getproperty(o, a)
-_get_prp_idx(o, a) = Base.getindex(o, a...)
-_set_prp_idx(o, a::Symbol, x) = Base.setproperty!(o, a, x)
-_set_prp_idx(o, a, x) = Base.setindex!(o, x, a...)
+_grb_prp_idx(o, a::Symbol) = Base.getproperty(o, a)
+_grb_prp_idx(o, a) = Base.getindex(o, a...)
+_asn_prp_idx(o, a::Symbol, x) = Base.setproperty!(o, a, x)
+_asn_prp_idx(o, a, x) = Base.setindex!(o, x, a...)
 
-(g::_Grb)(obj::Any) = reduce(_get_prp_idx, g.__itms; init=obj)
-(g::_Get)(obj::Any) = reduce(_get_prp_idx, g.__itms; init=obj)
-(g::_Mthd)(a...; ka...) =
-    obj -> reduce(_get_prp_idx, g.__itms; init=obj)(a...;ka...)
-(g::_Set)(x) =
-    obj -> (y = reduce(_get_prp_idx, g.__itms[1:end-1]; init=obj);
-            _set_prp_idx(y, g.__itms[end], x);
+struct _GrbSingleton end
+const grb = _GrbSingleton()
+(s::_GrbSingleton)(atr::Symbol) = Base.getproperty(s, atr)
+(s::_GrbSingleton)(atr::AbstractString) = s(Symbol(atr))
+Base.getproperty(g::_GrbSingleton, a::Symbol) = _Grb([a])
+Base.getindex(g::_GrbSingleton, a...) = _Grb([a])
+mutable struct _Grb <: _AbstGet __itms::Vector{Any} end
+(g::_Grb)(obj::Any) = reduce(_grb_prp_idx, g.__itms; init=obj)
+
+struct _MthSingleton end
+const mth = _MthSingleton()
+Base.getproperty(g::_MthSingleton, a::Symbol) = _Mth([a])
+Base.getindex(g::_MthSingleton, a...) = _Mth([a])
+mutable struct _Mth <: _AbstGet __itms::Vector{Any} end
+(g::_Mth)(a...; ka...) =
+    obj -> reduce(_grb_prp_idx, g.__itms; init=obj)(a...;ka...)
+
+struct _AsnSingleton end
+const asn = _AsnSingleton()
+(::_AsnSingleton)(atr::Symbol) = x -> (o -> Base.setproperty!(o, atr, x))
+(s::_AsnSingleton)(atr::AbstractString) = s(Symbol(atr))
+Base.getproperty(g::_AsnSingleton, a::Symbol) = _Asn([a])
+Base.getindex(g::_AsnSingleton, a...) = _Asn([a])
+mutable struct _Asn <: _AbstGet __itms::Vector{Any} end
+(g::_Asn)(x) =
+    obj -> (y = reduce(_grb_prp_idx, g.__itms[1:end-1]; init=obj);
+            _asn_prp_idx(y, g.__itms[end], x);
             obj)
-(g::_Gets)(obj::Any) = map(a -> _get_prp_idx(obj, a), g.__itms)
-(g::_Sets)(x...) = obj -> map(((a,y),) -> _set_prp_idx(obj, a, y), zip(g.__itms, x))
+
+struct _GrbsSingleton end
+const grbs = _GrbsSingleton()
+Base.getindex(g::_GrbsSingleton, a...) = _Grbs(a)
+mutable struct _Grbs <: _AbstGet __itms::Tuple end
+(g::_Grbs)(obj::Any) = map(a -> _grb_prp_idx(obj, a), g.__itms)
+
+struct _AsnsSingleton end
+const asns = _AsnsSingleton()
+Base.getindex(g::_AsnsSingleton, a...) = _Asns(a)
+mutable struct _Asns <: _AbstGet __itms::Tuple end
+(g::_Asns)(x...) = obj -> map(((a,y),) -> _asn_prp_idx(obj, a, y), zip(g.__itms, x))
 
 ###########
 # cry, wc, wd
