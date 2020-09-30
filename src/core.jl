@@ -1,4 +1,6 @@
-import CodeTransformation: addmethod!
+###############################
+# _add_mth!
+###############################
 
 _add_lmd!(fnc, lmd; mdl=nothing) =
 begin
@@ -81,7 +83,7 @@ macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(prp((a...; ka...) -> $(ex).args[2](a...; ka...);
+                      :(prp((a...; ka...) -> $(ex.args[2])(a...; ka...);
                             mdl=@__MODULE__)))
                : :(prp((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
@@ -96,7 +98,7 @@ macro fnc(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(fnc((a...; ka...) -> $(ex).args[2](a...; ka...);
+                      :(fnc((a...; ka...) -> $(ex.args[2])(a...; ka...);
                             mdl=@__MODULE__)))
                : :(fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
