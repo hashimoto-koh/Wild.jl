@@ -193,7 +193,16 @@ end
 Fnc(flst::Vector{Function}) = (f = Fnc(flst[1]); f.append!(flst[2:end]); f)
 Fnc(f::Fnc) = Fnc(f.fnclist)
 
-(f::Fnc)(self) = (a...; ka...) -> f.fnc((self, a...); ka...)
+(f::Fnc)(self) = (a...; ka...) ->
+    begin
+        try
+            f.fnc(a; ka...)
+        catch
+            println("## init!")
+            f.init!(methods(f.fnc).ms[1].module)
+            f.fnc(a; ka...)
+        end
+    end
 
 function Base.push!(f::Fnc, mth::Function)
     isnothing(f.fnc) || _addmth!(f.fnc, mth)
@@ -230,7 +239,14 @@ end
 
 Prp(flst::Vector{Function}) = (p = Prp(flst[1]); p.append!(flst[2:end]); p)
 Prp(p::Prp) = Prp(p.fnclist)
-(p::Prp)(a...; ka...) = p.fnc(a; ka...)
+(p::Prp)(a...; ka...) =
+    try
+        p.fnc(a; ka...)
+    catch
+        println("## init!")
+        p.init!(methods(p.fnc).ms[1].module)
+        p.fnc(a; ka...)
+    end
 
 function Base.push!(p::Prp, mth::Function)
     isnothing(p.fnc) || _addmth!(p.fnc, mth)
