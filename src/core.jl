@@ -17,8 +17,8 @@ begin
     f = [Core.eval(mdl,
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
-         for ms in methods(mth).ms]
-    for g in f[begin+1:end]
+         for ms ∈ methods(mth).ms]
+    for g ∈ f[begin+1:end]
         _add_lmd!(f[1], g)
     end
     f[1]
@@ -30,7 +30,7 @@ _addmth!(::Nothing, mth::AbstractVector{Function}; mdl=nothing) =
 _addmth!(f::Function, mth::Function; mdl=nothing) =
 begin
     mdl = isnothing(mdl) ? methods(f).ms[1].module : mdl
-    for ms in methods(mth).ms
+    for ms ∈ methods(mth).ms
         ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                $(mth)(a...; ka...))
         g = Core.eval(mdl, ex)
@@ -41,7 +41,7 @@ end
 
 _addmth!(f::Function, mth::AbstractVector{Function}; mdl=nothing) =
 begin
-    for m in mth
+    for m ∈ mth
         _addmth!(f, m; mdl=mdl)
     end
     f

@@ -18,19 +18,6 @@ mutable struct NSnoncst_item <: AbstNSitem
 end
 
 ################
-# NS
-################
-#=
-struct NS <: AbstNS
-    __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2, Bool}
-
-    NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-               #= __fix_lck =# MVector{2, Bool}(false, false))
-end
-=#
-
-################
 # NSX{X}
 ################
 

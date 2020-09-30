@@ -16,7 +16,6 @@ include("ns.jl")
 include("ns_tags.jl")
 export AbstNS, NS
 export NSX, genNSX, nsx, AbstNSitem
-# export AbstNSX, NSX, NSXinit, prm, nsx
 
 include("nscls.jl")
 export AbstNSCls, NSCls

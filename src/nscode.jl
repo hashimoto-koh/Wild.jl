@@ -64,7 +64,7 @@ function push_to_instance(o, atr, val)
     elseif isa(val.obj, Union{Dfn, Mth})
         Base.setproperty!(y, atr, val.obj.fnc)
     elseif isa(val.obj, Union{Prp, Fnc})
-        for fnc in val.obj.fnclist
+        for fnc ∈ val.obj.fnclist
             Base.setproperty!(y, atr, fnc)
         end
     else
