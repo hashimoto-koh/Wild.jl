@@ -65,7 +65,7 @@ begin
 end
 
 # args(x...;ka...) | f == f(x...;ka...)
-Base.:|(x::Args, f) = x(f)
+Base.:|(x::_Args, f) = x(f)
 
 to_rng(i::Integer) = i>=1 ? (1:i) : (-1:-1:i)
 to_rng(x) = x
