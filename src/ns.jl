@@ -29,7 +29,6 @@ struct NS <: AbstNS
                #= __fix_lck =# MVector{2, Bool}(false, false))
 end
 =#
-const NS = NSX{nothing}
 
 ################
 # NSX{X}
@@ -42,6 +41,8 @@ struct NSX{X} <: AbstNS
     NSX{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
                               #= __fix_lck =# MVector{2, Bool}(false, false))
 end
+
+const NS = NSX{nothing}
 
 ################
 # NS
