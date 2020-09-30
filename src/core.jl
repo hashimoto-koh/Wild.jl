@@ -141,33 +141,23 @@ macro mthfnc(name)
 end
 
 ###############################
-# dfn, req, prp, mth, sprp
+# dfn, req, mth
 ###############################
 
 abstract type AbstClassFunc <: AbstTagFunc end
 
 mutable struct Dfn{T <: Any} <: AbstClassFunc fnc::T end
 (dfn::Dfn)(self) = dfn.fnc(self)
-dfn = fnc -> Dfn(fnc)
+dfn(fnc) = Dfn(fnc)
 
 mutable struct Req{T <: Any} <: AbstClassFunc fnc::T end
 (req::Req)(self) = req.fnc(self)
-req = fnc -> Req(fnc)
-#=
-mutable struct Prp{T <: Any} <: AbstClassFunc fnc::T end
-(prp::Prp)(self) =
-    hasmethod(prp.fnc, Tuple{typeof(self)}) ? prp.fnc(self) : prp.fnc()
-(prp::Prp)() = prp.fnc()
-prp = fnc -> Prp(fnc)
-=#
+req(fnc) = Req(fnc)
+
 mutable struct Mth{T <: Any} <: AbstClassFunc fnc::T end
 (mth::Mth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
 mth(fnc) = Mth(fnc)
-#=
-mutable struct SetPrp{T <: Any} <: AbstClassFunc fnc::T end
-(sprp::SetPrp)(self) = (a...; ka...)->sprp.fnc(self, a...; ka...)
-sprp(fnc) = SetPrp(fnc)
-=#
+
 ###############################
 # fnc
 ###############################
