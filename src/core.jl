@@ -5,8 +5,6 @@ begin
     mdl = isnothing(mdl) ? methods(fnc).ms[1].module : mdl
     ex = :((::typeof($(fnc)))(a::(methods($(lmd)).ms[1].sig.parameters[2:end][1]);
                               ka...) = $(lmd)(a, ka...))
-    println("#1")
-    println(ex)
     Core.eval(mdl, ex)
     fnc
 end
@@ -18,12 +16,6 @@ begin
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
          for ms in methods(mth).ms]
-    for g in f
-        println("#2")
-        println(methods(g).ms[1].name)
-        println(methods(g).ms[1].module)
-        println(methods(g).ms[1].sig)
-    end
     for g in f[begin+1:end]
         _add_lmd!(f[1], g)
     end
@@ -39,12 +31,7 @@ begin
     for ms in methods(mth).ms
         ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                $(mth)(a...; ka...))
-        println("#3")
-        println(ex)
         g = Core.eval(mdl, ex)
-        println(methods(g).ms[1].name)
-        println(methods(g).ms[1].module)
-        println(methods(g).ms[1].sig)
         _add_lmd!(f, g)
     end
     f
@@ -200,11 +187,10 @@ Fnc(f::Fnc) = Fnc(f.fnclist)
 (f::Fnc)(self) = (a...; ka...) ->
     begin
         try
-            f.fnc(a; ka...)
+            f.fnc((self, a...); ka...)
         catch
-            println("## init!")
             f.init!(methods(f.fnc).ms[1].module)
-            Base.invokelatest(f.fnc, a; ka...)
+            Base.invokelatest(f.fnc, (self, a...); ka...)
         end
     end
 
@@ -247,7 +233,6 @@ Prp(p::Prp) = Prp(p.fnclist)
     try
         p.fnc(a; ka...)
     catch
-        println("## init!")
         p.init!(methods(p.fnc).ms[1].module)
         Base.invokelatest(p.fnc, a; ka...)
     end
