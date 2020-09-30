@@ -103,7 +103,7 @@ mutable struct _Asns <: _AbstGet __itms::Tuple end
 struct _MthSingleton end
 const mth = _MthSingleton()
 (s::_MthSingleton)(atr::Symbol) =
-    (a...; ka...) -> (o -> Base.getproperty(o, atr)(a...; ka...)
+    (a...; ka...) -> (o -> Base.getproperty(o, atr)(a...; ka...))
 (s::_MthSingleton)(atr::AbstractString) = s(Symbol(atr))
 Base.getproperty(g::_MthSingleton, a::Symbol) = _Mth([a])
 Base.getindex(g::_MthSingleton, a...) = _Mth([a])
