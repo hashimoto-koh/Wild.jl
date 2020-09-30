@@ -25,7 +25,7 @@ end
 @inline arg(a...; ka...) = _Args(a, ka)
 
 ###############################
-# grb, mthd, asn, grbs, asns
+# grb, mth, asn, grbs, asns
 ###############################
 
 #=
@@ -47,6 +47,7 @@ x |> asn(:a)(3) ===> (x.a = 3; x)
 x |> grbs[:a, 3] ===> [x.a, x[3]]
 x |> asns[:a, 3](10, 20) ===> (x.a = 10; x[3] = 20; x)
 =#
+
 abstract type _AbstGet <: Function end
 
 Base.getproperty(g::_AbstGet, a::Symbol) =
@@ -61,6 +62,7 @@ _grb_prp_idx(o, a) = Base.getindex(o, a...)
 _asn_prp_idx(o, a::Symbol, x) = Base.setproperty!(o, a, x)
 _asn_prp_idx(o, a, x) = Base.setindex!(o, x, a...)
 
+########### grb
 struct _GrbSingleton end
 const grb = _GrbSingleton()
 (s::_GrbSingleton)(atr::Symbol) = Base.getproperty(s, atr)
@@ -70,14 +72,7 @@ Base.getindex(g::_GrbSingleton, a...) = _Grb([a])
 mutable struct _Grb <: _AbstGet __itms::Vector{Any} end
 (g::_Grb)(obj::Any) = reduce(_grb_prp_idx, g.__itms; init=obj)
 
-struct _MthSingleton end
-const mth = _MthSingleton()
-Base.getproperty(g::_MthSingleton, a::Symbol) = _Mth([a])
-Base.getindex(g::_MthSingleton, a...) = _Mth([a])
-mutable struct _Mth <: _AbstGet __itms::Vector{Any} end
-(g::_Mth)(a...; ka...) =
-    obj -> reduce(_grb_prp_idx, g.__itms; init=obj)(a...;ka...)
-
+########### asn
 struct _AsnSingleton end
 const asn = _AsnSingleton()
 (::_AsnSingleton)(atr::Symbol) = x -> (o -> Base.setproperty!(o, atr, x))
@@ -90,17 +85,28 @@ mutable struct _Asn <: _AbstGet __itms::Vector{Any} end
             _asn_prp_idx(y, g.__itms[end], x);
             obj)
 
+########### grbs
 struct _GrbsSingleton end
 const grbs = _GrbsSingleton()
 Base.getindex(g::_GrbsSingleton, a...) = _Grbs(a)
 mutable struct _Grbs <: _AbstGet __itms::Tuple end
 (g::_Grbs)(obj::Any) = map(a -> _grb_prp_idx(obj, a), g.__itms)
 
+########### asns
 struct _AsnsSingleton end
 const asns = _AsnsSingleton()
 Base.getindex(g::_AsnsSingleton, a...) = _Asns(a)
 mutable struct _Asns <: _AbstGet __itms::Tuple end
 (g::_Asns)(x...) = obj -> map(((a,y),) -> _asn_prp_idx(obj, a, y), zip(g.__itms, x))
+
+########### mth
+struct _MthSingleton end
+const mth = _MthSingleton()
+Base.getproperty(g::_MthSingleton, a::Symbol) = _Mth([a])
+Base.getindex(g::_MthSingleton, a...) = _Mth([a])
+mutable struct _Mth <: _AbstGet __itms::Vector{Any} end
+(g::_Mth)(a...; ka...) =
+    obj -> reduce(_grb_prp_idx, g.__itms; init=obj)(a...;ka...)
 
 ###########
 # cry, wc, wd
