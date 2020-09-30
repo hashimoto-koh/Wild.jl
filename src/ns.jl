@@ -128,10 +128,10 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 ################
 
 genNSX() = NSX{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
-genNSX(name::Union{Symbol, AbstractString}) = NSGen{name}
+genNSX(X) = NSX{X}
 
 nsx() = genNSX()()
-nsx(name::Union{Symbol, AbstractString}) = genNSX(name)()
+nsx(X) = genNSX(X)()
 
 ################
 # AbstNSX, NSX, NSXinit, prm, nsx
