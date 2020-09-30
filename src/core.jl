@@ -18,10 +18,11 @@ begin
                    :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
                      $(mth)(a...; ka...)))
          for ms in methods(mth).ms]
-    for ms in methods(mth).ms
+    for g in f
         println("#2")
-        println(:((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
-                  $(mth)(a...; ka...)))
+        println(methods(g).ms[1].name)
+        println(methods(g).ms[1].module)
+        println(methods(g).ms[1].sig)
     end
     for g in f[begin+1:end]
         _add_lmd!(f[1], g)
@@ -41,6 +42,9 @@ begin
         println("#3")
         println(ex)
         g = Core.eval(mdl, ex)
+        println(methods(g).ms[1].name)
+        println(methods(g).ms[1].module)
+        println(methods(g).ms[1].sig)
         _add_lmd!(f, g)
     end
     f
@@ -200,7 +204,7 @@ Fnc(f::Fnc) = Fnc(f.fnclist)
         catch
             println("## init!")
             f.init!(methods(f.fnc).ms[1].module)
-            f.fnc(a; ka...)
+            invokelatest(f.fnc, a; ka...)
         end
     end
 
@@ -245,7 +249,7 @@ Prp(p::Prp) = Prp(p.fnclist)
     catch
         println("## init!")
         p.init!(methods(p.fnc).ms[1].module)
-        p.fnc(a; ka...)
+        invokelatest(p.fnc, a; ka...)
     end
 
 function Base.push!(p::Prp, mth::Function)
