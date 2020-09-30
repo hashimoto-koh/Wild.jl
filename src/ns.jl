@@ -20,7 +20,7 @@ end
 ################
 # NS
 ################
-
+#=
 struct NS <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
@@ -28,27 +28,21 @@ struct NS <: AbstNS
     NS() = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
                #= __fix_lck =# MVector{2, Bool}(false, false))
 end
-#=
-macro NS()
-    return esc(:(NS(@__MODULE__)))
-end
 =#
+const NS = NSX{nothing}
+
 ################
-# NSGen{X}
+# NSX{X}
 ################
 
-struct NSGen{X} <: AbstNS
+struct NSX{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
 
-    NSGen{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-                                #= __fix_lck =# MVector{2, Bool}(false, false))
+    NSX{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+                              #= __fix_lck =# MVector{2, Bool}(false, false))
 end
-#=
-macro NSGen(X)
-    return esc(:(NSGen{$(X)}(@__MODULE__)))
-end
-=#
+
 ################
 # NS
 ################
@@ -127,7 +121,6 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 
         haskey(d, atr) ||
             error("""This NS does not have a property named "$(atr)".""")
-            # x -> (Base.setproperty!(ns, atr, x); ns)
 
         x = d[atr].obj;
         isa(x, Union{Prp, Mth, Fnc}) && (return x(ns))
@@ -143,20 +136,14 @@ Base.:>>( g::AbstNS, h::AbstNS) = h.import(g)
 Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 
 ################
-# nsgen, ns
+# genNSX, ns
 ################
 
-nsgen() = NSGen{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
-nsgen(name::Union{Symbol, AbstractString}) = NSGen{name}
+genNSX() = NSX{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
+genNSX(name::Union{Symbol, AbstractString}) = NSGen{name}
 
-ns() = nsgen()()
-ns(name::Union{Symbol, AbstractString}) = nsgen(name)()
-
-#=
-macro ns(name)
-    return esc(:(ns($(name), @__MODULE__)))
-end
-=#
+nsx() = genNSX()()
+nsx(name::Union{Symbol, AbstractString}) = genNSX(name)()
 
 ################
 # AbstNSX, NSX, NSXinit, prm, nsx
@@ -180,6 +167,7 @@ NSX{prm(G)}(a) = (g = G(); g.a = g.a + a; g)
 NSX{prm(G)}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
 =#
 
+#=
 struct NSXinit{X} end
 
 abstract type AbstNSX <: AbstNS end
@@ -193,14 +181,11 @@ struct NSX{X} <: AbstNSX
 end
 
 NSX{X}() where X = NSXinit{NSX{X}}()
-#=
-macro NSX(X)
-    return esc(:(NSX{$(X)}(@__MODULE__)))
-end
-=#
+
 prm(X) = X.parameters[1]
 
 nsx() = NSX{Symbol("NSX_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
+=#
 
 ################
 # New NS macro

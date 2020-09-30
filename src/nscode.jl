@@ -21,7 +21,7 @@ struct NSCode <: AbstNSCode
         new(#= __args           =# args,
             #= __kargs          =# kargs,
             #= __code           =# [],
-            #= __type           =# nsgen(),
+            #= __type           =# genNSX(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
             #= __init           =# [nothing],
