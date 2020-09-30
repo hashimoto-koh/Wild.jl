@@ -204,7 +204,7 @@ Fnc(f::Fnc) = Fnc(f.fnclist)
         catch
             println("## init!")
             f.init!(methods(f.fnc).ms[1].module)
-            invokelatest(f.fnc, a; ka...)
+            Base.invokelatest(f.fnc, a; ka...)
         end
     end
 
@@ -249,7 +249,7 @@ Prp(p::Prp) = Prp(p.fnclist)
     catch
         println("## init!")
         p.init!(methods(p.fnc).ms[1].module)
-        invokelatest(p.fnc, a; ka...)
+        Base.invokelatest(p.fnc, a; ka...)
     end
 
 function Base.push!(p::Prp, mth::Function)
