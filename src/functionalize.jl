@@ -17,7 +17,11 @@ struct _functionalize{F} <: Function; f::F; end
 # arg
 ###############################
 
-struct Args; a; ka; end
+struct Args <: Function
+    a
+    ka
+end
+
 @inline (a::Args)(f) = functionalize(f)(a.a...; a.ka...)
 
 @inline arg(a...; ka...) = Args(a, ka)
