@@ -69,38 +69,38 @@ abstract type AbstTagFunc <: Function end
 
 macro dfn(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :Dfn, ex.args[2]))
-               : Expr(:call, :Dfn, ex))
+               ? :($(ex.args[1]) = Wild.dfn($(ex.args[2])))
+               : :(Wild.dfn($(ex))))
 end
 
 macro req(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :Req, ex.args[2]))
-               : Expr(:call, :Req, ex))
+               ? :($(ex.args[1]) = Wild.req($(ex.args[2])))
+               : :(Wild.req($(ex))))
 end
 
 macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(prp((a...; ka...) -> $(ex.args[2])(a...; ka...);
-                            mdl=@__MODULE__)))
-               : :(prp((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
+                      :(Wild.prp((a...; ka...) -> $(ex.args[2])(a...; ka...);
+                                 mdl=@__MODULE__)))
+               : :(Wild.prp((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
 
 macro mth(ex)
     return esc(ex.head == :(=)
-               ? Expr(:(=), ex.args[1], Expr(:call, :Mth, ex.args[2]))
-               : Expr(:call, :Mth, ex))
+               ? :($(ex.args[1]) = Wild.mth($(ex.args[2])))
+               : :(Wild.mth($(ex))))
 end
 
 macro fnc(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(fnc((a...; ka...) -> $(ex.args[2])(a...; ka...);
-                            mdl=@__MODULE__)))
-               : :(fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
+                      :(Wild.fnc((a...; ka...) -> $(ex.args[2])(a...; ka...);
+                                 mdl=@__MODULE__)))
+               : :(Wild.fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
 
 ###############################
