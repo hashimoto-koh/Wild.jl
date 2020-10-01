@@ -142,8 +142,8 @@ _MakeItem(x::NScstreq, f) = NScst_item(req(f))
 struct NSprp{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstprp{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSprp, f) = NSnoncst_item(prp(f; init=false))
-_MakeItem(x::NScstprp, f) = NScst_item(prp(f; init=false))
+_MakeItem(x::NSprp, f) = NSnoncst_item(nsprp(f))
+_MakeItem(x::NScstprp, f) = NScst_item(nsprp(f))
 
 ################
 # NSfnc
@@ -152,8 +152,8 @@ _MakeItem(x::NScstprp, f) = NScst_item(prp(f; init=false))
 struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSfnc, f) = NSnoncst_item(fnc(f; init=false))
-_MakeItem(x::NScstfnc, f) = NScst_item(fnc(f; init=false))
+_MakeItem(x::NSfnc, f) = NSnoncst_item(nsfnc(f))
+_MakeItem(x::NScstfnc, f) = NScst_item(nsfnc(f))
 
 ################
 # NSmth

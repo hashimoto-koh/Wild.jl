@@ -51,38 +51,21 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
             o = d[atr].obj
 
-            if isa(o, Prp)
-                if isa(x, AbstNSitem) && isa(x.obj, Prp)
-                    o.append!(x.obj.fnclist)
-                else
-                    o(ns, x)
-                end
+            if isa(o, NSPrp)
+                (isa(x, AbstNSitem) && isa(x.obj, NSPrp)
+                 ? push!(o, x.obj)
+                 : o(ns, x))
             elseif isa(o, Fnc)
-                if isa(x, AbstNSitem) && isa(x.obj, Fnc)
-                    o.append!(x.obj.fnclist)
-                else
-                    d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
-                end
+                (isa(x, AbstNSitem) && isa(x.obj, NSFnc)
+                 ? push!(o, x.obj)
+                 : (d[atr].obj = isa(x, AbstNSitem) ? x.obj : x))
             else
                 d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
             end
         else
             ns._lcked && Base.error("this NS is locked!")
 
-            if isa(x, AbstNSitem)
-                xo = x.obj
-                if isa(xo, Fnc)
-                    d[atr] = typeof(x)(fnc(xo.fnclist; init=false))
-                    d[atr].obj.init!()
-                elseif isa(x.obj, Prp)
-                    d[atr] = typeof(x)(prp(xo.fnclist; init=false))
-                    d[atr].obj.init!()
-                else
-                    d[atr] = x
-                end
-            else
-                d[atr] = NSnoncst_item(x)
-            end
+            d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
         ns
     end
@@ -111,7 +94,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
             error("""This NS does not have a property named "$(atr)".""")
 
         x = d[atr].obj;
-        isa(x, Union{Prp, Mth, Fnc}) && (return x(ns))
+        isa(x, Union{NSPrp, Mth, NSFnc}) && (return x(ns))
         isa(x, Req) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
         return x
     end
