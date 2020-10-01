@@ -69,35 +69,33 @@ _NSdict0[:copyout] = ns ->
          if deep
              if length(a) > 0
                  for k ∈ a
-                     if k ∉ exclude
-                         x = deepcopy(d[k].obj)
-                         gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (gd[k] = (ns.iscst(k)
+                                   ? NScst_item
+                                   : NSnoncst_item)(deepcopy(d[k].obj)))
                  end
              else
                  for (k, w) ∈ pairs(d)
-                     if k ∉ exclude
-                         x = deepcopy(w.obj)
-                         gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (gd[k] = (ns.iscst(k)
+                                   ? NScst_item
+                                   : NSnoncst_item)(deepcopy(w.obj)))
                  end
              end
          else
              if length(a) > 0
                  for k ∈ a
-                     if k ∉ exclude
-                         v = d[k].obj
-                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
-                         gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (gd[k] = (ns.iscst(k)
+                                   ? NScst_item
+                                   : NSnoncst_item)(d[k].obj))
                  end
              else
                  for (k, w) ∈ pairs(d)
-                     if k ∉ exclude
-                         v = w.obj
-                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
-                         gd[k] = (ns.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (gd[k] = (ns.iscst(k)
+                                   ? NScst_item
+                                   : NSnoncst_item)(w.obj))
                  end
              end
          end
@@ -112,35 +110,33 @@ _NSdict0[:copyfrom] = ns ->
          if deep
              if length(a) > 0
                  for k ∈ a
-                     if k ∉ exclude
-                         x = deepcopy(gd[k].obj)
-                         d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                    k ∉ exclude &&
+                         (d[k] = (g.iscst(k)
+                                  ? NScst_item
+                                  : NSnoncst_item)(deepcopy(gd[k].obj)))
                  end
              else
                  for (k, w) ∈ pairs(gd)
-                     if k ∉ exclude
-                         x = deepcopy(w.obj)
-                         d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (d[k] = (g.iscst(k)
+                                  ? NScst_item
+                                  : NSnoncst_item)(deepcopy(w.obj)))
                  end
              end
          else
              if length(a) > 0
                  for k ∈ a
-                     if k ∉ exclude
-                         v = gd[k].obj
-                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
-                         d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (d[k] = (g.iscst(k)
+                                  ? NScst_item
+                                  : NSnoncst_item)(gd[k].obj))
                  end
              else
                  for (k, w) ∈ pairs(gd)
-                     if k ∉ exclude
-                         v = w.obj
-                         x = v # (isa(v, Fnc) ? Fnc(v.fnclist) : v)
-                         d[k] = (g.iscst(k) ? NScst_item : NSnoncst_item)(x)
-                     end
+                     k ∉ exclude &&
+                         (d[k] = (g.iscst(k)
+                                  ? NScst_item
+                                  : NSnoncst_item)(w.obj))
                  end
              end
          end
