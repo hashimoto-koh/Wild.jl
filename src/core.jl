@@ -82,15 +82,14 @@ macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(Wild.prp((a...; ka...) -> $(ex.args[2])(a...; ka...);
-                                 mdl=@__MODULE__)))
-               : :(Wild.prp((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
+                      :(Wild.NSPrp((a...; ka...) -> $(ex.args[2])(a...; ka...))))
+               : :(Wild.NSPrp((a...; ka...) -> $(ex)(a...; ka...))))
 end
 
 macro mth(ex)
     return esc(ex.head == :(=)
-               ? :($(ex.args[1]) = Wild.mth($(ex.args[2])))
-               : :(Wild.mth($(ex))))
+               ? :($(ex.args[1]) = Wild.NSMth($(ex.args[2])))
+               : :(Wild.NSMth($(ex))))
 end
 #=
 macro fnc(ex)
