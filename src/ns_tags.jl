@@ -186,7 +186,7 @@ Base.push!(fnc::T, f::T) where T <: AbstNSTagFunc = Base.push!(fnc, f.fnc)
 Base.getproperty(fnc::AbstNSTagFunc, atr::Symbol) =
     begin
         atr == :push! && (return f -> Base.push!(fnc, f))
-        Base.hasfield(typeof(fnc), atr) && (return Base.getfield(fnc, atr))
+        return Base.getfield(fnc, atr)
     end
 
 ###############################
