@@ -107,7 +107,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
 
         if atr == :init
             if isnothing(nsc.__init[1])
-                nsc.__init[1] = nsfnc(x)
+                nsc.__init[1] = NSFnc(x)
             else
                 nsc.__init[1].push!(x)
             end
@@ -219,7 +219,7 @@ struct NSCodereq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstreq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
 _MakeItem(x::NSCodereq, f) = NSCodenoncst_item(NSReq(f))
-_MakeItem(x::NSCodecstreq, f) = NSCodecst_item(req(f))
+_MakeItem(x::NSCodecstreq, f) = NSCodecst_item(NSReq(f))
 
 ################
 # NSCodeprp
