@@ -185,47 +185,4 @@ begin
     atr == :append! && (return mths -> append!(f, mths))
     Base.getfield(f, atr)
 end
-
-###############################
-# prp
-###############################
-
-prp(f; init=true, mdl=nothing) = (pr = Prp(f); init ? pr.init!(mdl) : pr)
-
-mutable struct Prp <: AbstTagFunc
-    fnc::Union{Nothing, Function}
-    fnclist::Vector{Function}
-    Prp(f::Function) = new(nothing, [f])
-end
-
-Prp(flst::Vector{Function}) = (p = Prp(flst[1]); p.append!(flst[2:end]); p)
-Prp(p::Prp) = Prp(p.fnclist)
-(p::Prp)(a...; ka...) =
-    try
-        p.fnc(a; ka...)
-    catch
-        p.init!(methods(p.fnc).ms[1].module)
-        Base.invokelatest(p.fnc, a; ka...)
-    end
-
-function Base.push!(p::Prp, mth::Function)
-    isnothing(p.fnc) || _addmth!(p.fnc, mth)
-    push!(p.fnclist, mth)
-end
-
-function Base.append!(p::Prp, mths::AbstractVector{Function})
-    isnothing(p.fnc) || _addmth!(p.fnc, mths)
-    append!(p.fnclist, mths)
-    p
-end
-
-Base.getproperty(p::Prp, atr::Symbol) =
-begin
-    atr == :init! &&
-        (return (mdl=nothing) ->
-                (p.fnc = _addmth!(nothing, p.fnclist; mdl=mdl); return p))
-    atr == :push! && (return mth -> push!(p, mth))
-    atr == :append! && (return mths -> append!(p, mths))
-    Base.getfield(p, atr)
-end
 =#
