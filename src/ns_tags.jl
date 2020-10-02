@@ -217,7 +217,7 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
     fnc::F
     fnclist::Vector{Function}
-    NSFnc{F}(f::F) = new(f, Vector{Function}[f])
+    NSFnc{F}(f::F) where F = new(f, Vector{Function}[f])
 end
 (fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
 
@@ -228,6 +228,6 @@ end
 mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
     fnc::F
     fnclist::Vector{Function}
-    NSPrp{F}(f::F) = new(f, Vector{Function}[f])
+    NSPrp{F}(f::F) where F = new(f, Vector{Function}[f])
 end
 (prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
