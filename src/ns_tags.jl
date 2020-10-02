@@ -208,14 +208,14 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 (mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
 
 ###############################
-# nsfnc
+# NSFnc
 ###############################
 
 mutable struct NSFnc{F <: Function} <: AbstNSTagFunc fnc::F end
 (fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
 
 ###############################
-# nsprp
+# NSPrp
 ###############################
 
 mutable struct NSPrp{F <: Function} <: AbstNSTagFunc fnc::F end
