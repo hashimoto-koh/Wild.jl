@@ -173,12 +173,13 @@ _MakeItem(x::NScstmth, f) = NScst_item(NSMth(f))
 abstract type AbstNSTagFunc <: Function end
 
 Base.push!(fnc::AbstNSTagFunc, f::Function) =
-begin
-    for (m,c) in zip(methods(f).ms, code_lowered(f))
-        addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+    begin
+        push!(fnc.fnclist, f)
+        for (m,c) in zip(methods(f).ms, code_lowered(f))
+            addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+        end
+        fnc
     end
-    fnc
-end
 
 Base.push!(fnc::T, f::T) where T <: AbstNSTagFunc = Base.push!(fnc, f.fnc)
 
@@ -213,12 +214,20 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 # NSFnc
 ###############################
 
-mutable struct NSFnc{F <: Function} <: AbstNSTagFunc fnc::F end
+mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
+    fnc::F
+    fnclist::Vector{Function}
+    NSFnc{F}(f::F) = new(f, Vector{Function}[f])
+end
 (fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
 
 ###############################
 # NSPrp
 ###############################
 
-mutable struct NSPrp{F <: Function} <: AbstNSTagFunc fnc::F end
+mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
+    fnc::F
+    fnclist::Vector{Function}
+    NSPrp{F}(f::F) = new(f, Vector{Function}[f])
+end
 (prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
