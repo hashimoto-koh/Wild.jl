@@ -65,8 +65,7 @@ g.a = 3
 @mth g.f = (g,x) ->  g.a + x
 =#
 
-abstract type AbstTagFunc <: Function end
-
+#=
 macro dfn(ex)
     return esc(ex.head == :(=)
                ? :($(ex.args[1]) = Wild.dfn($(ex.args[2])))
@@ -78,7 +77,7 @@ macro req(ex)
                ? :($(ex.args[1]) = Wild.req($(ex.args[2])))
                : :(Wild.req($(ex))))
 end
-
+=#
 macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
@@ -93,7 +92,7 @@ macro mth(ex)
                ? :($(ex.args[1]) = Wild.mth($(ex.args[2])))
                : :(Wild.mth($(ex))))
 end
-
+#=
 macro fnc(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
@@ -102,6 +101,7 @@ macro fnc(ex)
                                  mdl=@__MODULE__)))
                : :(Wild.fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
 end
+=#
 
 ###############################
 # @prpfnc, @mthfnc
@@ -113,11 +113,9 @@ end
 (::dtype.type)(itr::Base.Generator) = Base.return_types(itr.f, (dtype(itr.iter),))[1]
 =#
 
-abstract type AbstFunc <: AbstTagFunc end
-
-abstract type AbstPrpFunc <: AbstFunc end
-
-abstract type AbstMthFunc <: AbstFunc end
+abstract type AbstTagFunc <: Function end
+abstract type AbstPrpFunc <: AbstTagFunc end
+abstract type AbstMthFunc <: AbstTagFunc end
 
 macro prpfnc(name)
     typename = Base.gensym()
@@ -141,24 +139,6 @@ macro mthfnc(name)
     end
     esc(ex)
 end
-
-###############################
-# dfn, req, mth
-###############################
-
-abstract type AbstClassFunc <: AbstTagFunc end
-
-mutable struct Dfn{T <: Any} <: AbstClassFunc fnc::T end
-(dfn::Dfn)(self) = dfn.fnc(self)
-dfn(fnc) = Dfn(fnc)
-
-mutable struct Req{T <: Any} <: AbstClassFunc fnc::T end
-(req::Req)(self) = req.fnc(self)
-req(fnc) = Req(fnc)
-
-mutable struct Mth{T <: Any} <: AbstClassFunc fnc::T end
-(mth::Mth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
-mth(fnc) = Mth(fnc)
 
 ###############################
 # fnc
@@ -249,47 +229,3 @@ begin
     atr == :append! && (return mths -> append!(p, mths))
     Base.getfield(p, atr)
 end
-
-###############################
-# nsfnc
-###############################
-
-nsfnc(f) = NSFnc(f)
-
-mutable struct NSFnc <: Wild.AbstClassFunc
-    fnc::Function
-end
-
-(fnc::NSFnc)(a...; ka...) = fnc.fnc(a...; ka...)
-
-Base.push!(fnc::NSFnc, f::Function) =
-begin
-    for (m,c) in zip(methods(f).ms, code_lowered(f))
-        addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
-    end
-    fnc
-end
-
-Base.push!(fnc::NSFnc, f::NSFnc) = Base.push!(fnc, f.fnc)
-
-###############################
-# nsprp
-###############################
-
-nsprp(f) = NSPrp(f)
-
-mutable struct NSPrp <: Wild.AbstClassFunc
-    fnc::Function
-end
-
-(prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
-
-Base.push!(prp::NSPrp, f) =
-begin
-    for (m,c) in zip(methods(f).ms, code_lowered(f))
-        addmethod!(Tuple{typeof(prp.fnc), m.sig.parameters[2:end]...}, c)
-    end
-    prp
-end
-
-Base.push!(prp::NSPrp, p::NSFnc) = Base.push!(prp, p.fnc)

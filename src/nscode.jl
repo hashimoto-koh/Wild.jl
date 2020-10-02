@@ -38,15 +38,15 @@ function push_to_instance(o, atr, val)
     x = isa(val, NSCodecst_item) ? Base.getproperty(o, :cst) : o
 
     if isa(val, AbstNSCodeitem)
-        if isa(val.obj, Dfn)
+        if isa(val.obj, NSDfn)
             y = Base.getproperty(x, :dfn)
-        elseif isa(val.obj, Req)
+        elseif isa(val.obj, NSReq)
             y = Base.getproperty(x, :req)
         elseif isa(val.obj, NSPrp)
             y = Base.getproperty(x, :prp)
         elseif isa(val.obj, NSFnc)
             y = Base.getproperty(x, :fnc)
-        elseif isa(val.obj, Mth)
+        elseif isa(val.obj, NSMth)
             y = Base.getproperty(x, :mth)
         else
             y = x
@@ -61,7 +61,7 @@ function push_to_instance(o, atr, val)
         else
             Base.setproperty!(y, atr, val)
         end
-    elseif isa(val.obj, Union{Dfn, Mth, NSPrp, NSFnc})
+    elseif isa(val.obj, AbstNSTagFunc)
         Base.setproperty!(y, atr, val.obj.fnc)
     else
         Base.setproperty!(y, atr, val.obj)
@@ -208,8 +208,8 @@ _MakeItem(x::NSCodecst, o) = NSCodecst_item(o)
 struct NSCodedfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstdfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodedfn, f) = NSCodenoncst_item(dfn(f))
-_MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(dfn(f))
+_MakeItem(x::NSCodedfn, f) = NSCodenoncst_item(NSDfn(f))
+_MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(NSDfn(f))
 
 ################
 # NSCodereq
@@ -218,7 +218,7 @@ _MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(dfn(f))
 struct NSCodereq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstreq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodereq, f) = NSCodenoncst_item(req(f))
+_MakeItem(x::NSCodereq, f) = NSCodenoncst_item(NSReq(f))
 _MakeItem(x::NSCodecstreq, f) = NSCodecst_item(req(f))
 
 ################
@@ -228,8 +228,8 @@ _MakeItem(x::NSCodecstreq, f) = NSCodecst_item(req(f))
 struct NSCodeprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(nsprp(f))
-_MakeItem(x::NSCodecstprp, f) = NSCodecst_item(nsprp(f))
+_MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(NSPrp(f))
+_MakeItem(x::NSCodecstprp, f) = NSCodecst_item(NSPrp(f))
 
 ################
 # NSCodefnc
@@ -238,8 +238,8 @@ _MakeItem(x::NSCodecstprp, f) = NSCodecst_item(nsprp(f))
 struct NSCodefnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstfnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(nsfnc(f))
-_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(nsfnc(f))
+_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(NSFnc(f))
+_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(NSFnc(f))
 
 ################
 # NSCodemth
@@ -276,5 +276,5 @@ end
 struct NSCodemth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 struct NSCodecstmth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
 
-_MakeItem(x::NSCodemth, f) = NSCodenoncst_item(mth(f))
-_MakeItem(x::NSCodecstmth, f) = NSCodecst_item(mth(f))
+_MakeItem(x::NSCodemth, f) = NSCodenoncst_item(NSMth(f))
+_MakeItem(x::NSCodecstmth, f) = NSCodecst_item(NSMth(f))

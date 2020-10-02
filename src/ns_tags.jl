@@ -132,8 +132,8 @@ struct NSreq{T <: AbstNS} <: AbstNStag ns::T end
 
 struct NScstreq{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSreq, f) = NSnoncst_item(req(f))
-_MakeItem(x::NScstreq, f) = NScst_item(req(f))
+_MakeItem(x::NSreq, f) = NSnoncst_item(nsreq(f))
+_MakeItem(x::NScstreq, f) = NScst_item(nsreq(f))
 
 ################
 # NSprp
@@ -142,8 +142,8 @@ _MakeItem(x::NScstreq, f) = NScst_item(req(f))
 struct NSprp{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstprp{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSprp, f) = NSnoncst_item(nsprp(f))
-_MakeItem(x::NScstprp, f) = NScst_item(nsprp(f))
+_MakeItem(x::NSprp, f) = NSnoncst_item(NSPrp(f))
+_MakeItem(x::NScstprp, f) = NScst_item(NSPrp(f))
 
 ################
 # NSfnc
@@ -152,8 +152,8 @@ _MakeItem(x::NScstprp, f) = NScst_item(nsprp(f))
 struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSfnc, f) = NSnoncst_item(nsfnc(f))
-_MakeItem(x::NScstfnc, f) = NScst_item(nsfnc(f))
+_MakeItem(x::NSfnc, f) = NSnoncst_item(NSFnc(f))
+_MakeItem(x::NScstfnc, f) = NScst_item(NSFnc(f))
 
 ################
 # NSmth
@@ -161,5 +161,62 @@ _MakeItem(x::NScstfnc, f) = NScst_item(nsfnc(f))
 struct NSmth{T <: AbstNS} <: AbstNStag ns::T end
 struct NScstmth{T <: AbstNS} <: AbstNStag ns::T end
 
-_MakeItem(x::NSmth, f) = NSnoncst_item(mth(f))
-_MakeItem(x::NScstmth, f) = NScst_item(mth(f))
+_MakeItem(x::NSmth, f) = NSnoncst_item(NSMth(f))
+_MakeItem(x::NScstmth, f) = NScst_item(NSMth(f))
+
+###############################
+# ABstNSTagFunc
+###############################
+
+abstract type AbstNSTagFunc <: Function end
+
+Base.push!(fnc::AbstNSTagFunc, f::Function) =
+begin
+    for (m,c) in zip(methods(f).ms, code_lowered(f))
+        addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+    end
+    fnc
+end
+
+Base.push!(fnc::T, f::T) where T <: AbstNSTagFunc = Base.push!(fnc, f.fnc)
+
+Base.getproperty(fnc::AbstNSTagFunc, atr::Symbol) =
+    begin
+        atr == :push! && (return f -> Base.push!(fnc, f))
+        Base.hasfield(typeof(fnc), atr) && (return Base.getfield(fnc, atr))
+    end
+
+###############################
+# NSDfn
+###############################
+
+mutable struct NSDfn{F <: Function} <: AbstNSTagFunc fnc::F end
+(dfn::NSDfn)(self) = dfn.fnc(self)
+
+###############################
+# NSReq
+###############################
+
+mutable struct NSReq{F <: Function} <: AbstNSTagFunc fnc::F end
+(req::NSReq)(self) = req.fnc(self)
+
+###############################
+# NSMth
+###############################
+
+mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
+(mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
+
+###############################
+# nsfnc
+###############################
+
+mutable struct NSFnc{F <: Function} <: AbstNSTagFunc fnc::F end
+(fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
+
+###############################
+# nsprp
+###############################
+
+mutable struct NSPrp{F <: Function} <: AbstNSTagFunc fnc::F end
+(prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)

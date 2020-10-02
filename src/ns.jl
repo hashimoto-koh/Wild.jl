@@ -53,11 +53,11 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
             if isa(o, NSPrp)
                 (isa(x, AbstNSitem) && isa(x.obj, NSPrp)
-                 ? push!(o, x.obj)
+                 ? o.push!(x.obj)
                  : o(ns, x))
             elseif isa(o, Fnc)
                 (isa(x, AbstNSitem) && isa(x.obj, NSFnc)
-                 ? push!(o, x.obj)
+                 ? o.push!(x.obj)
                  : (d[atr].obj = isa(x, AbstNSitem) ? x.obj : x))
             else
                 d[atr].obj = isa(x, AbstNSitem) ? x.obj : x

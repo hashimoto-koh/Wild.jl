@@ -4,21 +4,23 @@ include("functionalize.jl")
 export arg, grb, asn, mth, grbs, asns, cry, wc, wd, @cry
 
 include("core.jl")
-export AbstTagFunc
-export @dfn, @req, @prp, @mth, @fnc, @sprp
-export AbstFunc, AbstPrpFunc, AbstMthFunc
+export AbstTagFunc, AbstPrpFunc, AbstMthFunc
+export @prp, @mth
+# export @dfn, @req, @prp, @mth, @fnc, @sprp
 export @prpfnc, @mthfnc
-export AbstClassFunc
-export dfn, req, prp, sprp, fnc
 
 include("ns_dict0.jl")
 include("ns.jl")
 include("ns_tags.jl")
 export AbstNS, NS
 export NSX, genNSX, nsx, AbstNSitem
+export AbstNSTagFunc
+export NSDfn, NSReq, MSMth, NSPrp, NSFnc
 
+#=
 include("nscls.jl")
 export AbstNSCls, NSCls
+=#
 
 include("nscode_dict0.jl")
 include("nscode.jl")
