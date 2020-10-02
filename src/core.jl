@@ -139,7 +139,7 @@ macro mthfnc(name)
     end
     esc(ex)
 end
-
+#=
 ###############################
 # fnc
 ###############################
@@ -147,7 +147,7 @@ end
 fnc(f; init=true, mdl=nothing) =
     (fc = Fnc(f); init ? fc.init!(mdl) : fc)
 
-mutable struct Fnc <: AbstClassFunc
+mutable struct Fnc <: AbstTagFunc
     fnc::Union{Nothing, Function}
     fnclist::Vector{Function}
     Fnc(f::Function) = new(nothing, [f])
@@ -193,7 +193,7 @@ end
 
 prp(f; init=true, mdl=nothing) = (pr = Prp(f); init ? pr.init!(mdl) : pr)
 
-mutable struct Prp <: AbstClassFunc
+mutable struct Prp <: AbstTagFunc
     fnc::Union{Nothing, Function}
     fnclist::Vector{Function}
     Prp(f::Function) = new(nothing, [f])
@@ -229,3 +229,4 @@ begin
     atr == :append! && (return mths -> append!(p, mths))
     Base.getfield(p, atr)
 end
+=#
