@@ -31,6 +31,6 @@ include("operators.jl")
 Base.getproperty(o::Any, atr::Symbol) =
     (hasfield(typeof(o), atr)
      ? Base.getfield(o, atr)
-     : (f = Base.eval(Base.Main, atr); (isa(f, AbstTagFunc) ? f : NSMth(f))(o)))
+     : (f = Base.eval(Base.Main, atr); (isa(f, AbstNSTagFunc) ? f : NSMth(f))(o)))
 
 end
