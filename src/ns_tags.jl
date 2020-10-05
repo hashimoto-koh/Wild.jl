@@ -219,9 +219,19 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 
 mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
     fnc::F
-    NSFnc(f::F) where F <: Function = new{F}(f)
+    fnclist::Vector{Function}
+    NSFnc(f::F) where F <: Function = new{F}(f, Vector{Function}([]))
 end
-(fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
+(fnc::NSFnc)(self) =
+    begin
+        for f in fnc.fnclist
+            for (m,c) in zip(methods(f).ms, code_lowered(f))
+                addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+            end
+        end
+        Base.empty!(fnc.fnclist)
+        (a...; ka...)->fnc.fnc(self, a...; ka...)
+    end
 
 ###############################
 # NSPrp
@@ -229,17 +239,31 @@ end
 
 mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
     fnc::F
-    NSPrp(f::F) where F <: Function = new{F}(f)
+    fnclist::Vector{Function}
+    NSPrp(f::F) where F <: Function = new{F}(f, Vector{Function}([]))
 end
-(prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
-
-Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) =
+(prp::NSPrp)(a...; ka...) =
     begin
-        for (m,c) in zip(methods(f).ms, code_lowered(f))
-            addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+        for f in prp.fnclist
+            for (m,c) in zip(methods(f).ms, code_lowered(f))
+                addmethod!(Tuple{typeof(prp.fnc), m.sig.parameters[2:end]...}, c)
+            end
         end
-        fnc
+        Base.empty!(prp.fnclist)
+        prp.fnc(a...; ka...)
     end
 
-Base.push!(fnc::NSFnc, f::NSFnc) = Base.push!(fnc, f.fnc)
-Base.push!(fnc::NSPrp, f::NSPrp) = Base.push!(fnc, f.fnc)
+Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) = Base.push!(fnc.fnclist, f)
+
+Base.push!(fnc::NSFnc, f::NSFnc) =
+    begin
+        Base.push!(fnc, f.fnc)
+        Base.append!(fnc.fnclist, f.fnclist)
+        fnc
+    end
+Base.push!(prp::NSPrp, f::NSPrp) =
+    begin
+        Base.push!(prp, f.fnc)
+        Base.append!(prp.fnclist, f.fnclist)
+        fnc
+    end
