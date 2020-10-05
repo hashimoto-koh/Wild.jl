@@ -1,7 +1,7 @@
 name = "Wild"
 uuid = "42e5e773-7461-4e3f-a089-462a202deb8b"
 authors = ["Koh Hashimoto"]
-version = "0.2.0"
+version = "0.2.2"
 
 [deps]
 CodeTransformation = "3c9fd3ee-a92c-11e9-08dd-a9434b97651a"
