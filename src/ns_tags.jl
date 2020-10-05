@@ -99,7 +99,7 @@ Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
         if Base.hasfield(typeof(x), atr)
             Base.setproperty!(x, atr, f)
         else
-            Base.setproperty!(x.ns, atr, _MakeItem(x, f))
+            Base.setproperty!(x.___NStag_ns, atr, _MakeItem(x, f))
         end
     end
 
@@ -133,30 +133,30 @@ Base.setproperty!(x::NScst, atr::Symbol, o) =
 # NSdfn
 ################
 
-struct NSdfn{T <: AbstNS} <: AbstNStag ns::T end
+struct NSdfn{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
-struct NScstdfn{T <: AbstNS} <: AbstNStag ns::T end
+struct NScstdfn{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
-_MakeItem(x::NSdfn, f) = NSnoncst_item(f(x.ns))
-_MakeItem(x::NScstdfn, f) = NScst_item(f(x.ns))
+_MakeItem(x::NSdfn, f) = NSnoncst_item(f(x.___NStag_ns))
+_MakeItem(x::NScstdfn, f) = NScst_item(f(x.___NStag_ns))
 
 ################
 # NSreq
 ################
 
-struct NSreq{T <: AbstNS} <: AbstNStag ns::T end
+struct NSreq{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
-struct NScstreq{T <: AbstNS} <: AbstNStag ns::T end
+struct NScstreq{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
-_MakeItem(x::NSreq, f) = NSnoncst_item(nsreq(f))
-_MakeItem(x::NScstreq, f) = NScst_item(nsreq(f))
+_MakeItem(x::NSreq, f) = NSnoncst_item(NSReq(f))
+_MakeItem(x::NScstreq, f) = NScst_item(NSReq(f))
 
 ################
 # NSprp
 ################
 
-struct NSprp{T <: AbstNS} <: AbstNStag ns::T end
-struct NScstprp{T <: AbstNS} <: AbstNStag ns::T end
+struct NSprp{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
+struct NScstprp{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
 _MakeItem(x::NSprp, f) = NSnoncst_item(NSPrp(f))
 _MakeItem(x::NScstprp, f) = NScst_item(NSPrp(f))
@@ -165,8 +165,8 @@ _MakeItem(x::NScstprp, f) = NScst_item(NSPrp(f))
 # NSfnc
 ################
 
-struct NSfnc{T <: AbstNS} <: AbstNStag ns::T end
-struct NScstfnc{T <: AbstNS} <: AbstNStag ns::T end
+struct NSfnc{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
+struct NScstfnc{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
 _MakeItem(x::NSfnc, f) = NSnoncst_item(NSFnc(f))
 _MakeItem(x::NScstfnc, f) = NScst_item(NSFnc(f))
@@ -174,8 +174,8 @@ _MakeItem(x::NScstfnc, f) = NScst_item(NSFnc(f))
 ################
 # NSmth
 ################
-struct NSmth{T <: AbstNS} <: AbstNStag ns::T end
-struct NScstmth{T <: AbstNS} <: AbstNStag ns::T end
+struct NSmth{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
+struct NScstmth{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
 
 _MakeItem(x::NSmth, f) = NSnoncst_item(NSMth(f))
 _MakeItem(x::NScstmth, f) = NScst_item(NSMth(f))
@@ -225,8 +225,8 @@ end
 (fnc::NSFnc)(self) =
     begin
         if !isempty(fnc.fnclist)
-            for f in fnc.fnclist
-                for (m,c) in zip(methods(f).ms, code_lowered(f))
+            for f ∈ fnc.fnclist
+                for (m,c) ∈ zip(methods(f).ms, code_lowered(f))
                     addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...},
                                c)
                 end
@@ -250,8 +250,8 @@ end
 (prp::NSPrp)(a...; ka...) =
     begin
         if !isempty(prp.fnclist)
-            for f in prp.fnclist
-                for (m,c) in zip(methods(f).ms, code_lowered(f))
+            for f ∈ prp.fnclist
+                for (m,c) ∈ zip(methods(f).ms, code_lowered(f))
                     addmethod!(Tuple{typeof(prp.fnc), m.sig.parameters[2:end]...},
                                c)
                 end
@@ -301,7 +301,7 @@ end
 
 Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) =
     begin
-        for (m,c) in zip(methods(f).ms, code_lowered(f))
+        for (m,c) ∈ zip(methods(f).ms, code_lowered(f))
             addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
         end
     end
