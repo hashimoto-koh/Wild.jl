@@ -186,16 +186,6 @@ _MakeItem(x::NScstmth, f) = NScst_item(NSMth(f))
 
 abstract type AbstNSTagFunc <: Function end
 
-Base.push!(fnc::AbstNSTagFunc, f::Function) =
-    begin
-        for (m,c) in zip(methods(f).ms, code_lowered(f))
-            addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
-        end
-        fnc
-    end
-
-Base.push!(fnc::T, f::T) where T <: AbstNSTagFunc = Base.push!(fnc, f.fnc)
-
 Base.getproperty(fnc::AbstNSTagFunc, atr::Symbol) =
     begin
         atr == :push! && (return f -> Base.push!(fnc, f))
@@ -229,7 +219,7 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 
 mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
     fnc::F
-    NSFnc(f::F) where F = new{F}(f)
+    NSFnc(f::F) where F <: Function = new{F}(f)
 end
 (fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
 
@@ -242,3 +232,14 @@ mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
     NSPrp(f::F) where F <: Function = new{F}(f)
 end
 (prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
+
+Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) =
+    begin
+        for (m,c) in zip(methods(f).ms, code_lowered(f))
+            addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+        end
+        fnc
+    end
+
+Base.push!(fnc::NSFnc, f::NSFnc) = Base.push!(fnc, f.fnc)
+Base.push!(fnc::NSPrp, f::NSPrp) Base.push!(fnc, f.fnc)
