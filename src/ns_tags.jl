@@ -224,13 +224,18 @@ mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
 end
 (fnc::NSFnc)(self) =
     begin
-        for f in fnc.fnclist
-            for (m,c) in zip(methods(f).ms, code_lowered(f))
-                addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+        if !isempty(fnc.fnclist)
+            for f in fnc.fnclist
+                for (m,c) in zip(methods(f).ms, code_lowered(f))
+                    addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...},
+                               c)
+                end
             end
+            Base.empty!(fnc.fnclist)
+            (a...; ka...)->Base.invokelatest(fnc.fnc, self, a...; ka...)
+        else
+            (a...; ka...)->fnc.fnc(self, a...; ka...)
         end
-        Base.empty!(fnc.fnclist)
-        (a...; ka...)->fnc.fnc(self, a...; ka...)
     end
 
 ###############################
@@ -244,13 +249,18 @@ mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
 end
 (prp::NSPrp)(a...; ka...) =
     begin
-        for f in prp.fnclist
-            for (m,c) in zip(methods(f).ms, code_lowered(f))
-                addmethod!(Tuple{typeof(prp.fnc), m.sig.parameters[2:end]...}, c)
+        if !isempty(prp.fnclist)
+            for f in prp.fnclist
+                for (m,c) in zip(methods(f).ms, code_lowered(f))
+                    addmethod!(Tuple{typeof(prp.fnc), m.sig.parameters[2:end]...},
+                               c)
+                end
             end
+            Base.empty!(prp.fnclist)
+            Base.invokelatest(prp.fnc, a...; ka...)
+        else
+            prp.fnc(a...; ka...)
         end
-        Base.empty!(prp.fnclist)
-        prp.fnc(a...; ka...)
     end
 
 Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) = Base.push!(fnc.fnclist, f)
@@ -267,3 +277,35 @@ Base.push!(prp::NSPrp, f::NSPrp) =
         Base.append!(prp.fnclist, f.fnclist)
         fnc
     end
+
+#=
+###############################
+# NSFnc
+###############################
+
+mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
+    fnc::F
+    NSFnc(f::F) where F <: Function = new{F}(f)
+end
+(fnc::NSFnc)(self) = (a...; ka...)->Base.invokelatest(fnc.fnc, self, a...; ka...)
+
+###############################
+# NSPrp
+###############################
+
+mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
+    fnc::F
+    NSPrp(f::F) where F <: Function = new{F}(f)
+end
+(prp::NSPrp)(a...; ka...) = Base.invokelatest(prp.fnc, a...; ka...)
+
+Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) =
+    begin
+        for (m,c) in zip(methods(f).ms, code_lowered(f))
+            addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
+        end
+    end
+
+Base.push!(fnc::NSFnc, f::NSFnc) = (Base.push!(fnc, f.fnc); fnc)
+Base.push!(prp::NSPrp, f::NSPrp) = (Base.push!(prp, f.fnc); prp)
+=#
