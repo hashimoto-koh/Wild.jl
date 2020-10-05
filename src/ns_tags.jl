@@ -242,4 +242,4 @@ Base.push!(fnc::Union{NSFnc, NSPrp}, f::Function) =
     end
 
 Base.push!(fnc::NSFnc, f::NSFnc) = Base.push!(fnc, f.fnc)
-Base.push!(fnc::NSPrp, f::NSPrp) Base.push!(fnc, f.fnc)
+Base.push!(fnc::NSPrp, f::NSPrp) = Base.push!(fnc, f.fnc)
