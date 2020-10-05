@@ -93,8 +93,15 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 ################
 
 abstract type AbstNStag end
+
 Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
-    Base.setproperty!(x.ns, atr, _MakeItem(x, f))
+    begin
+        if Base.hasfield(typeof(x), atr)
+            Base.setproperty!(x, atr, f)
+        else
+            Base.setproperty!(x.ns, atr, _MakeItem(x, f))
+        end
+    end
 
 ################
 # NScst
@@ -113,7 +120,14 @@ Base.getproperty(x::NScst, atr::Symbol) =
     end
 
 Base.setproperty!(x::NScst, atr::Symbol, o) =
-    Base.setproperty!(x.ns, atr, NScst_item(o))
+    begin
+        if Base.hasfield(typeof(x), atr)
+            Base.setproperty!(x, atr, f)
+        else
+            Base.setproperty!(x.ns, atr, NScst_item(o))
+        end
+    end
+
 
 ################
 # NSdfn
@@ -174,7 +188,6 @@ abstract type AbstNSTagFunc <: Function end
 
 Base.push!(fnc::AbstNSTagFunc, f::Function) =
     begin
-        push!(fnc.fnclist, f)
         for (m,c) in zip(methods(f).ms, code_lowered(f))
             addmethod!(Tuple{typeof(fnc.fnc), m.sig.parameters[2:end]...}, c)
         end
@@ -216,8 +229,7 @@ mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
 
 mutable struct NSFnc{F <: Function} <: AbstNSTagFunc
     fnc::F
-    fnclist::Vector{Function}
-    NSFnc(f::F) where F = new{F}(f, Vector{Function}([f]))
+    NSFnc(f::F) where F = new{F}(f)
 end
 (fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
 
@@ -227,7 +239,6 @@ end
 
 mutable struct NSPrp{F <: Function} <: AbstNSTagFunc
     fnc::F
-    fnclist::Vector{Function}
-    NSPrp(f::F) where F <: Function = new{F}(f, Vector{Function}([f]))
+    NSPrp(f::F) where F <: Function = new{F}(f)
 end
 (prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
