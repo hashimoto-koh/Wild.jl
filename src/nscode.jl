@@ -12,7 +12,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Union{Nothing, NSFnc}}
+    __init::Array{Union{Nothing, NSTagFunc{:fnc}}}
     __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
@@ -37,23 +37,9 @@ end
 function push_to_instance(o, atr, val)
     x = isa(val, NSCodecst_item) ? Base.getproperty(o, :cst) : o
 
-    if isa(val, AbstNSCodeitem)
-        if isa(val.obj, NSDfn)
-            y = Base.getproperty(x, :dfn)
-        elseif isa(val.obj, NSReq)
-            y = Base.getproperty(x, :req)
-        elseif isa(val.obj, NSPrp)
-            y = Base.getproperty(x, :prp)
-        elseif isa(val.obj, NSFnc)
-            y = Base.getproperty(x, :fnc)
-        elseif isa(val.obj, NSMth)
-            y = Base.getproperty(x, :mth)
-        else
-            y = x
-        end
-    else
-        y = x
-    end
+    y = (isa(val, AbstNSCodeitem) && isa(val.obj, NSTagFunc)
+         ? Base.getproperty(x, typeof(val.obj).parameters[1])
+         : x)
 
     if !isa(val, AbstNSCodeitem)
         if atr == :exe
