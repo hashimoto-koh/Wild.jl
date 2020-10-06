@@ -111,10 +111,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
 
         haskey(_NSCodedict0, atr) && (return _NSCodedict0[atr](nsc))
 
-        atr == :init &&
-            (return (isnothing(nsc.__init[1])
-                    ? (nsc.__init[1] = NSTagFunc{:mth}(__NS_func{gensym()}))
-                     : nsc.__init[1]))
+        atr == :init && (return nsc.__init[1])
 
         Base.getproperty(nsc.__cls, atr)
     end
@@ -138,14 +135,6 @@ end
 ################
 
 struct NSCodeTag{T, C} ___NSC_nsc::AbstNSCode end
-
-Base.getproperty(x::NSCodeTag, atr::Symbol) =
-    begin
-        Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
-        f = __NS_func{gensym()}
-        Base.setproperty!(x.___NSC_nsc, atr, _MakeItem(x, f))
-        f
-    end
 
 Base.setproperty!(tag::NSCodeTag, atr::Symbol, f) =
         (Base.hasfield(typeof(tag), atr)

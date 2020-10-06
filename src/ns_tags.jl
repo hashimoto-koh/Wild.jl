@@ -95,71 +95,28 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 
 struct NSTag{T, CST} ___NS_ns::AbstNS end
 
-struct __NS_func{T} end
-Base.delete_method(methods(__NS_func{gensym()}).ms[1])
-
-__NS_func__add(fnc, f) where T =
-    begin
-        println("103: ", methods(f).ms[1:end])
-        println("104: ", methods(f).ms[1].sig)
-        println("104: ", methods(f).ms[1].sig.parameters[2:end])
-
-        for m in methods(f).ms[1:end]
-            ex = reduce(*,
-                        ["a$(i)::$(x),"
-                         for (i,x) in enumerate(m.sig.parameters[2:end])],
-                        init="$(__NS_func{fnc.parameters[1]})(")[1:end-1] *
-                  "; ka...) = $(f)("
-            ex = reduce(*,
-                        ["a$(i)," for (i,x) in enumerate(m.sig.parameters[2:end])],
-                        init=ex)[1:end-1] * "; ka...)"
-            println(ex)
-            eval(Meta.parse(ex))
-        end
-    end
-
 Base.getproperty(x::NSTag, atr::Symbol) =
     begin
         Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
         ns = x.___NS_ns
 
-        if !ns.haskey(atr)
-            f = __NS_func{gensym()}
-            Base.setproperty!(ns, atr, _MakeItem(x, f))
-            return f
-        end
+        !ns.haskey(atr) &&
+            error("""This NS does not have a property name $(atr)".""")
 
         o = ns.__dict[atr].obj
         to = typeof(o)
         to <: NSTagFunc && to.parameters[1] == typeof(x).parameters[1] &&
             (return o.fnc)
 
-        isa(ns.__dict[atr], NScst_item) &&
-            error(""""$(atr)" is const.""")
-        ns._fixed &&
-            error("""This NS is fixed! It already has a property name $(atr)".""")
-        ns.del(atr)
-        Base.getproperty(x, atr)
+        error(""""$(atr)" is not a $(string(typeof(x).parameters[1])).""")
     end
 
 Base.setproperty!(x::NSTag, atr::Symbol, f) =
     begin
         Base.hasfield(typeof(x), atr) && (Base.setproperty!(x, atr, f); return)
 
-        if !x.___NS_ns.haskey(atr)
-            Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f))
-            return
-        end
-
-        ns = x.___NS_ns
-        o = ns.__dict[atr].obj
-        if isa(o, NSTagFunc) && typeof(x).parameters[1] == typeof(o).parameters[1]
-            __NS_func__add(ns.__dict[atr].obj.fnc, f)
-        else
-            ns.del(atr)
-            Base.setproperty!(x, atr, f)
-        end
+        Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f))
     end
 
 ################
@@ -178,25 +135,8 @@ Base.setproperty!(x::NScst, atr::Symbol, o) =
          ? Base.setproperty!(x, atr, f)
          : Base.setproperty!(x.___NS_ns, atr, NScst_item(o)))
 
-_MakeItem(x::NSTag{T, false}, f) where T =
-    begin
-        if isa(f, Type) && f <: __NS_func
-            return NSnoncst_item(NSTagFunc{T}(f))
-        end
-        g = __NS_func{gensym()}
-        __NS_func__add(g, f)
-        NSnoncst_item(NSTagFunc{T}(g))
-    end
-
-_MakeItem(x::NSTag{T, true},  f) where T =
-    begin
-        if isa(f, Type) && f <: __NS_func
-            return NScst_item(NSTagFunc{T}(f))
-        end
-        g = __NS_func{gensym()}
-        __NS_func__add(g, f)
-        NScst_item(NSTagFunc{T}(g))
-    end
+_MakeItem(x::NSTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
 _MakeItem(x::NSTag{:dfn, false}, f) = NSnoncst_item(f(x.___NS_ns))
 _MakeItem(x::NSTag{:dfn, true},  f) = NScst_item(f(x.___NS_ns))
 
