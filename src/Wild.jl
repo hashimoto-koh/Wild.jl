@@ -32,6 +32,6 @@ Base.getproperty(o::Any, atr::Symbol) =
     (hasfield(typeof(o), atr)
      ? Base.getfield(o, atr)
      : (f = Base.eval(Base.Main, atr);
-        (isa(f, AbstNSTagFunc) ? f : NSTagFunc{:mth}(f))(o)))
+        (isa(f, NSTagFunc) ? f : NSTagFunc{:mth}(f))(o)))
 
 end
