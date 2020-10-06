@@ -109,7 +109,7 @@ __NS_func__add(fnc, f) where T =
                         ["a$(i)::$(x),"
                          for (i,x) in enumerate(m.sig.parameters[2:end])],
                         init="$(__NS_func{fnc.parameters[1]})(")[1:end-1] *
-                  "; ka...) = f("
+                  "; ka...) = $(f)("
             ex = reduce(*,
                         ["a$(i)," for (i,x) in enumerate(m.sig.parameters[2:end])],
                         init=ex)[1:end-1] * "; ka...)"
