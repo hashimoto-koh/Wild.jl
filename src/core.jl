@@ -6,13 +6,11 @@
 
 @prp tp = x -> Base.typeof(x)
 tp = @prp x -> Base.typeof(x)
-@prp tp(x) = Base.typeof(x)
 
 [1,2,3].tp == Array{Int64,1}
 
 @mth sz = (x,i) -> size(x,i)
 sz = @mth (x,i) -> size(x,i)
-@mth sz(x,i) = size(x,i)
 [1,2,3].sz(1) == 3
 
 g = NS()
@@ -32,6 +30,7 @@ macro prp(ex)
         return esc(:(Wild.NSTagFunc{:prp}($(ex))))
     end
 
+    #=
     # @prp f(x) = 2x
     if hasfield(typeof(ex.args[1]), :head) && ex.args[1].head == :call
         name = ex.args[1].args[1]
@@ -40,6 +39,7 @@ macro prp(ex)
         ex = Meta.parse(string(ex) * ";" * string(ex2))
         return esc(ex)
     end
+    =#
 
     # @prp f = x -> 2x
     return esc(:($(ex.args[1]) = Wild.NSTagFunc{:prp}($(ex.args[2]))))
@@ -51,6 +51,7 @@ macro mth(ex)
         return esc(:(Wild.NSTagFunc{:mth}($(ex))))
     end
 
+    #=
     # @mth f = (x,y) -> x+y
     if hasfield(typeof(ex.args[1]), :head) && ex.args[1].head == :call
         name = ex.args[1].args[1]
@@ -59,6 +60,7 @@ macro mth(ex)
         ex = Meta.parse(string(ex) * ";" * string(ex2))
         return esc(ex)
     end
+    =#
 
     # @mth f(x,y) = x+y
         return esc(:($(ex.args[1]) = Wild.NSTagFunc{:mth}($(ex.args[2]))))
