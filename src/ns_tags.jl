@@ -100,6 +100,9 @@ Base.delete_method(methods(__NS_func{gensym()}).ms[1])
 
 __NS_func__add(fnc, f) where T =
     begin
+        println("103: ", methods(f).ms[1:end])
+        println("104: ", methods(f).ms[1].sig)
+
         for m in methods(f).ms[1:end]
             ex = reduce(*,
                         ["a$(i)::$(x),"
