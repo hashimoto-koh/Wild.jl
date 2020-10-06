@@ -102,6 +102,7 @@ __NS_func__add(fnc, f) where T =
     begin
         println("103: ", methods(f).ms[1:end])
         println("104: ", methods(f).ms[1].sig)
+        println("104: ", methods(f).ms[1].sig.parameters[2:end])
 
         for m in methods(f).ms[1:end]
             ex = reduce(*,
