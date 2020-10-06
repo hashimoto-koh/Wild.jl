@@ -108,7 +108,7 @@ __NS_func__add(fnc, f) where T =
             ex = reduce(*,
                         ["a$(i)::$(x),"
                          for (i,x) in enumerate(m.sig.parameters[2:end])],
-                        init="$(fnc)(")[1:end-1] *
+                        init="$(__NS_func{fnc.parameters[1]})(")[1:end-1] *
                   "; ka...) = f("
             ex = reduce(*,
                         ["a$(i)," for (i,x) in enumerate(m.sig.parameters[2:end])],
@@ -154,7 +154,6 @@ Base.setproperty!(x::NSTag, atr::Symbol, f) =
 
         ns = x.___NS_ns
         o = ns.__dict[atr].obj
-        println(typeof(x), " ", typeof(o))
         if isa(o, NSTagFunc) && typeof(x).parameters[1] == typeof(o).parameters[1]
             __NS_func__add(ns.__dict[atr].obj.fnc, f)
         else
@@ -179,8 +178,25 @@ Base.setproperty!(x::NScst, atr::Symbol, o) =
          ? Base.setproperty!(x, atr, f)
          : Base.setproperty!(x.___NS_ns, atr, NScst_item(o)))
 
-_MakeItem(x::NSTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSTag{T, false}, f) where T =
+    begin
+        if f <: __NS_func
+            return NSnoncst_item(NSTagFunc{T}(f))
+        end
+        g = __NS_func{gensym()}
+        __NS_func__add(g, f)
+        NSnoncst_item(NSTagFunc{T}(g))
+    end
+
+_MakeItem(x::NSTag{T, true},  f) where T =
+    begin
+        if f <: __NS_func
+            return NScst_item(NSTagFunc{T}(f))
+        end
+        g = __NS_func{gensym()}
+        __NS_func__add(g, f)
+        NScst_item(NSTagFunc{T}(g))
+    end
 _MakeItem(x::NSTag{:dfn, false}, f) = NSnoncst_item(f(x.___NS_ns))
 _MakeItem(x::NSTag{:dfn, true},  f) = NScst_item(f(x.___NS_ns))
 
