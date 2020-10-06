@@ -180,7 +180,7 @@ Base.setproperty!(x::NScst, atr::Symbol, o) =
 
 _MakeItem(x::NSTag{T, false}, f) where T =
     begin
-        if f <: __NS_func
+        if isa(f, Type) && f <: __NS_func
             return NSnoncst_item(NSTagFunc{T}(f))
         end
         g = __NS_func{gensym()}
@@ -190,7 +190,7 @@ _MakeItem(x::NSTag{T, false}, f) where T =
 
 _MakeItem(x::NSTag{T, true},  f) where T =
     begin
-        if f <: __NS_func
+        if isa(f, Type) && f <: __NS_func
             return NScst_item(NSTagFunc{T}(f))
         end
         g = __NS_func{gensym()}
