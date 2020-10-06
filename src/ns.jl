@@ -48,17 +48,14 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         if haskey(d, atr)
             o = d[atr].obj
-            if isa(o, NSTagFunc{:prp})
-                o.fnc(ns, x)
-                return
-            end
+            isa(o, NSTagFunc{:prp}) &&
+                (o.fnc(ns, x); return)
             ns._fixed && Base.error("this NS is fixed!")
-            o = isa(x, AbstNSitem) ? x.obj : x
+            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
         else
             ns._lcked && Base.error("this NS is locked!")
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
-        ns
     end
 
 Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
