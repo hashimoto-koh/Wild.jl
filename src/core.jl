@@ -1,53 +1,4 @@
 ###############################
-# _add_mth!
-###############################
-
-_add_lmd!(fnc, lmd; mdl=nothing) =
-begin
-    mdl = isnothing(mdl) ? methods(fnc).ms[1].module : mdl
-    ex = :((::typeof($(fnc)))(a::(methods($(lmd)).ms[1].sig.parameters[2:end][1]);
-                              ka...) = $(lmd)(a, ka...))
-    Core.eval(mdl, ex)
-    fnc
-end
-
-_addmth!(::Nothing, mth::Function; mdl=nothing) =
-begin
-    mdl = isnothing(mdl) ? methods(mth).ms[1].module : mdl
-    f = [Core.eval(mdl,
-                   :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
-                     $(mth)(a...; ka...)))
-         for ms ∈ methods(mth).ms]
-    for g ∈ f[begin+1:end]
-        _add_lmd!(f[1], g)
-    end
-    f[1]
-end
-
-_addmth!(::Nothing, mth::AbstractVector{Function}; mdl=nothing) =
-    _addmth!(_addmth!(nothing, mth[1]; mdl=mdl), mth[2:end])
-
-_addmth!(f::Function, mth::Function; mdl=nothing) =
-begin
-    mdl = isnothing(mdl) ? methods(f).ms[1].module : mdl
-    for ms ∈ methods(mth).ms
-        ex = :((a::Tuple{$(ms).sig.parameters[begin+1:end]...}; ka...) ->
-               $(mth)(a...; ka...))
-        g = Core.eval(mdl, ex)
-        _add_lmd!(f, g)
-    end
-    f
-end
-
-_addmth!(f::Function, mth::AbstractVector{Function}; mdl=nothing) =
-begin
-    for m ∈ mth
-        _addmth!(f, m; mdl=mdl)
-    end
-    f
-end
-
-###############################
 # @dfn, @req, @prp, @mth, @sprp
 ###############################
 #=
@@ -78,6 +29,7 @@ macro req(ex)
                : :(Wild.req($(ex))))
 end
 =#
+
 macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
@@ -91,6 +43,7 @@ macro mth(ex)
                ? :($(ex.args[1]) = Wild.NSTagFunc{:mth}($(ex.args[2])))
                : :(Wild.NSTagFunc{:mth}($(ex))))
 end
+
 #=
 macro fnc(ex)
     return esc(ex.head == :(=)
@@ -138,51 +91,3 @@ macro mthfnc(name)
     end
     esc(ex)
 end
-#=
-###############################
-# fnc
-###############################
-
-fnc(f; init=true, mdl=nothing) =
-    (fc = Fnc(f); init ? fc.init!(mdl) : fc)
-
-mutable struct Fnc <: AbstTagFunc
-    fnc::Union{Nothing, Function}
-    fnclist::Vector{Function}
-    Fnc(f::Function) = new(nothing, [f])
-end
-
-Fnc(flst::Vector{Function}) = (f = Fnc(flst[1]); f.append!(flst[2:end]); f)
-Fnc(f::Fnc) = Fnc(f.fnclist)
-
-(f::Fnc)(self) = (a...; ka...) ->
-    begin
-        try
-            f.fnc((self, a...); ka...)
-        catch
-            f.init!(methods(f.fnc).ms[1].module)
-            Base.invokelatest(f.fnc, (self, a...); ka...)
-        end
-    end
-
-function Base.push!(f::Fnc, mth::Function)
-    isnothing(f.fnc) || _addmth!(f.fnc, mth)
-    push!(f.fnclist, mth)
-end
-
-function Base.append!(f::Fnc, mths::AbstractVector{Function})
-    isnothing(f.fnc) || _addmth!(f.fnc, mths)
-    append!(f.fnclist, mths)
-    f
-end
-
-Base.getproperty(f::Fnc, atr::Symbol) =
-begin
-    atr == :init! &&
-        (return (mdl=nothing) ->
-                (f.fnc = _addmth!(nothing, f.fnclist; mdl=mdl); return f))
-    atr == :push! && (return mth -> push!(f, mth))
-    atr == :append! && (return mths -> append!(f, mths))
-    Base.getfield(f, atr)
-end
-=#
