@@ -102,7 +102,7 @@ abstract type AbstNStag end
 
 Base.getproperty(x::AbstNStag, atr::Symbol) =
     begin
-        Base.hasfield(typeof(x), atr) && (return Base.getproperty(x, atr))
+        Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
         ns = x.___NStag_ns
 
@@ -119,7 +119,7 @@ Base.getproperty(x::AbstNStag, atr::Symbol) =
                 return f
             end
 
-            return Base.getproperty(x, atr)
+            return Base.getfield(x, atr)
         end
 
         to = typeof(ns.__dict[atr].obj)
@@ -142,7 +142,7 @@ Base.getproperty(x::AbstNStag, atr::Symbol) =
             end
         end
 
-        return Base.getproperty(x, atr)
+        return Base.getfield(x, atr)
     end
 
 Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
