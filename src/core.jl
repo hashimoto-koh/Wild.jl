@@ -4,56 +4,65 @@
 #=
 (Example)
 
-@prp type = x -> Base.typeof(x)
-[1,2,3].type == Array{Int64,1}
+@prp tp = x -> Base.typeof(x)
+tp = @prp x -> Base.typeof(x)
+@prp tp(x) = Base.typeof(x)
+
+[1,2,3].tp == Array{Int64,1}
 
 @mth sz = (x,i) -> size(x,i)
+sz = @mth (x,i) -> size(x,i)
+@mth sz(x,i) = size(x,i)
 [1,2,3].sz(1) == 3
 
 g = NS()
 g.a = 3
 @prp g.b = g -> 3 * g.a
+g.c = @prp g -> 3 * g.b
+@prp g.d(g) = 3 * g.c
+
 @mth g.f = (g,x) ->  g.a + x
-=#
-
-#=
-macro dfn(ex)
-    return esc(ex.head == :(=)
-               ? :($(ex.args[1]) = Wild.dfn($(ex.args[2])))
-               : :(Wild.dfn($(ex))))
-end
-
-macro req(ex)
-    return esc(ex.head == :(=)
-               ? :($(ex.args[1]) = Wild.req($(ex.args[2])))
-               : :(Wild.req($(ex))))
-end
+g.g = @mth (g,x) ->  g.b + x
+@mth g.h(g,x) =  g.c + x
 =#
 
 macro prp(ex)
-    return esc(ex.head == :(=)
-               ? Expr(:(=),
-                      ex.args[1],
-                      :(Wild.NSTagFunc{:prp}((a...; ka...) -> $(ex.args[2])(a...; ka...))))
-               : :(Wild.NSPrp((a...; ka...) -> $(ex)(a...; ka...))))
+    # f = @prp x -> 2x
+    if ex.head != :(=)
+        return esc(:(Wild.NSTagFunc{:prp}($(ex))))
+    end
+
+    # @prp f(x) = 2x
+    if hasfield(typeof(ex.args[1]), :head) && ex.args[1].head == :call
+        name = ex.args[1].args[1]
+        ex.args[1].args[1] = gensym()
+        ex2 = :($(name) = Wild.NSTagFunc{:prp}($(ex.args[1].args[1])))
+        ex = Meta.parse(string(ex) * ";" * string(ex2))
+        return esc(ex)
+    end
+
+    # @prp f = x -> 2x
+    return esc(:($(ex.args[1]) = Wild.NSTagFunc{:prp}($(ex.args[2]))))
 end
 
 macro mth(ex)
-    return esc(ex.head == :(=)
-               ? :($(ex.args[1]) = Wild.NSTagFunc{:mth}($(ex.args[2])))
-               : :(Wild.NSTagFunc{:mth}($(ex))))
-end
+    # f = @mth (x,y) -> x+y
+    if ex.head != :(=)
+        return esc(:(Wild.NSTagFunc{:mth}($(ex))))
+    end
 
-#=
-macro fnc(ex)
-    return esc(ex.head == :(=)
-               ? Expr(:(=),
-                      ex.args[1],
-                      :(Wild.fnc((a...; ka...) -> $(ex.args[2])(a...; ka...);
-                                 mdl=@__MODULE__)))
-               : :(Wild.fnc((a...; ka...) -> $(ex)(a...; ka...); mdl=@__MODULE__)))
+    # @mth f = (x,y) -> x+y
+    if hasfield(typeof(ex.args[1]), :head) && ex.args[1].head == :call
+        name = ex.args[1].args[1]
+        ex.args[1].args[1] = gensym()
+        ex2 = :($(name) = Wild.NSTagFunc{:mth}($(ex.args[1].args[1])))
+        ex = Meta.parse(string(ex) * ";" * string(ex2))
+        return esc(ex)
+    end
+
+    # @mth f(x,y) = x+y
+        return esc(:($(ex.args[1]) = Wild.NSTagFunc{:mth}($(ex.args[2]))))
 end
-=#
 
 ###############################
 # @prpfnc, @mthfnc
