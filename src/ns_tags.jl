@@ -88,71 +88,50 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
         x.ns
     end
 
-###############################
-# __NS_func
-###############################
-
-struct __NS_func{T} <: Function end
-
 ################
-# AbstNStag
+# NSTag
 ################
 
-abstract type AbstNStag end
+struct NSTag{T::Symbol, CST::Bool} ___NStag_ns::AbstNS end
 
-Base.getproperty(x::AbstNStag, atr::Symbol) =
+struct __NS_func{T} end
+
+Base.getproperty(x::NSTag, atr::Symbol) =
     begin
         Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
         ns = x.___NStag_ns
 
         if !ns.haskey(atr)
-            if isa(x, NSprp)
-                f = __NS_func{gensym()}
-                Base.setproperty!(x, atr, f)
-                return f
-            end
-
-            if isa(x, NSfnc)
-                f = __NS_func{gensym()}
-                Base.setproperty!(x, atr, f)
-                return f
-            end
-
-            return Base.getfield(x, atr)
+            f = __NS_func{gensym()}
+            Base.setproperty!(x, atr, f)
+            return f
         end
 
-        to = typeof(ns.__dict[atr].obj)
+        o = ns.__dict[atr].obj
+        to = typeof(o)
+        if to <: NSTagFunc
+            tx = typeof(x)
+            tx <: NSTag && to.parameters[1] == tx.parameters[1] && (return o.fnc)
 
-        if to <: NSPrp
-            if isa(x, NSprp)
-                return ns.__dict[atr].obj.fnc
-            else
-                ns.del(atr)
-                return Base.getproperty(x, atr)
-            end
-        end
+            isa(ns.__dict[atr], NScst_item) &&
+                error(""""$(atr)" is const.""")
 
-        if to <: NSFnc
-            if isa(x, NSfnc)
-                return ns.__dict[atr].obj.fnc
-            else
-                ns.del(atr)
-                return Base.getproperty(x, atr)
-            end
+            ns._fixed &&
+                error("""This NS is fixed!
+                         It already has a property name $(atr)".""")
+
+            ns.del(atr)
+            return Base.getproperty(x, atr)
         end
 
         return Base.getfield(x, atr)
     end
 
-Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
-    begin
-        if Base.hasfield(typeof(x), atr)
-            Base.setproperty!(x, atr, f)
-        else
-            Base.setproperty!(x.___NStag_ns, atr, _MakeItem(x, f))
-        end
-    end
+Base.setproperty!(x::NSTag, atr::Symbol, f) =
+        (Base.hasfield(typeof(x), atr)
+         ? Base.setproperty!(x, atr, f)
+         : Base.setproperty!(x.___NStag_ns, atr, _MakeItem(x, f)))
 
 ################
 # NScst
@@ -161,124 +140,28 @@ Base.setproperty!(x::AbstNStag, atr::Symbol, f) =
 struct NScst{T <: AbstNS} ns::T end
 
 Base.getproperty(x::NScst, atr::Symbol) =
-    begin
-        atr == :dfn && (return NScstdfn(x.ns))
-        atr == :req && (return NScstreq(x.ns))
-        atr == :prp && (return NScstprp(x.ns))
-        atr == :fnc && (return NScstfnc(x.ns))
-        atr == :mth && (return NScstmth(x.ns))
-        return Base.getfield(x, atr)
-    end
+    (Base.hasfield(typeof(x), atr)
+     ? Base.getfield(x, atr)
+     : NSTag{atr, true}(x.ns))
 
 Base.setproperty!(x::NScst, atr::Symbol, o) =
-    begin
-        if Base.hasfield(typeof(x), atr)
-            Base.setproperty!(x, atr, f)
-        else
-            Base.setproperty!(x.ns, atr, NScst_item(o))
-        end
-    end
+        (Base.hasfield(typeof(x), atr)
+         ? Base.setproperty!(x, atr, f)
+         : Base.setproperty!(x.ns, atr, NScst_item(o)))
 
-
-################
-# NSdfn
-################
-
-struct NSdfn{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-struct NScstdfn{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-_MakeItem(x::NSdfn, f) = NSnoncst_item(f(x.___NStag_ns))
-_MakeItem(x::NScstdfn, f) = NScst_item(f(x.___NStag_ns))
-
-################
-# NSreq
-################
-
-struct NSreq{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-struct NScstreq{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-_MakeItem(x::NSreq, f) = NSnoncst_item(NSReq(f))
-_MakeItem(x::NScstreq, f) = NScst_item(NSReq(f))
-
-################
-# NSprp
-################
-
-struct NSprp{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-struct NScstprp{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-_MakeItem(x::NSprp, f) = NSnoncst_item(NSPrp(f))
-_MakeItem(x::NScstprp, f) = NScst_item(NSPrp(f))
-
-################
-# NSfnc
-################
-
-struct NSfnc{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-struct NScstfnc{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-_MakeItem(x::NSfnc, f) = NSnoncst_item(NSFnc(f))
-_MakeItem(x::NScstfnc, f) = NScst_item(NSFnc(f))
-
-################
-# NSmth
-################
-struct NSmth{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-struct NScstmth{T <: AbstNS} <: AbstNStag ___NStag_ns::T end
-
-_MakeItem(x::NSmth, f) = NSnoncst_item(NSMth(f))
-_MakeItem(x::NScstmth, f) = NScst_item(NSMth(f))
+_MakeItem(x::NSTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSTag{:dfn, false}, f) = NSnoncst_item(f(x.___NStag_ns))
+_MakeItem(x::NSTag{:dfn, true},  f) = NScst_item(f(x.___NStag_ns))
 
 ###############################
-# ABstNSTagFunc
+# NSTagFunc
 ###############################
 
-abstract type AbstNSTagFunc <: Function end
-#=
-Base.getproperty(fnc::AbstNSTagFunc, atr::Symbol) =
-    begin
-        atr == :push! && (return f -> Base.push!(fnc, f))
-        return Base.getfield(fnc, atr)
-    end
-=#
+struct NSTagFunc{T} fnc end
 
-###############################
-# NSDfn
-###############################
-
-mutable struct NSDfn{F <: Function} <: AbstNSTagFunc fnc::F end
-(dfn::NSDfn)(self) = dfn.fnc(self)
-
-###############################
-# NSReq
-###############################
-
-mutable struct NSReq{F <: Function} <: AbstNSTagFunc fnc::F end
-(req::NSReq)(self) = req.fnc(self)
-
-###############################
-# NSMth
-###############################
-
-mutable struct NSMth{F <: Function} <: AbstNSTagFunc fnc::F end
-(mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
-
-###############################
-# NSFnc
-###############################
-
-mutable struct NSFnc{F} <: AbstNSTagFunc
-    fnc::F
-end
-(fnc::NSFnc)(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
-
-###############################
-# NSPrp
-###############################
-
-mutable struct NSPrp{F} <: AbstNSTagFunc
-    fnc::F
-end
-(prp::NSPrp)(a...; ka...) = prp.fnc(a...; ka...)
+(dfn::NSTagFunc{:dfn})(self) = dfn.fnc(self)
+(req::NSTagFunc{:req})(self) = req.fnc(self)
+(mth::NSTagFunc{:mth})(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
+(fnc::NSTagFunc{:fnc})(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
+(prp::NSTagFunc{:prp})(self) = (a...)->prp.fnc(a...)
