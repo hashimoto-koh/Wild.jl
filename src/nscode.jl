@@ -91,14 +91,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         hasfield(typeof(nsc), atr) &&
             (Base.setfield!(nsc, atr, x); return)
 
-        if atr == :init
-            if isnothing(nsc.__init[1])
-                nsc.__init[1] = NSFnc(x)
-            else
-                nsc.__init[1].push!(x)
-            end
-            return
-        end
+        atr == :init && (nsc.__init[1] = NSTagFunc{:fnc}(x); return)
 
         haskey(_NSCodedict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
@@ -118,9 +111,12 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
 
         haskey(_NSCodedict0, atr) && (return _NSCodedict0[atr](nsc))
 
-        haskey(nsc.__cls, atr) && (return Base.getproperty(nsc.__cls, atr))
+        atr == :init &&
+            (return (isnothing(nsc.__init[1])
+                    ? (nsc.__init[1] = NSTagFunc{:fnc}(__NS_func{gensym()}))
+                     : nsc.__init[1]))
 
-        Base.getfield(nsc, atr)
+        Base.getproperty(nsc.__cls, atr)
     end
 
 ################
@@ -138,129 +134,45 @@ mutable struct NSCodenoncst_item{T} <: AbstNSCodeitem
 end
 
 ################
-# AbstNSCodetag
+# NSCodeTag
 ################
 
-abstract type AbstNSCodetag end
+struct NSCodeTag{T, C} ___NSC_nsc::AbstNSCode end
 
-#=
-Base.getproperty(tag::AbstNSCodetag, atr::Symbol) =
-    (hasfield(typeof(tag), atr)
-     ? Base.getfield(tag, atr)
-     : o -> (Base.setproperty!(tag, atr, o); tag.nsc))
-=#
+Base.getproperty(x::NSCodeTag, atr::Symbol) =
+    begin
+        Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
+        f = __NS_func{gensym()}
+        Base.setproperty!(x.___NSC_nsc, atr, _MakeItem(x, f))
+        f
+    end
 
-Base.setproperty!(tag::AbstNSCodetag, atr::Symbol, f) =
-    Base.setproperty!(tag.nsc, atr, _MakeItem(tag,f))
-
+Base.setproperty!(tag::NSCodeTag, atr::Symbol, f) =
+        (Base.hasfield(typeof(tag), atr)
+         ? Base.setproperty!(tag, atr, f)
+         : Base.setproperty!(tag.___NSC_nsc, atr, _MakeItem(tag,f)))
 
 ################
 # NSCodecst
 ################
 
-struct NSCodecst{T <: AbstNSCode} nsc::T end
+struct NSCodecst{T <: AbstNSCode} ___NSC_nsc::T end
 
 Base.getproperty(cst::NSCodecst, atr::Symbol) =
     begin
-        #=
-        if hasfield(typeof(cst), atr)
-            return Base.getfield(cst, atr)
-        end;
-
-        if atr == :dfn return NSCodecstdfn(cst.nsc) end
-        if atr == :prp return NSCodecstprp(cst.nsc) end
-        if atr == :mth return NSCodecstmth(cst.nsc) end
-
-        o -> (Base.setproperty!(cst, atr, o); cst.nsc)
-        =#
-
-        atr == :dfn && (return NSCodecstdfn(cst.nsc))
-        atr == :req && (return NSCodecstreq(cst.nsc))
-        atr == :prp && (return NSCodecstprp(cst.nsc))
-        atr == :fnc && (return NSCodecstfnc(cst.nsc))
-        atr == :mth && (return NSCodecstmth(cst.nsc))
-        return Base.getfield(cst, atr)
+        hasfield(typeof(cst), atr) && (return Base.getfield(cst, atr))
+        NSCodeTag{atr, true}(cst.___NSC_nsc)
     end
 
 Base.setproperty!(cst::NSCodecst, atr::Symbol, o) =
-    Base.setproperty!(cst.nsc, atr, NSCodecst_item(o))
+    Base.setproperty!(cst.___NSC_nsc, atr, NSCodecst_item(o))
 
 _MakeItem(x::NSCodecst, o) = NSCodecst_item(o)
 
 ################
-# NSCodedfn
+# NSCodeTagFunc
 ################
 
-struct NSCodedfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-struct NSCodecstdfn{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-
-_MakeItem(x::NSCodedfn, f) = NSCodenoncst_item(NSDfn(f))
-_MakeItem(x::NSCodecstdfn, f) = NSCodecst_item(NSDfn(f))
-
-################
-# NSCodereq
-################
-
-struct NSCodereq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-struct NSCodecstreq{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-
-_MakeItem(x::NSCodereq, f) = NSCodenoncst_item(NSReq(f))
-_MakeItem(x::NSCodecstreq, f) = NSCodecst_item(NSReq(f))
-
-################
-# NSCodeprp
-################
-
-struct NSCodeprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-struct NSCodecstprp{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-
-_MakeItem(x::NSCodeprp, f) = NSCodenoncst_item(NSPrp(f))
-_MakeItem(x::NSCodecstprp, f) = NSCodecst_item(NSPrp(f))
-
-################
-# NSCodefnc
-################
-
-struct NSCodefnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-struct NSCodecstfnc{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-
-_MakeItem(x::NSCodefnc, f) = NSCodenoncst_item(NSFnc(f))
-_MakeItem(x::NSCodecstfnc, f) = NSCodecst_item(NSFnc(f))
-
-################
-# NSCodemth
-################
-
-#=
-abstract type AbstNSCodemth <: AbstNSCodetag end
-
-Base.getproperty(x::AbstNSCodemth, atr::Symbol) = begin
-    Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
-
-    if !haskey(x.nsc, atr)
-        Base.setproperty!(x.nsc,
-                          atr,
-                          Mth((f() = nothing;
-                               Base.delete_method(Base.which(f, Tuple{}));
-                               f)))
-        return Base.getproperty(Base.getproperty(x.nsc, :mth), atr)
-    end
-
-    if isa(x.ns.__dict[atr], NSCodenoncst_item)
-        isa(x.nsc.__dict[atr].obj, Mth) && (return x.nsc.__dict[atr].obj.fnc)
-
-        x.nsc.__dict[atr] = Mth((f() = nothing;
-                               Base.delete_method(Base.which(f, Tuple{}));
-                               f))
-        return Base.getproperty(Base.getproperty(x.nsc, :mth), atr)
-    end
-
-    Base.error("'" * string(:atr) * "' is const, so it can't be reassigned.")
-end
-=#
-
-struct NSCodemth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-struct NSCodecstmth{T <: AbstNSCode} <: AbstNSCodetag nsc::T end
-
-_MakeItem(x::NSCodemth, f) = NSCodenoncst_item(NSMth(f))
-_MakeItem(x::NSCodecstmth, f) = NSCodecst_item(NSMth(f))
+struct NSCodeTagFunc{T, C} nsc::AbstNSCode end
+_MakeItem(x::NSCodeTag{T,false}, f) where T = NSCodenoncst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSCodeTag{T, true}, f) where T = NSCodecst_item(NSTagFunc{T}(f))
