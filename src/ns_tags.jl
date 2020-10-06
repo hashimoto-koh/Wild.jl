@@ -113,6 +113,7 @@ __NS_func__add(fnc, f) where T =
             ex = reduce(*,
                         ["a$(i)," for (i,x) in enumerate(m.sig.parameters[2:end])],
                         init=ex)[1:end-1] * "; ka...)"
+            println(ex)
             eval(Meta.parse(ex))
         end
     end
