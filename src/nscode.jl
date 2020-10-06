@@ -12,7 +12,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Union{Nothing, NSTagFunc{:fnc}}}
+    __init::Array{Union{Nothing, NSTagFunc{:mth}}}
     __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
@@ -91,7 +91,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         hasfield(typeof(nsc), atr) &&
             (Base.setfield!(nsc, atr, x); return)
 
-        atr == :init && (nsc.__init[1] = NSTagFunc{:fnc}(x); return)
+        atr == :init && (nsc.__init[1] = NSTagFunc{:mth}(x); return)
 
         haskey(_NSCodedict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
@@ -113,7 +113,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
 
         atr == :init &&
             (return (isnothing(nsc.__init[1])
-                    ? (nsc.__init[1] = NSTagFunc{:fnc}(__NS_func{gensym()}))
+                    ? (nsc.__init[1] = NSTagFunc{:mth}(__NS_func{gensym()}))
                      : nsc.__init[1]))
 
         Base.getproperty(nsc.__cls, atr)
