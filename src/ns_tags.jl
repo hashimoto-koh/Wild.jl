@@ -158,4 +158,4 @@ struct NSTagFunc{T} fnc end
 (req::NSTagFunc{:req})(self) = req.fnc(self)
 (mth::NSTagFunc{:mth})(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
 (fnc::NSTagFunc{:fnc})(self) = (a...; ka...)->fnc.fnc(self, a...; ka...)
-(prp::NSTagFunc{:prp})(self) = (a...)->prp.fnc(a...)
+(prp::NSTagFunc{:prp})(a...) = prp.fnc(a...)
