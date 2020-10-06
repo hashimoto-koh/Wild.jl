@@ -92,7 +92,7 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 # NSTag
 ################
 
-struct NSTag{T::Symbol, CST::Bool} ___NStag_ns::AbstNS end
+struct NSTag{T, CST} ___NStag_ns::AbstNS end
 
 struct __NS_func{T} end
 
