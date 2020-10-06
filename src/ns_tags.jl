@@ -150,7 +150,7 @@ Base.setproperty!(x::NSTag, atr::Symbol, f) =
         ns = x.___NS_ns
         o = ns.__dict[atr].obj
         println(typeof(x), " ", typeof(o))
-        if isa(o, NSTag) && typeof(x).parameters[1] == o.parameters[1]
+        if isa(o, NSTagFunc) && typeof(x).parameters[1] == o.parameters[1]
             __NS_func__add(ns.__dict[atr].obj.fnc, f)
         else
             ns.del(atr)
