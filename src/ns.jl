@@ -80,7 +80,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
             error("""This NS does not have a property named "$(atr)".""")
 
         x = d[atr].obj;
-        isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}, NSTagFunc{fnc}}) &&
+        isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}, NSTagFunc{:fnc}}) &&
             (return x(ns))
         isa(x, NSTagFunc{:req}) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
         return x
