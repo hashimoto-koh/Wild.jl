@@ -105,7 +105,7 @@ Base.getproperty(x::NSTag, atr::Symbol) =
 
         if !ns.haskey(atr)
             f = __NS_func{gensym()}
-            Base.setproperty!(ns, atr, f)
+            Base.setproperty!(ns, atr, _MakeItem(x, f))
             return f
         end
 
