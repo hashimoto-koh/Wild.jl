@@ -96,6 +96,22 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 struct NSTag{T, CST} ___NS_ns::AbstNS end
 
 struct __NS_func{T} end
+Base.delete_method(methods(__NS_func{gensym()}).ms[1])
+
+__NS_func__add(fnc, f) where T =
+    begin
+        for m in methods(f).ms[1:end]
+            ex = reduce(*,
+                        ["a$(i)::$(x),"
+                         for (i,x) in enumerate(m.sig.parameters[2:end])],
+                        init="$(__NS_func{fnc.parameters[1]})(")[1:end-1] *
+                  "; ka...) = f("
+            ex = reduce(*,
+                        ["a$(i)," for (i,x) in enumerate(m.sig.parameters[2:end])],
+                        init=ex)[1:end-1] * "; ka...)"
+            eval(Meta.parse(ex))
+        end
+    end
 
 Base.getproperty(x::NSTag, atr::Symbol) =
     begin
@@ -123,9 +139,23 @@ Base.getproperty(x::NSTag, atr::Symbol) =
     end
 
 Base.setproperty!(x::NSTag, atr::Symbol, f) =
-        (Base.hasfield(typeof(x), atr)
-         ? Base.setproperty!(x, atr, f)
-         : Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f)))
+    begin
+        Base.hasfield(typeof(x), atr) && (Base.setproperty!(x, atr, f); return)
+
+        if !x.___NS_ns.haskey(atr)
+            Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f))
+            return
+        end
+
+        ns = x.___NS_ns
+        o = ns.__dict[atr].obj
+        if isa(o, NSTag) && typeof(x).parameters[1] == o.parameters[1]
+            __NS_func__add(ns.__dict[atr].obj.fnc, f)
+        else
+            ns.del(atr)
+            Base.setproperty!(x, atr, f)
+        end
+    end
 
 ################
 # NScst
