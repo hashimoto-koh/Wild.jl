@@ -48,23 +48,9 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
-
-            o = d[atr].obj
-
-            if isa(o, NSPrp)
-                (isa(x, AbstNSitem) && isa(x.obj, NSPrp)
-                 ? o.push!(x.obj.fnc)
-                 : o(ns, x))
-            elseif isa(o, NSFnc)
-                (isa(x, AbstNSitem) && isa(x.obj, NSFnc)
-                 ? o.push!(x.obj.fnc)
-                 : (d[atr].obj = isa(x, AbstNSitem) ? x.obj : x))
-            else
-                d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
-            end
+            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
         else
             ns._lcked && Base.error("this NS is locked!")
-
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
         ns

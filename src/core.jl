@@ -82,14 +82,14 @@ macro prp(ex)
     return esc(ex.head == :(=)
                ? Expr(:(=),
                       ex.args[1],
-                      :(Wild.NSPrp((a...; ka...) -> $(ex.args[2])(a...; ka...))))
+                      :(Wild.NSTagFunc{:prp}((a...; ka...) -> $(ex.args[2])(a...; ka...))))
                : :(Wild.NSPrp((a...; ka...) -> $(ex)(a...; ka...))))
 end
 
 macro mth(ex)
     return esc(ex.head == :(=)
-               ? :($(ex.args[1]) = Wild.NSMth($(ex.args[2])))
-               : :(Wild.NSMth($(ex))))
+               ? :($(ex.args[1]) = Wild.NSTagFunc{:mth}($(ex.args[2])))
+               : :(Wild.NSTagFunc{:mth}($(ex))))
 end
 #=
 macro fnc(ex)

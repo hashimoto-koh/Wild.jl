@@ -14,8 +14,8 @@ include("ns.jl")
 include("ns_tags.jl")
 export AbstNS, NS
 export NSX, genNSX, nsx, AbstNSitem
-export AbstNSTagFunc
-export NSDfn, NSReq, NSMth, NSPrp, NSFnc
+# export AbstNSTagFunc
+# export NSDfn, NSReq, NSMth, NSPrp, NSFnc
 
 #=
 include("nscls.jl")
@@ -31,6 +31,7 @@ include("operators.jl")
 Base.getproperty(o::Any, atr::Symbol) =
     (hasfield(typeof(o), atr)
      ? Base.getfield(o, atr)
-     : (f = Base.eval(Base.Main, atr); (isa(f, AbstNSTagFunc) ? f : NSMth(f))(o)))
+     : (f = Base.eval(Base.Main, atr);
+        (isa(f, AbstNSTagFunc) ? f : NSTagFunc{:mth}(f))(o)))
 
 end
