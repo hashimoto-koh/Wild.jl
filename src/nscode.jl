@@ -12,7 +12,7 @@ struct NSCode <: AbstNSCode
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Union{Nothing, NSTagFunc{:fnc}}}
+    __init::Array{Union{Nothing, NSTagFunc{:fnc, false}}}
     __cls::NS
     _instances::Nothing
     _clr_instances::Nothing
@@ -47,7 +47,7 @@ function push_to_instance(o, atr, val)
         else
             Base.setproperty!(y, atr, val)
         end
-    elseif isa(val.obj, AbstNSTagFunc)
+    elseif isa(val.obj, NSTagFunc)
         Base.setproperty!(y, atr, val.obj.fnc)
     else
         Base.setproperty!(y, atr, val.obj)
@@ -91,7 +91,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         hasfield(typeof(nsc), atr) &&
             (Base.setfield!(nsc, atr, x); return)
 
-        atr == :init && (nsc.__init[1] = NSTagFunc{:fnc}(x); return)
+        atr == :init && (nsc.__init[1] = NSTagFunc{:fnc, false}(x); return)
 
         haskey(_NSCodedict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
@@ -113,7 +113,7 @@ Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
 
         atr == :init &&
             (return (isnothing(nsc.__init[1])
-                    ? (nsc.__init[1] = NSTagFunc{:fnc}(__NS_func{gensym()}))
+                    ? (nsc.__init[1] = NSTagFunc{:fnc, false}(__NS_func{gensym()}))
                      : nsc.__init[1]))
 
         Base.getproperty(nsc.__cls, atr)
@@ -174,5 +174,5 @@ _MakeItem(x::NSCodecst, o) = NSCodecst_item(o)
 ################
 
 struct NSCodeTagFunc{T, C} nsc::AbstNSCode end
-_MakeItem(x::NSCodeTag{T,false}, f) where T = NSCodenoncst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSCodeTag{T, true}, f) where T = NSCodecst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSCodeTag{T,false}, f) where T = NSCodenoncst_item(NSTagFunc{T, false}(f))
+_MakeItem(x::NSCodeTag{T, true}, f) where T = NSCodecst_item(NSTagFunc{T, true}(f))
