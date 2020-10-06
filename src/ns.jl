@@ -47,8 +47,13 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         d = ns.__dict
 
         if haskey(d, atr)
+            o = d[atr].obj
+            if isa(o, NSTagFunc{:prp})
+                o.fnc(ns, x)
+                return
+            end
             ns._fixed && Base.error("this NS is fixed!")
-            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            o = isa(x, AbstNSitem) ? x.obj : x
         else
             ns._lcked && Base.error("this NS is locked!")
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
