@@ -144,7 +144,7 @@ _MakeItem(x::NSTag{:dfn, true},  f) = NScst_item(f(x.___NS_ns))
 # NSTagFunc
 ###############################
 
-struct NSTagFunc{T} fnc end
+struct NSTagFunc{T} <: Function fnc end
 
 NSDfn = NSTagFunc{:dfn}
 NSReq = NSTagFunc{:req}
@@ -152,9 +152,11 @@ NSMth = NSTagFunc{:mth}
 NSFnc = NSTagFunc{:fnc}
 NSPrp = NSTagFunc{:prp}
 
-(dfn::NSDfn)(self) = dfn.fnc(self)
-(req::NSReq)(self) = req.fnc(self)
+(f::NSTagFunc)(a...; ka...) = f.fnc(a...; ka...)
+
+# (dfn::NSDfn)(self) = dfn.fnc(self)
+# (req::NSReq)(self) = req.fnc(self)
 (mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
-(mth::NSMth)(a...; ka...) = mth.fnc(a...; ka...)
-(fnc::NSFnc)(a...; ka...) = fnc.fnc(a...; ka...)
-(prp::NSPrp)(a...) = prp.fnc(a...)
+# (mth::NSMth)(a...; ka...) = mth.fnc(a...; ka...)
+# (fnc::NSFnc)(a...; ka...) = fnc.fnc(a...; ka...)
+# (prp::NSPrp)(a...) = prp.fnc(a...)
