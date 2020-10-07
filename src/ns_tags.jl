@@ -155,5 +155,6 @@ NSPrp = NSTagFunc{:prp}
 (dfn::NSDfn)(self) = dfn.fnc(self)
 (req::NSReq)(self) = req.fnc(self)
 (mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
+(mth::NSMth)(a...; ka...) = mth.fnc(a...; ka...)
 (fnc::NSFnc)(a...; ka...) = fnc.fnc(a...; ka...)
 (prp::NSPrp)(a...) = prp.fnc(a...)
