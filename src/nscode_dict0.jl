@@ -2,7 +2,7 @@
 # AbstNSCode
 ################
 
-abstract type AbstNSCode end
+abstract type AbstNSCode <: Function end
 
 ################
 # NSCodedict0
