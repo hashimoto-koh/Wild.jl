@@ -96,9 +96,6 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
         haskey(_NSCodedict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
-#        haskey(nsc.__cls, atr) &&
-#            (Base.setproperty!(nsc.__cls, atr, x); return)
-
         nsc.__link_instances &&
             [push_to_instance(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
@@ -108,11 +105,7 @@ Base.setproperty!(nsc::AbstNSCode, atr::Symbol, x) =
 Base.getproperty(nsc::AbstNSCode, atr::Symbol) =
     begin
         Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
-
         haskey(_NSCodedict0, atr) && (return _NSCodedict0[atr](nsc))
-
-        atr == :init && (return nsc.__init[1])
-
         Base.getproperty(nsc.__cls, atr)
     end
 
