@@ -35,9 +35,31 @@ struct __IsnotaPrp end
 @inline __asprp(::__IsnotaPrp, f) = o -> ((a...;ka...) -> f(o, a...; ka...))
 
 export @prp
+#=
+macro prp(ex)
+    # function f(x) 2x end
+    if ex.head == :function
+        eval(esc(ex))
+        f = ex.args[1].args[1]
+    elseif ex.head == :=
+        eval(esc(ex))
+        # f(x) = 2x
+        if isa(ex.args[1], Expr) && ex.args[1].head == :call
+            f = ex.args[1].args[1]
+        # f = x -> 2x
+        else
+            f = ex.args[1]
+        end
+    # f
+    else
+        f = ex
+    end
+    :(@inline Wild.__isprp(::typeof(esc(f))) = Wild.__IsaPrp())
+end
+=#
 
 macro prp(f)
-   eval(:(@inline Wild.__isprp(::typeof($(f))) = Wild.__IsaPrp()))
+    :(@inline Wild.__isprp(::typeof(esc(f))) = Wild.__IsaPrp())
 end
 
 Base.getproperty(o::Any, atr::Symbol) =
