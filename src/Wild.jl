@@ -26,7 +26,7 @@ include("nscode.jl")
 export AbstNSCode, NSCode
 
 include("operators.jl")
-
+#=
 struct __IsaPrp end
 struct __IsnotaPrp end
 @inline __isprp(x) = __IsnotaPrp()
@@ -74,4 +74,6 @@ Base.getproperty(o::Any, atr::Symbol) =
      : (f = Base.eval(Base.Main, atr);
         (isa(f, Union{AbstTagFunc, NSTagFunc}) ? f : NSTagFunc{:mth}(f))(o)))
 =#
+=#
+
 end
