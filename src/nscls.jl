@@ -114,6 +114,16 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
         Base.setproperty!(nsc.__code, atr, x)
     end
 
+Base.propertynames(nsc::AbstNSCls, private=false) =
+    tuple(Base.propertynames(ns.__cls, private=private)...,
+          Base.keys(_NSClsdict0)...,
+          Base.fieldnames(typeof(nsc))...)
+
+Base.hasproperty(ns::AbstNSCls, atr::Symbol) =
+    Base.hasfield(typeof(nsc), atr) ||
+    haskey(_NSClsdict0, atr) ||
+    Base.hasproperty(nsc.__cls, atr)
+
 Base.getproperty(nsc::AbstNSCls, atr::Symbol) =
     begin
         Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
