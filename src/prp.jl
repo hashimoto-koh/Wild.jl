@@ -38,3 +38,21 @@ macro prp(ex)
         esc(:(@inline Wild.__isprp(::typeof($f)) = Wild.__IsaPrp()))
     end
 end
+
+@prp Base.methods
+@prp Base.inv
+@prp Base.real
+@prp Base.imag
+@prp Base.reim
+@prp Base.abs
+@prp Base.abs2
+@prp Base.conj
+@prp Base.angle
+@prp Base.cis
+@prp Base.extrema
+@prp Base.minimum
+@prp Base.maximum
+@prp Base.one
+@prp Base.zero
+@prp Base.keys
+@prp Base.values
