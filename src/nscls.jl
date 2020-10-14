@@ -56,7 +56,8 @@ end
             y = (isa(val.obj, NSTagFunc)
                  ? Base.getproperty(x, typeof(val.obj).parameters[1])
                  : x)
-            Base.setproperty!(y, atr, val.obj)
+            z = isa(val.obj, NSTagFunc) ? val.obj.fnc : val.obj
+            Base.setproperty!(y, atr, z)
         end
         isnothing(nsc.__post[1]) || nsc.__post[1](o)();
 
