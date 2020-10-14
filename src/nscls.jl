@@ -82,6 +82,7 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
             (Base.setfield!(nsc, atr, x); return)
 
         atr == :init && (nsc.__init[1] = NSTagFunc{:mth}(x); return)
+        atr == :post && (nsc.__post[1] = NSTagFunc{:mth}(x); return)
 
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
