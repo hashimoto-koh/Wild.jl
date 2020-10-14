@@ -69,17 +69,19 @@ end
 ###############################
 # @prpfnc, @mthfnc
 ###############################
-#=
-(Example)
-@prpfnc dtype
-(::dtype.type)(itr) = eltype(itr)
-(::dtype.type)(itr::Base.Generator) = Base.return_types(itr.f, (dtype(itr.iter),))[1]
-=#
-
 abstract type AbstTagFunc <: Function end
 abstract type AbstPrpFunc <: AbstTagFunc end
 abstract type AbstMthFunc <: AbstTagFunc end
 
+"""
+    @prpfnc fncname
+
+# Examples
+@prpfnc dtype
+(::dtype.type)(itr) = eltype(itr)
+(::dtype.type)(itr::Base.Generator) = Base.return_types(itr.f, (dtype(itr.iter),))[1]
+```
+"""
 macro prpfnc(name)
     typename = Base.gensym()
     ex = quote
@@ -91,6 +93,16 @@ macro prpfnc(name)
     esc(ex)
 end
 
+"""
+    @mthfnc fncname
+
+# Examples
+@mthfnc astype
+(::astype.type)(m::AbstractArray, t::Type) =
+    (n = Base.similar(m, t, m.size()...); n .= m; n)
+(::astype.type)(x, t::Type) = convert(t, x)
+```
+"""
 macro mthfnc(name)
     typename = Base.gensym()
     ex = quote
