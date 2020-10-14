@@ -31,6 +31,8 @@ end
 
 const NS = NSX{nothing}
 
+abstract type __NSFlgCodeMode end
+
 ################
 # NS
 ################
@@ -87,6 +89,42 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         isa(x, NSTagFunc{:req}) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
         return x
     end
+
+################
+# NSX{__NSFlgCodeMode}
+################
+
+Base.setproperty!(ns::NSX{__NSFlgCodeMode}, atr::Symbol, x) =
+    begin
+        hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
+
+        haskey(Wild._NSdict0, atr) &&
+            Base.error("'" * string(atr) * "' can't be used for property")
+
+        d = ns.__dict
+
+        if haskey(d, atr)
+            ns._fixed && Base.error("this NS is fixed!")
+            d[atr].obj = isa(x, Wild.AbstNSitem) ? x.obj : x
+        else
+            ns._lcked && Base.error("this NS is locked!")
+            d[atr] = isa(x, Wild.AbstNSitem) ? x : Wild.NSnoncst_item(x)
+        end
+    end
+
+Base.getproperty(ns::NSX{__NSFlgCodeMode}, atr::Symbol) =
+    begin
+        Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
+
+        haskey(Wild._NSdict0, atr) && (return Wild._NSdict0[atr](ns))
+
+        d = ns.__dict
+
+        haskey(d, atr) ||
+            error("""This NS does not have a property named "$(atr)".""")
+
+        d[atr].obj;
+    end;
 
 ################
 # >>, >>>
