@@ -74,7 +74,22 @@ end
                                   for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
         for (atr, val) ∈ pairs(nsc.__code.__dict)
-            Base.setproperty!(o, atr, val)
+            if isa(val, NScst_item)
+                x = Base.getproperty!(o, :cst)
+                if isa(val.obj, NSTagFunc)
+                    tag = typeof(val.obj).parameters[1]
+                    Base.setproperty!(Base.getproperty!(x, tag), atr, val.obj.fnc)
+                else
+                    Base.setproperty!(x, atr, val.obj)
+                end
+            else
+                if isa(val.obj, NSTagFunc)
+                    tag = typeof(val.obj).parameters[1]
+                    Base.setproperty!(Base.getproperty!(o, tag), atr, val.obj.fnc)
+                else
+                    Base.setproperty!(o, atr, val.obj)
+                end
+            end
         end
 
         nsc.__link_instances &&
