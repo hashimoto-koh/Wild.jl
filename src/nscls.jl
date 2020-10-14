@@ -87,6 +87,8 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
+        nsc.__cls.haskey(atr) && (return Base.setproperty!(nsc.__cls, atr, x)
+
         nsc.__link_instances &&
             [Base.setproperty!(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
