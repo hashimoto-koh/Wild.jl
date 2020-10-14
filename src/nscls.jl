@@ -69,7 +69,7 @@ end
                 end
             end
         end
-        isnothing(nsc.__post[1]) || nsc.__post[1](o);
+        isnothing(nsc.__post[1]) || nsc.__post[1](o)();
 
         nsc.__link_instances &&
             append!(nsc.__instances, [(a=args, k=values(kargs), o=o)])
@@ -149,8 +149,10 @@ _MakeItem(x::NSClscst, o) = NScst_item(o)
 ################
 
 struct NSClsTagFunc{T, C} nsc::AbstNSCls end
-_MakeItem(x::NSClsTag{T,false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSClsTag{T, true}, f) where T = NScst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSClsTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSClsTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSClsTag{:var, false}, f) where T = NSnoncst_item(f)
+_MakeItem(x::NSClsTag{:var, true},  f) where T = NScst_item(f)
 
 
 #=
