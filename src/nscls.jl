@@ -87,6 +87,25 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
+        if isa(x, AbstNSitem) &&
+            isa(x.obj, NSClsTagFunc) &&
+            typeof(x.obj).parameters[1] == :var
+
+            tp = isa(x, NSnoncst_item) ? NSnoncst_item : NScst_item
+            y = x.obj.fnc
+            if isa(x, NSnoncst_item)
+                nsc.__link_instances &&
+                    [Base.setproperty!(i, atr, y) for (a, k, i) ∈ nsc.__instances]
+                Base.setproperty!(nsc.__code, atr, y)
+            else
+                nsc.__link_instances &&
+                    [Base.setproperty!(Base.getproperty(i, :cst), atr, y)
+                     for (a, k, i) ∈ nsc.__instances]
+                Base.setproperty!(Base.getproperty(nsc.__code, :cst), atr, y)
+            end
+            return
+        end
+
         nsc.__cls.haskey(atr) && (return Base.setproperty!(nsc.__cls, atr, x))
 
         nsc.__link_instances &&
@@ -151,8 +170,6 @@ _MakeItem(x::NSClscst, o) = NScst_item(o)
 struct NSClsTagFunc{T, C} nsc::AbstNSCls end
 _MakeItem(x::NSClsTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
 _MakeItem(x::NSClsTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSClsTag{:var, false}, f) where T = NSnoncst_item(f)
-_MakeItem(x::NSClsTag{:var, true},  f) where T = NScst_item(f)
 
 
 #=
