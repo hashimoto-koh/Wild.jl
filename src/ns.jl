@@ -161,7 +161,8 @@ Base.:>>>(g::AbstNS, h::AbstNS) = h.deepimport(g)
 # genNSX, ns
 ################
 
-genNSX() = NSX{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
+# genNSX() = NSX{Symbol("NS_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
+genNSX() = NSX{gensym()}
 genNSX(X) = NSX{X}
 
 nsx() = genNSX()()
