@@ -29,7 +29,7 @@ struct NSCls <: AbstNSCls
             #= _instances       =# nothing,
             #= _clr_instances   =# nothing)
 end
-
+#=
 function push_to_instance(o, atr, val)
     x = isa(val, NSClscst_item) ? Base.getproperty(o, :cst) : o
 
@@ -49,7 +49,7 @@ function push_to_instance(o, atr, val)
         Base.setproperty!(y, atr, val.obj)
     end
 end
-
+=#
 (nsc::NSCls)(args...; kargs...) =
     begin
         o = nsc.__type()
@@ -73,8 +73,8 @@ end
                              Dict((k,v)
                                   for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
-        for (atr, val) ∈ nsc.__code
-            push_to_instance(o, atr, val)
+        for (atr, val) ∈ pairs(nsc.__code.__dict)
+            Base.setproperty!(o, atr, val)
         end
 
         nsc.__link_instances &&
@@ -93,7 +93,7 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
             Base.error("'" * string(atr) * "' can't be used for property")
 
         nsc.__link_instances &&
-            [push_to_instance(i, atr, x) for (a, k, i) ∈ nsc.__instances]
+            [Base.setproperty!(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
         Base.setproperty!(nsc.__code, atr, x)
     end
@@ -143,17 +143,17 @@ Base.getproperty(cst::NSClscst, atr::Symbol) =
     end
 
 Base.setproperty!(cst::NSClscst, atr::Symbol, o) =
-    Base.setproperty!(cst.___NSC_nsc, atr, NSClscst_item(o))
+    Base.setproperty!(cst.___NSC_nsc, atr, NScst_item(o))
 
-_MakeItem(x::NSClscst, o) = NSClscst_item(o)
+_MakeItem(x::NSClscst, o) = NScst_item(o)
 
 ################
 # NSClsTagFunc
 ################
 
 struct NSClsTagFunc{T, C} nsc::AbstNSCls end
-_MakeItem(x::NSClsTag{T,false}, f) where T = NSClsnoncst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSClsTag{T, true}, f) where T = NSClscst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSClsTag{T,false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
+_MakeItem(x::NSClsTag{T, true}, f) where T = NScst_item(NSTagFunc{T}(f))
 
 
 #=
