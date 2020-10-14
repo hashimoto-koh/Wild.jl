@@ -13,6 +13,7 @@ const _NSClsdict0 = Dict{Symbol, Function}()
 _NSClsdict0[:cls] = nsc -> nsc.__cls
 _NSClsdict0[:ins] = nsc -> nsc.__code
 _NSClsdict0[:init] = nsc -> nsc.__init[1]
+_NSClsdict0[:post] = nsc -> nsc.__post[1]
 
 _NSClsdict0[:cst] = nsc -> NSClscst(nsc)
 

@@ -13,9 +13,8 @@ struct NSCls <: AbstNSCls
     __type
     __instances
     __link_instances::Bool
-    __init::Array{Union{Nothing, NSTagFunc{:mth}}}
-    _instances::Nothing
-    _clr_instances::Nothing
+    __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
+    __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
     NSCls(args...; __link_instances=false, kargs...) =
         new(#= __args           =# args,
@@ -26,30 +25,9 @@ struct NSCls <: AbstNSCls
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
             #= __init           =# [nothing],
-            #= _instances       =# nothing,
-            #= _clr_instances   =# nothing)
+            #= __post           =# [nothing])
 end
-#=
-function push_to_instance(o, atr, val)
-    x = isa(val, NSClscst_item) ? Base.getproperty(o, :cst) : o
 
-    y = (isa(val, AbstNSClsitem) && isa(val.obj, NSTagFunc)
-         ? Base.getproperty(x, typeof(val.obj).parameters[1])
-         : x)
-
-    if !isa(val, AbstNSClsitem)
-        if atr == :exe
-            val(y)
-        else
-            Base.setproperty!(y, atr, val)
-        end
-    elseif isa(val.obj, NSTagFunc)
-        Base.setproperty!(y, atr, val.obj.fnc)
-    else
-        Base.setproperty!(y, atr, val.obj)
-    end
-end
-=#
 (nsc::NSCls)(args...; kargs...) =
     begin
         o = nsc.__type()
@@ -91,6 +69,7 @@ end
                 end
             end
         end
+        isnothing(nsc.__post[1]) || nsc.__post[1](o);
 
         nsc.__link_instances &&
             append!(nsc.__instances, [(a=args, k=values(kargs), o=o)])
