@@ -88,7 +88,7 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
             Base.error("'" * string(atr) * "' can't be used for property")
 
         if isa(x, AbstNSitem) &&
-            isa(x.obj, NSClsTagFunc) &&
+            isa(x.obj, NSTagFunc) &&
             typeof(x.obj).parameters[1] == :var
 
             tp = isa(x, NSnoncst_item) ? NSnoncst_item : NScst_item
