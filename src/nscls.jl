@@ -21,7 +21,7 @@ struct NSCls <: AbstNSCls
         new(#= __args           =# args,
             #= __kargs          =# kargs,
             #= __cls            =# NS(),
-            #= __code           =# NSX{__NSFlgCodeMode},
+            #= __code           =# NSX{__NSFlgCodeMode}(),
             #= __type           =# genNSX(),
             #= __instances      =# [],
             #= __link_instances =# __link_instances,
