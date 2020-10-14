@@ -52,7 +52,21 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             o = d[atr].obj
             isa(o, NSTagFunc{:prp}) && (o.fnc(ns, x); return)
             ns._fixed && Base.error("this NS is fixed!")
-            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            if isa(d[atr], NSnoncst_item)
+                if isa(x, AbstNSitem)
+                    if isa(x.obj, NSVar)
+                        d[atr] = (isa(x, NSnoncst_item)
+                                  ? NSnoncst_item
+                                  : NScst_item)(x.obj.fnc)
+                    else
+                        d[atr] = x
+                    end
+                else
+                    d[atr] = NSnoncst_item(x)
+                end
+            else
+                Base.error("""property "$(atr)" is const!""")
+            end
         else
             ns._lcked && Base.error("this NS is locked!")
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)

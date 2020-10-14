@@ -145,8 +145,6 @@ _MakeItem(x::NSTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
 _MakeItem(x::NSTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
 _MakeItem(x::NSTag{:dfn, false}, f) = NSnoncst_item(f(x.___NS_ns))
 _MakeItem(x::NSTag{:dfn, true},  f) = NScst_item(f(x.___NS_ns))
-_MakeItem(x::NSTag{:var, false}, f) = NSnoncst_item(f)
-_MakeItem(x::NSTag{:var, true},  f) = NScst_item(f)
 
 ###############################
 # NSTagFunc
