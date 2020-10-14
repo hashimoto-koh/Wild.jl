@@ -52,22 +52,11 @@ end
                                   for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
         for (atr, val) ∈ pairs(nsc.__code.__dict)
-            if isa(val, NScst_item)
-                x = Base.getproperty!(o, :cst)
-                if isa(val.obj, NSTagFunc)
-                    tag = typeof(val.obj).parameters[1]
-                    Base.setproperty!(Base.getproperty(x, tag), atr, val.obj.fnc)
-                else
-                    Base.setproperty!(x, atr, val.obj)
-                end
-            else
-                if isa(val.obj, NSTagFunc)
-                    tag = typeof(val.obj).parameters[1]
-                    Base.setproperty!(Base.getproperty(o, tag), atr, val.obj.fnc)
-                else
-                    Base.setproperty!(o, atr, val.obj)
-                end
-            end
+            x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
+            y = (isa(val.obj, NSTagFunc)
+                 ? Base.getproperty(x, typeof(val.obj).parameters[1])
+                 : x)
+            Base.setproperty!(y, atr, val.obj)
         end
         isnothing(nsc.__post[1]) || nsc.__post[1](o)();
 

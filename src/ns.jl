@@ -51,36 +51,30 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         if haskey(d, atr)
             o = d[atr].obj
             isa(o, NSTagFunc{:prp}) && (o.fnc(ns, x); return)
+
             ns._fixed && Base.error("this NS is fixed!")
+
             if isa(d[atr], NSnoncst_item)
-                if isa(x, AbstNSitem)
-                    if isa(x.obj, NSVar)
-                        d[atr] = (isa(x, NSnoncst_item)
-                                  ? NSnoncst_item
-                                  : NScst_item)(x.obj.fnc)
-                    else
-                        d[atr] = x
-                    end
-                else
-                    d[atr] = NSnoncst_item(x)
-                end
+                d[atr] = (isa(x, AbstNSitem)
+                          ? (isa(x.obj, NSVar)
+                             ? (isa(x, NSnoncst_item)
+                                ? NSnoncst_item
+                                : NScst_item)(x.obj.fnc)
+                             : x)
+                          : NSnoncst_item(x))
             else
                 Base.error("""property "$(atr)" is const!""")
             end
         else
             ns._lcked && Base.error("this NS is locked!")
 
-            if isa(x, AbstNSitem)
-                if isa(x.obj, NSVar)
-                    d[atr] = (isa(x, NSnoncst_item)
-                              ? NSnoncst_item
-                              : NScst_item)(x.obj.fnc)
-                else
-                    d[atr] = x
-                end
-            else
-                d[atr] = NSnoncst_item(x)
-            end
+            d[atr] = (isa(x, AbstNSitem)
+                      ?(isa(x.obj, NSVar)
+                        ? (isa(x, NSnoncst_item)
+                           ? NSnoncst_item
+                           : NScst_item)(x.obj.fnc)
+                        : x)
+                      : NSnoncst_item(x))
         end
     end
 
@@ -122,17 +116,17 @@ Base.setproperty!(ns::NSX{__NSFlgCodeMode}, atr::Symbol, x) =
     begin
         hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
 
-        haskey(Wild._NSdict0, atr) &&
+        haskey(_NSdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
 
         d = ns.__dict
 
         if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
-            d[atr].obj = isa(x, Wild.AbstNSitem) ? x.obj : x
+            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
         else
             ns._lcked && Base.error("this NS is locked!")
-            d[atr] = isa(x, Wild.AbstNSitem) ? x : Wild.NSnoncst_item(x)
+            d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
     end
 
@@ -140,7 +134,7 @@ Base.getproperty(ns::NSX{__NSFlgCodeMode}, atr::Symbol) =
     begin
         Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
 
-        haskey(Wild._NSdict0, atr) && (return Wild._NSdict0[atr](ns))
+        haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
 
         d = ns.__dict
 
