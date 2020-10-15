@@ -56,3 +56,8 @@ end
 @prp Base.zero
 @prp Base.keys
 @prp Base.values
+@prp Base.typeof
+@prp Base.println
+@prp Base.length
+@prp Base.adjoint
+@prp Base.transpose
