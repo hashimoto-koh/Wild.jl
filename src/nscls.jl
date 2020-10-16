@@ -91,7 +91,7 @@ Base.propertynames(nsc::AbstNSCls, private=false) =
           Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
-Base.hasproperty(ns::AbstNSCls, atr::Symbol) =
+Base.hasproperty(nsc::AbstNSCls, atr::Symbol) =
     Base.hasfield(typeof(nsc), atr) ||
     haskey(_NSClsdict0, atr) ||
     Base.hasproperty(nsc.__cls, atr)
