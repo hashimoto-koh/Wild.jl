@@ -139,7 +139,7 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
         for i in ns.__instances[1]
-            Base.setproperty!(i, atr, x)
+            Base.setproperty!(i.o, atr, x)
         end
     end
 
