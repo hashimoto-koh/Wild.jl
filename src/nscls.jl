@@ -109,7 +109,7 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
     end
 
 Base.propertynames(nsc::AbstNSCls, private=false) =
-    tuple(Base.propertynames(ns.__cls, private=private)...,
+    tuple(Base.propertynames(nsc.__cls, private=private)...,
           Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
