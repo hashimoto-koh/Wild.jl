@@ -14,17 +14,10 @@ _NSClsdict0[:type] = nsc -> nsc.__type
 
 _NSClsdict0[:cls] = nsc -> nsc.__cls
 _NSClsdict0[:ins] = nsc -> nsc.__code
+
 _NSClsdict0[:init] = nsc -> nsc.__init[1]
 _NSClsdict0[:post] = nsc -> nsc.__post[1]
-#=
-_NSClsdict0[:cst] = nsc -> NSClscst(nsc)
 
-_NSClsdict0[:dfn] = nsc -> NSClsTag{:dfn, false}(nsc)
-_NSClsdict0[:req] = nsc -> NSClsTag{:req, false}(nsc)
-_NSClsdict0[:prp] = nsc -> NSClsTag{:prp, false}(nsc)
-_NSClsdict0[:fnc] = nsc -> NSClsTag{:fnc, false}(nsc)
-_NSClsdict0[:mth] = nsc -> NSClsTag{:mth, false}(nsc)
-=#
 _NSClsdict0[:cst] = nsc -> nsc.__code.cst
 _NSClsdict0[:dfn] = nsc -> nsc.__code.dfn
 _NSClsdict0[:req] = nsc -> nsc.__code.req

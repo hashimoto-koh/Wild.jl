@@ -102,57 +102,7 @@ Base.getproperty(nsc::AbstNSCls, atr::Symbol) =
         haskey(_NSClsdict0, atr) && (return _NSClsdict0[atr](nsc))
         Base.getproperty(nsc.__cls, atr)
     end
-#=
-################
-# NSClsitem
-################
 
-abstract type AbstNSClsitem end
-
-struct NSClscst_item{T} <: AbstNSClsitem
-    obj::T
-end
-
-mutable struct NSClsnoncst_item{T} <: AbstNSClsitem
-    obj::T
-end
-
-################
-# NSClsTag
-################
-
-struct NSClsTag{T, C} ___NSC_nsc::AbstNSCls end
-
-Base.setproperty!(tag::NSClsTag, atr::Symbol, f) =
-        (Base.hasfield(typeof(tag), atr)
-         ? Base.setproperty!(tag, atr, f)
-         : Base.setproperty!(tag.___NSC_nsc, atr, _MakeItem(tag,f)))
-
-################
-# NSClscst
-################
-
-struct NSClscst{T <: AbstNSCls} ___NSC_nsc::T end
-
-Base.getproperty(cst::NSClscst, atr::Symbol) =
-    begin
-        hasfield(typeof(cst), atr) && (return Base.getfield(cst, atr))
-        NSClsTag{atr, true}(cst.___NSC_nsc)
-    end
-
-Base.setproperty!(cst::NSClscst, atr::Symbol, o) =
-    Base.setproperty!(cst.___NSC_nsc, atr, NScst_item(o))
-
-_MakeItem(x::NSClscst, o) = NScst_item(o)
-
-################
-# NSClsTagFunc
-################
-
-struct NSClsTagFunc{T, C} nsc::AbstNSCls end
-_MakeItem(x::NSClsTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
-_MakeItem(x::NSClsTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
-=#
 
 #=
 #=
