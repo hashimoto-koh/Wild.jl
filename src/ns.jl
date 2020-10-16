@@ -112,7 +112,17 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 # NSX{__NSFlgCodeMode}
 ################
 
-Base.setproperty!(ns::NSX{__NSFlgCodeMode}, atr::Symbol, x) =
+struct __NSX_CodeMode <: AbstNS
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::MVector{2, Bool}
+    __instances
+    __NSX_CodeMode() =
+        new(#= __dict      =# OrderedDict{Symbol, AbstNSitem}(),
+            #= __fix_lck   =# MVector{2, Bool}(false, false),
+            #= __instances =# [])
+end
+
+Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
     begin
         hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
 
@@ -128,9 +138,12 @@ Base.setproperty!(ns::NSX{__NSFlgCodeMode}, atr::Symbol, x) =
             ns._lcked && Base.error("this NS is locked!")
             d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
+        for i in ns.__instances[1]
+            Base.setproperty!(i, atr, x)
+        end
     end
 
-Base.getproperty(ns::NSX{__NSFlgCodeMode}, atr::Symbol) =
+Base.getproperty(ns::__NSX_CodeMode, atr::Symbol) =
     begin
         Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
 

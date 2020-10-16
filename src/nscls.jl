@@ -9,7 +9,7 @@ struct NSCls <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
     __cls::NS
-    __code::NSX{__NSFlgCodeMode}
+    __code::__NSX_CodeMode
     __type
     __instances
     __link_instances::Bool
@@ -17,15 +17,19 @@ struct NSCls <: AbstNSCls
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
     NSCls(args...; __link_instances=false, kargs...) =
-        new(#= __args           =# args,
-            #= __kargs          =# kargs,
-            #= __cls            =# NS(),
-            #= __code           =# NSX{__NSFlgCodeMode}(),
-            #= __type           =# genNSX(),
-            #= __instances      =# [],
-            #= __link_instances =# __link_instances,
-            #= __init           =# [nothing],
-            #= __post           =# [nothing])
+        begin
+            nsc = new(#= __args           =# args,
+                      #= __kargs          =# kargs,
+                      #= __cls            =# NS(),
+                      #= __code           =# __NSX_CodeMode(),
+                      #= __type           =# genNSX(),
+                      #= __instances      =# [],
+                      #= __link_instances =# __link_instances,
+                      #= __init           =# [nothing],
+                      #= __post           =# [nothing])
+            append!(nsc.__code.__instances, nsc.__instances)
+            nsc
+        end
 end
 
 (nsc::NSCls)(args...; kargs...) =
@@ -76,7 +80,7 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
 
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
-
+#=
         if isa(x, AbstNSitem) &&
             isa(x.obj, NSTagFunc) &&
             typeof(x.obj).parameters[1] == :var
@@ -95,11 +99,11 @@ Base.setproperty!(nsc::AbstNSCls, atr::Symbol, x) =
             end
             return
         end
-
+=#
         nsc.__cls.haskey(atr) && (return Base.setproperty!(nsc.__cls, atr, x))
 
-        nsc.__link_instances &&
-            [Base.setproperty!(i, atr, x) for (a, k, i) ∈ nsc.__instances]
+#        nsc.__link_instances &&
+#            [Base.setproperty!(i, atr, x) for (a, k, i) ∈ nsc.__instances]
 
         Base.setproperty!(nsc.__code, atr, x)
     end
