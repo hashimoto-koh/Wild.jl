@@ -24,7 +24,7 @@ _NSClsdict0[:req] = nsc -> NSClsTag{:req, false}(nsc)
 _NSClsdict0[:prp] = nsc -> NSClsTag{:prp, false}(nsc)
 _NSClsdict0[:fnc] = nsc -> NSClsTag{:fnc, false}(nsc)
 _NSClsdict0[:mth] = nsc -> NSClsTag{:mth, false}(nsc)
-_NSClsdict0[:var] = nsc -> NSClsTag{:var, false}(nsc)
+_NSClsdict0[:var] = nsc -> nsc.__code
 
 _NSClsdict0[:instances] = nsc -> [i for (a, k, i) ∈ nsc.__instances]
 _NSClsdict0[:clr_instances!] =

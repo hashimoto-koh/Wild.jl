@@ -157,7 +157,6 @@ NSReq = NSTagFunc{:req}
 NSMth = NSTagFunc{:mth}
 NSFnc = NSTagFunc{:fnc}
 NSPrp = NSTagFunc{:prp}
-NSVar = NSTagFunc{:var}
 
 (f::NSTagFunc)(a...; ka...) = f.fnc(a...; ka...)
 (mth::NSMth)(self) = (a...; ka...)->mth.fnc(self, a...; ka...)
