@@ -102,7 +102,7 @@ Base.getproperty(nsc::AbstNSCls, atr::Symbol) =
         haskey(_NSClsdict0, atr) && (return _NSClsdict0[atr](nsc))
         Base.getproperty(nsc.__cls, atr)
     end
-
+#=
 ################
 # NSClsitem
 ################
@@ -152,7 +152,7 @@ _MakeItem(x::NSClscst, o) = NScst_item(o)
 struct NSClsTagFunc{T, C} nsc::AbstNSCls end
 _MakeItem(x::NSClsTag{T, false}, f) where T = NSnoncst_item(NSTagFunc{T}(f))
 _MakeItem(x::NSClsTag{T, true},  f) where T = NScst_item(NSTagFunc{T}(f))
-
+=#
 
 #=
 #=
