@@ -116,9 +116,9 @@ Base.setproperty!(x::NSTag, atr::Symbol, f) =
     begin
         Base.hasfield(typeof(x), atr) && (Base.setproperty!(x, atr, f); return)
 
-        if typeof(x.___NS_ns).parameters[1] == __NSFlgCodeMode
-            itm = typeof(x).parameters[2] ? Wild.NScst_item : Wild.NSnoncst_item
-            tag = Wild.NSTagFunc{typeof(x).parameters[1]}
+        if typeof(x.___NS_ns) == __NSX_CodeMode
+            itm = typeof(x).parameters[2] ? NScst_item : NSnoncst_item
+            tag = NSTagFunc{typeof(x).parameters[1]}
             Base.setproperty!(x.___NS_ns, atr, itm(tag(f)))
         else
             Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f))
