@@ -27,7 +27,7 @@ struct NSCls <: AbstNSCls
                       #= __link_instances =# __link_instances,
                       #= __init           =# [nothing],
                       #= __post           =# [nothing])
-            append!(nsc.__code.__instances, nsc.__instances)
+            push!(nsc.__code.__instances, nsc.__instances)
             nsc
         end
 end
