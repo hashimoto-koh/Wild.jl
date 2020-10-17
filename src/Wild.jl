@@ -25,9 +25,26 @@ include("operators.jl")
 
 include("prp.jl")
 
+
+const base_getprp_dict = Dict{Type, Dict{Symbol, Function}}()
+
+base_getprp_dict[Any] = Dict{Symbol, Function}()
+base_getprp_dict[AbstractArray] = Dict{Symbol, Function}()
+
 Base.getproperty(o::Any, atr::Symbol) =
 begin
     hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
+    haskey(base_getprp_dict[Any], atr) && (return base_getprp_dict[Any][atr](o))
+    __asprp(Base.eval(Base.Main, atr))(o)
+end
+
+const base_getprp_dict_array = Dict{Symbol, Function}()
+
+Base.getproperty(o::AbstractArray, atr::Symbol) =
+begin
+    hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
+    haskey(base_getprp_dict[AbstractArray], atr) &&
+        (return base_getprp_dict[AbstractArray][atr](o))
     __asprp(Base.eval(Base.Main, atr))(o)
 end
 
