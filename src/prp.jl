@@ -76,7 +76,7 @@ Base.getindex(d::__getprp_dict, T::Type) = d.__dct[T]
 Base.getindex(d::__getprp_dict, T::Type, atr::Symbol) = d.__dct[T][atr]
 Base.setindex!(d::__getprp_dict, x::DefaultDict{Symbol, Function}, T::Type) =
     Base.setindex!(d.__dct, f, T)
-Base.setindex!(d::getprp_dict, f::Function, T::Type, atr::Symbol) =
+Base.setindex!(d::__getprp_dict, f::Function, T::Type, atr::Symbol) =
     Base.setindex!(d.__dct[T], f, atr)
 
 getprp_dict = __getprp_dict()
