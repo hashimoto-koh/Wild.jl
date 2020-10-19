@@ -79,7 +79,7 @@ Base.setindex!(d::__getprp_dict, x::DefaultDict{Symbol, Function}, T::Type) =
 Base.setindex!(d::__getprp_dict, f::Function, T::Type, atr::Symbol) =
     Base.setindex!(d.__dct[T], f, atr)
 
-getprp_dict = __getprp_dict()
+getprp_dict = __getprp_dict(Dict{Type, DefaultDict{Symbol, Function}}())
 
 __getprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) ? getfield(o, atr) : getprp_dict[T][atr](o)
