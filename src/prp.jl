@@ -67,14 +67,14 @@ end
 ###############################
 # prpdict
 ###############################
-#=
+
 Base.getproperty(o::Any, atr::Symbol) =
 begin
     hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
     __asprp(Base.eval(Base.Main, atr))(o)
 end
-=#
 
+#=
 struct __getprp_dict <: Function
     __dct::Dict{Type, DefaultDict{Symbol, Function}}
 end
@@ -120,7 +120,8 @@ for T in [Any,
     getprp_dict.__dct[T] =
         DefaultDict{Symbol, Function}(atr -> __asprp(Base.eval(Base.Main, atr)),
                                       passkey=true)
-    Base.getproperty(o::T, atr::Symbol) = Wild.__getprp(o, T, atr)
+#    Base.getproperty(o::T, atr::Symbol) = Wild.__getprp(o, T, atr)
 #    Base.hasproperty(o::T, atr::Symbol) = Wild.__hasprp(o, T, atr)
 #    Base.propertynames(o::T, private=false) = Wild.__prpnames(o, T)
 end
+=#
