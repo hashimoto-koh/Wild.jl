@@ -98,7 +98,7 @@ begin
     eval(:(Base.propertynames(o::$(T), private=false) = Wild.__prpnames(o, $(T))))
 end
 
-for T in [# Any,
+for T in [Any,
           Number,
           AbstractArray,
           AbstractString,
@@ -107,22 +107,3 @@ for T in [# Any,
           Iterators.ProductIterator]
     getprp_dict(T)
 end
-
-#=
-const getprp_dict = Dict{Type, DefaultDict{Symbol, Function}}()
-const getprp_dict_default_func = o -> __asprp(Base.eval(Base.Main, atr))(o)
-
-for T in [# Any,
-          Number,
-          AbstractArray,
-          AbstractString,
-          Function,
-          Base.Generator,
-          Base.Iterators.ProductIterator]
-    getprp_dict(T)
-    getprp_dict[T] = DefaultDict{Symbol, Function}(getprp_dict_default_func)
-    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
-    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
-    Base.propertynames(o::T, private=false) = __prpnames(o, T)
-end
-=#
