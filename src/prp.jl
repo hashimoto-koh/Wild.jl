@@ -77,7 +77,7 @@ for tp in [Any, AbstractArray, AbstractString]
 end
 
 __getprp(o, tp::Type, atr::Symbol) =
-    hasfield(tp, atr) ? Base.getfield(o, atr) : base_getprp_dict[tp][atr](o)
+    hasfield(typeof(o), atr) ? Base.getfield(o, atr) : base_getprp_dict[tp][atr](o)
 __prpnames(o, tp::Type) =
     tuple(Base.fieldnames(typeof(o))..., Base.keys(base_getprp_dict[tp]))
 __hasprp(o, tp::Type, atr::Symbol) =
