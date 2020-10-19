@@ -114,7 +114,7 @@ for T in [Any,
           Iterators.ProductIterator]
     #    getprp_dict(T)
 
-    d.__dct[T] =
+    getprp_dict.__dct[T] =
         DefaultDict{Symbol, Function}(atr -> __asprp(Base.eval(Base.Main, atr)),
                                       passkey=true)
     Base.getproperty(o::T, atr::Symbol) = Wild.__getprp(o, T, atr)
