@@ -68,8 +68,7 @@ end
 # prpdict
 ###############################
 
-# __PrpDct = DefaultDict{Symbol, Function}
-__PrpDct = Dict{Symbol, Function}
+__PrpDct = DefaultDict{Symbol, Function}
 struct __getprp_dct <: Function _dct::Dict{Type, __PrpDct} end
 Base.getindex(d::__getprp_dct, T::Type) = d._dct[T]
 Base.setindex!(d::__getprp_dct, x::__PrpDct, T::Type) = Base.setindex!(d._dct, x, T)
@@ -85,13 +84,10 @@ for T in [Any,
           Base.Generator,
           Iterators.ProductIterator,
           ]
-#    getprp_dct[T] = __PrpDct(a -> __asprp(Base.eval(Base.Main, a)), passkey=true)
-    getprp_dct[T] = __PrpDct()
+    getprp_dct[T] = __PrpDct(a -> __asprp(Base.eval(Base.Main, a)), passkey=true)
     Base.getproperty(o::T, atr::Symbol) = (hasfield(typeof(o), atr)
                                            ? Base.getfield(o, atr)
-                                           : haskey(getprp_dct[T], atr)
-                                           ? getprp_dct[T][atr](o)
-                                           : __asprp(Base.eval(Base.Main, atr)))
+                                           : getprp_dct[T][atr](o))
     Base.hasproperty(o::T, atr::Symbol) =
         tuple(fieldnames(typeof(o))..., keys(getprp_dct[T]))
     Base.propertynames(o::T, private=false) =
