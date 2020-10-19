@@ -1,3 +1,5 @@
+import DataStructures: DefaultDict
+
 ###############################
 # @prp
 ###############################
@@ -66,31 +68,35 @@ end
 # prpdict
 ###############################
 
-const base_getprp_dict = Dict{Type, Dict{Symbol, Function}}()
+const base_getprp_dict = Dict{Type, DefaultDict{Symbol, Function}}()
+const base_getprp_dict_default_func = o -> __asprp(Base.eval(Base.Main, atr))(o)
 
-base_getprp_dict[Any] = Dict{Symbol, Function}()
-base_getprp_dict[AbstractArray] = Dict{Symbol, Function}()
-base_getprp_dict[AbstractString] = Dict{Symbol, Function}()
-
-Base.getproperty(o::Any, atr::Symbol) =
-begin
-    hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
-    haskey(base_getprp_dict[Any], atr) && (return base_getprp_dict[Any][atr](o))
-    __asprp(Base.eval(Base.Main, atr))(o)
+for tp in [Any, AbstractArray, AbstractString]
+    base_getprp_dict[tp] =
+        DefaultDict{Symbol, Function}(base_getprp_dict_default_func)
 end
 
-Base.getproperty(o::AbstractArray, atr::Symbol) =
-begin
-    hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
-    haskey(base_getprp_dict[AbstractArray], atr) &&
-        (return base_getprp_dict[AbstractArray][atr](o))
-    __asprp(Base.eval(Base.Main, atr))(o)
+__getprp(o, tp::Type, atr::Symbol) =
+    hasfield(tp, atr) ? Base.getfield(o, atr) : base_getprp_dict[tp][atr](o)
+__prpnames(o, tp::Type) =
+    tuple(Base.fieldnames(typeof(o))..., Base.keys(base_getprp_dict[tp]))
+__hasprp(o, tp::Type, atr::Symbol) =
+    Base.hasfield(typeof(o), atr) && haskey(base_getprp_dict[tp])
+
+let T = Any
+    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
+    Base.propertynames(o::T, private=false) = __prpnames(o, T)
+    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
 end
 
-Base.getproperty(o::AbstractString, atr::Symbol) =
-begin
-    hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
-    haskey(base_getprp_dict[AbstractString], atr) &&
-        (return base_getprp_dict[AbstractString][atr](o))
-    __asprp(Base.eval(Base.Main, atr))(o)
+let T = AbstractArray
+    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
+    Base.propertynames(o::T, private=false) = __prpnames(o, T)
+    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
+end
+
+let T = AbstractString
+    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
+    Base.propertynames(o::T, private=false) = __prpnames(o, T)
+    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
 end
