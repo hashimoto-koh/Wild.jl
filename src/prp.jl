@@ -68,7 +68,7 @@ end
 # prpdict
 ###############################
 
-struct getprp_dict::Function
+struct getprp_dict <: Function
     __dct::Dict{Type, DefaultDict{Symbol, Function}}
 end
 
