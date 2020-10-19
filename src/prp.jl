@@ -106,12 +106,15 @@ begin
 end
 
 for T in [Any,
+          #=
           Number,
           AbstractArray,
           AbstractString,
           Function,
           Base.Generator,
-          Iterators.ProductIterator]
+          Iterators.ProductIterator,
+          =#
+          ]
     #    getprp_dict(T)
 
     getprp_dict.__dct[T] =
