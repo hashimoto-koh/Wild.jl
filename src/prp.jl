@@ -77,7 +77,8 @@ __prpnames(o, T::Type) = tuple(fieldnames(typeof(o))..., keys(getprp_dict[T]))
 __hasprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) && haskey(getprp_dict[T])
 
-for T in [Any,
+for T in [# Any,
+          Number,
           AbstractArray,
           AbstractString,
           Function,
