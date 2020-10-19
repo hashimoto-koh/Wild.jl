@@ -68,14 +68,41 @@ end
 # prpdict
 ###############################
 
-const getprp_dict = Dict{Type, DefaultDict{Symbol, Function}}()
-const getprp_dict_default_func = o -> __asprp(Base.eval(Base.Main, atr))(o)
+struct getprp_dict::Function
+    __dct::Dict{Type, DefaultDict{Symbol, Function}}
+end
 
 __getprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) ? getfield(o, atr) : getprp_dict[T][atr](o)
 __prpnames(o, T::Type) = tuple(fieldnames(typeof(o))..., keys(getprp_dict[T]))
 __hasprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) && haskey(getprp_dict[T])
+
+(d::getprp_dict)(T::Type) =
+begin
+    d.__dct[T] = DefaultDict{Symbol, Function}(__asprp(Base.eval(Base.Main, atr)))
+    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
+    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
+    Base.propertynames(o::T, private=false) = __prpnames(o, T)
+end
+
+Base.getindex(d::getprp_dict, T::Type, atr::Symbol) = d[T][atr]
+Base.setindex!(d::getprp_dict, f::Function, T::Type, atr::Symbol) =
+    Base.setindex!(d[T], f, atr)
+
+for T in [# Any,
+          Number,
+          AbstractArray,
+          AbstractString,
+          Function,
+          Base.Generator,
+          Iterators.ProductIterator]
+    getprp_dict(T)
+end
+
+#=
+const getprp_dict = Dict{Type, DefaultDict{Symbol, Function}}()
+const getprp_dict_default_func = o -> __asprp(Base.eval(Base.Main, atr))(o)
 
 for T in [# Any,
           Number,
@@ -84,9 +111,10 @@ for T in [# Any,
           Function,
           Base.Generator,
           Base.Iterators.ProductIterator]
-
+    getprp_dict(T)
     getprp_dict[T] = DefaultDict{Symbol, Function}(getprp_dict_default_func)
     Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
     Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
     Base.propertynames(o::T, private=false) = __prpnames(o, T)
 end
+=#
