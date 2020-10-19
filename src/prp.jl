@@ -81,9 +81,9 @@ __hasprp(o, T::Type, atr::Symbol) =
 (d::getprp_dict)(T::Type) =
 begin
     d.__dct[T] = DefaultDict{Symbol, Function}(__asprp(Base.eval(Base.Main, atr)))
-    Base.getproperty(o::T, atr::Symbol) = __getprp(o, T, atr)
-    Base.hasproperty(o::T, atr::Symbol) = __hasprp(o, T, atr)
-    Base.propertynames(o::T, private=false) = __prpnames(o, T)
+    Base.eval(:(Base.getproperty(o::$(T), atr::Symbol) = __getprp(o, $(T), atr)))
+    Base.eval(:(Base.hasproperty(o::$(T), atr::Symbol) = __hasprp(o, $(T), atr)))
+    Base.eval(:(Base.propertynames(o::$(T), private=false) = __prpnames(o, $(T))))
 end
 
 Base.getindex(d::getprp_dict, T::Type, atr::Symbol) = d[T][atr]
