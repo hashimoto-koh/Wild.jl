@@ -91,7 +91,7 @@ __hasprp(o, T::Type, atr::Symbol) =
 (d::__getprp_dict)(T::Type) =
 begin
     d.__dct[T] =
-        DefaultDict{Symbol, Function}(atr -> __asprp(Base.eval(Base.Main)),
+        DefaultDict{Symbol, Function}(atr -> __asprp(Base.eval(Base.Main, atr)),
                                       passkey=true)
     eval(:(Base.getproperty(o::$(T), atr::Symbol) = Wild.__getprp(o, $(T), atr)))
     eval(:(Base.hasproperty(o::$(T), atr::Symbol) = Wild.__hasprp(o, $(T), atr)))
