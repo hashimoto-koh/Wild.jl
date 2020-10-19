@@ -74,7 +74,7 @@ begin
     __asprp(Base.eval(Base.Main, atr))(o)
 end
 
-#=
+
 struct __getprp_dict <: Function
     __dct::Dict{Type, DefaultDict{Symbol, Function}}
 end
@@ -94,7 +94,7 @@ __prpnames(o, T::Type) =
     tuple(fieldnames(typeof(o))..., keys(getprp_dict[T]))
 __hasprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) && haskey(getprp_dict[T])
-
+#=
 (d::__getprp_dict)(T::Type) =
 begin
     d.__dct[T] =
@@ -104,16 +104,15 @@ begin
     eval(:(Base.hasproperty(o::$(T), atr::Symbol) = Wild.__hasprp(o, $(T), atr)))
     eval(:(Base.propertynames(o::$(T), private=false) = Wild.__prpnames(o, $(T))))
 end
+=#
 
 for T in [Any,
-          #=
           Number,
           AbstractArray,
           AbstractString,
           Function,
           Base.Generator,
           Iterators.ProductIterator,
-          =#
           ]
     #    getprp_dict(T)
 
@@ -124,4 +123,3 @@ for T in [Any,
 #    Base.hasproperty(o::T, atr::Symbol) = Wild.__hasprp(o, T, atr)
 #    Base.propertynames(o::T, private=false) = Wild.__prpnames(o, T)
 end
-=#
