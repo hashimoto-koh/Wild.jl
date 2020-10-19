@@ -68,27 +68,33 @@ end
 # prpdict
 ###############################
 
-struct getprp_dict <: Function
+struct __getprp_dict <: Function
     __dct::Dict{Type, DefaultDict{Symbol, Function}}
 end
 
+Base.getindex(d::__getprp_dict, T::Type) = d.__dct[T]
+Base.getindex(d::__getprp_dict, T::Type, atr::Symbol) = d.__dct[T][atr]
+Base.setindex!(d::__getprp_dict, x::DefaultDict{Symbol, Function}, T::Type) =
+    Base.setindex!(d.__dct, f, T)
+Base.setindex!(d::getprp_dict, f::Function, T::Type, atr::Symbol) =
+    Base.setindex!(d.__dct[T], f, atr)
+
+getprp_dict = __getprp_dict()
+
 __getprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) ? getfield(o, atr) : getprp_dict[T][atr](o)
-__prpnames(o, T::Type) = tuple(fieldnames(typeof(o))..., keys(getprp_dict[T]))
+__prpnames(o, T::Type) =
+    tuple(fieldnames(typeof(o))..., keys(getprp_dict[T]))
 __hasprp(o, T::Type, atr::Symbol) =
     hasfield(typeof(o), atr) && haskey(getprp_dict[T])
 
-(d::getprp_dict)(T::Type) =
+(d::__getprp_dict)(T::Type) =
 begin
     d.__dct[T] = DefaultDict{Symbol, Function}(__asprp(Base.eval(Base.Main, atr)))
     eval(:(Base.getproperty(o::$(T), atr::Symbol) = __getprp(o, $(T), atr)))
     eval(:(Base.hasproperty(o::$(T), atr::Symbol) = __hasprp(o, $(T), atr)))
     eval(:(Base.propertynames(o::$(T), private=false) = __prpnames(o, $(T))))
 end
-
-Base.getindex(d::getprp_dict, T::Type, atr::Symbol) = d[T][atr]
-Base.setindex!(d::getprp_dict, f::Function, T::Type, atr::Symbol) =
-    Base.setindex!(d[T], f, atr)
 
 for T in [# Any,
           Number,
