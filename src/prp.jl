@@ -118,22 +118,29 @@ begin
     path
 end
 
-__prpdct_type_tree = __Tree(Any)
-__prpdct_path_dct = Dict{Type, Vector{Type}}()
-__prpdct_path_dct[Any] = [Any]
-__prpdct_type_list = [Number,
+getprp_dct_type_tree = __Tree(Any)
+getprp_dct_path_dct = Dict{Type, Vector{Type}}()
+
+__prpdct_type_list = [Any,
+                      Number,
+                      Integer,
+                      Complex,
+                      Tuple,
+                      NamedTuple,
                       AbstractArray,
+                      AbstractVector,
                       AbstractRange,
                       AbstractString,
                       Function,
                       Base.Generator,
                       Iterators.ProductIterator,
                       ]
-for T in __prpdct_type_list
-    __Tree_insert(__prpdct_type_tree, T)
+
+for T in __prpdct_type_list[2:end]
+    __Tree_insert(getprp_dct_type_tree, T)
 end
 for T in __prpdct_type_list
-    __prpdct_path_dct[T] = reverse(__Tree_path(__prpdct_type_tree, T))
+    getprp_dct_path_dct[T] = reverse(__Tree_path(getprp_dct_type_tree, T))
 end
 
 __PrpDct = Dict{Symbol, Function}
@@ -143,20 +150,12 @@ Base.setindex!(d::__getprp_dct, x::__PrpDct, T::Type) = Base.setindex!(d._dct, x
 
 getprp_dct = __getprp_dct(Dict{Type, __PrpDct}())
 
-for T in [Any,
-          Number,
-          AbstractArray,
-          AbstractRange,
-          AbstractString,
-          Function,
-          Base.Generator,
-          Iterators.ProductIterator,
-          ]
+for T in __prpdct_type_list
     getprp_dct[T] = __PrpDct()
     Base.getproperty(o::T, atr::Symbol) =
         begin
             hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
-            for t in __prpdct_path_dct[T]
+            for t in getprp_dct_path_dct[T]
                 haskey(getprp_dct[t], atr) && (return getprp_dct[t][atr](o))
             end
             __asprp(Base.eval(Base.Main, atr))(o)
@@ -165,7 +164,7 @@ for T in [Any,
     Base.hasproperty(o::T, atr::Symbol) =
         begin
             hasfield(typeof(o), atr) && (return true)
-            for t in __prpdct_path_dct[T]
+            for t in getprp_dct_path_dct[T]
                 haskey(getprp_dct[t], atr) && (return true)
             end
             false
@@ -173,5 +172,42 @@ for T in [Any,
     Base.propertynames(o::T, private=false) =
         tuple(fieldnames(typeof(o))...,
               vcat([collect(keys(getprp_dct[t]))
-                    for t in __prpdct_path_dct[T]]...)...)
+                    for t in getprp_dct_path_dct[T]]...)...)
 end
+
+#####################################
+# for adding a new type to getprp_dct
+#####################################
+
+insert_type_to_getprp_dct(T::Type) =
+begin
+    __Tree_insert(getprp_dct_type_tree, T)
+    getprp_dct_path_dct[T] = reverse(__Tree_path(getprp_dct_type_tree, T))
+    getprp_dct[T] = __PrpDct()
+end
+
+#=
+Wild.insert_type_to_getprp_dct(T)
+
+Base.getproperty(o::T, atr::Symbol) =
+    begin
+        hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
+        for t in Wild.getprp_dct_path_dct[T]
+            haskey(Wild.getprp_dct[t], atr) && (return Wild.getprp_dct[t][atr](o))
+        end
+        __asprp(Base.eval(Base.Main, atr))(o)
+    end
+
+Base.hasproperty(o::T, atr::Symbol) =
+    begin
+        hasfield(typeof(o), atr) && (return true)
+        for t in Wild.getprp_dct_path_dct[T]
+            haskey(Wild.getprp_dct[t], atr) && (return true)
+        end
+        false
+    end
+Base.propertynames(o::T, private=false) =
+    tuple(fieldnames(typeof(o))...,
+          vcat([collect(keys(Wild.getprp_dct[t]))
+                for t in Wild.getprp_dct_path_dct[T]]...)...)
+=#
