@@ -91,5 +91,5 @@ for T in [Any,
     Base.hasproperty(o::T, atr::Symbol) =
         hasfield(typeof(o), atr) || haskey(getprp_dct[T])
     Base.propertynames(o::T, private=false) =
-        tuple(fieldnames(typeof(o))..., keys(getprp_dct[T]))
+        tuple(fieldnames(typeof(o))..., keys(getprp_dct[T])...)
 end
