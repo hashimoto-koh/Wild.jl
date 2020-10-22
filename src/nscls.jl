@@ -18,22 +18,22 @@ end
 
 Base.getproperty(nsi::NSClsInstance, atr::Symbol) =
     begin
-        Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
+        Base.hasfield(typeof(nsi), atr) && (return Base.getfield(nsi, atr))
 
-        haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
+        haskey(_NSdict0, atr) && (return _NSdict0[atr](nsi))
 
-        d = ns.__dict
+        d = nsi.__dict
 
         haskey(d, atr) ||
             Base.getproperty(nsi.cls, atr)
         if haskey(d, atr)
             x = d[atr].obj;
             isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) &&
-                (return x(ns))
+                (return x(nsi))
             isa(x, NSTagFunc{:fnc}) &&
                 (return x.fnc)
             isa(x, NSTagFunc{:req}) &&
-                (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
+                (y = x(nsi); d[atr] = typeof(d[atr])(y); return y)
             return x
         else
             haskey(nsi.cls, atr) && (return Base.getproperty(nsi.cls, atr))
