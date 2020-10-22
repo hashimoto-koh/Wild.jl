@@ -2,6 +2,46 @@ import Dates
 import SHA
 
 ################
+# NSClsInstance{X}
+################
+
+struct NSClsInstance{X} <: AbstNS
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::MVector{2, Bool}
+    cls::NS
+
+    NSClsInstance{X}(cls) where X =
+        new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+               #= __fix_lck =# MVector{2, Bool}(false, false),
+               #= cls       =# cls)
+end
+
+Base.getproperty(nsi::NSClsInstance, atr::Symbol) =
+    begin
+        Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
+
+        haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
+
+        d = ns.__dict
+
+        haskey(d, atr) ||
+            Base.getproperty(nsi.cls, atr)
+        if haskey(d, atr)
+            x = d[atr].obj;
+            isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) &&
+                (return x(ns))
+            isa(x, NSTagFunc{:fnc}) &&
+                (return x.fnc)
+            isa(x, NSTagFunc{:req}) &&
+                (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
+            return x
+        else
+            haskey(nsi.cls, atr) && (return Base.getproperty(nsi.cls, atr))
+            error("""This NS does not have a property named "$(atr)".""")
+        end
+    end
+
+################
 # NSCls
 ################
 
@@ -22,7 +62,7 @@ struct NSCls <: AbstNSCls
                       #= __kargs          =# kargs,
                       #= __cls            =# NS(),
                       #= __code           =# __NSX_CodeMode(),
-                      #= __type           =# genNSX(),
+                      #= __type           =# NSClsInstance{gensym()},
                       #= __instances      =# [],
                       #= __link_instances =# __link_instances,
                       #= __init           =# [nothing],
@@ -34,7 +74,7 @@ end
 
 (nsc::NSCls)(args...; kargs...) =
     begin
-        o = nsc.__type()
+        o = nsc.__type(nsc.__cls)
 
         na = length(nsc.__args)
         nka = length(nsc.__kargs)
