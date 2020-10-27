@@ -29,7 +29,7 @@ export ⊕, ⊗
 
 # [1]
 # f^x == f(x)
-Base.:^(f, x) = x |> functionalize(f)
+Base.:^(f, x) = x | functionalize(f)
 
 # [2]
 # ~f == functionalize(f)
@@ -41,7 +41,7 @@ Base.:+(f) = a -> functionalize(f).(a)
 
 # [3]
 # f // x == f(x)
-Base.://(f, x) = x |> functionalize(f)
+Base.://(f, x) = x | functionalize(f)
 
 # [4]
 # f & g == f / g == x -> g(f(x))
@@ -50,19 +50,7 @@ Base.:/(f, g) = functionalize(g) ∘ functionalize(f)
 
 # [5]
 # x | f == f(x)
-Base.:|(x, f) =
-begin
-    functionalize(f)(x)
-    #=
-    g = functionalize(f)
-    try
-        g(x)
-    catch
-        g(x...)
-    end
-    =#
-    # hasmethod(g, Tuple{T}) ? g(x) : g(x...)
-end
+Base.:|(x, f) = (g = functionalize(f); Core.applicable(g, x) ? g(x) : g(x...))
 
 # args(x...;ka...) | f == f(x...;ka...)
 Base.:|(x::_Args, f) = x(f)
