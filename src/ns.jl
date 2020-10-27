@@ -54,7 +54,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
             ns._fixed && Base.error("this NS is fixed!")
 
-            isa(d[atr] <: NScst_item) &&
+            isa(d[atr], NScst_item) &&
                 Base.error("'" * string(atr) * "' is const!")
         else
             ns._lcked && Base.error("this NS is locked!")
@@ -120,7 +120,7 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
         if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
-            isa(d[atr] <: NScst_item) &&
+            isa(d[atr], NScst_item) &&
                 Base.error("'" * string(atr) * "' is const!")
         else
             ns._lcked && Base.error("this NS is locked!")
