@@ -13,8 +13,8 @@ struct NScst_item{T} <: AbstNSitem
     obj::T
 end
 
-mutable struct NSnoncst_item <: AbstNSitem
-    obj
+mutable struct NSnoncst_item{T} <: AbstNSitem
+    obj::T
 end
 
 ################
@@ -54,12 +54,15 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
             ns._fixed && Base.error("this NS is fixed!")
 
-            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            isa(d[atr] <: NScst_item) &&
+                Base.error("'" * string(atr) * "' is const!")
         else
             ns._lcked && Base.error("this NS is locked!")
-
-            d[atr] = isa(x, AbstNSitem) ? typeof(x)(x.obj) : NSnoncst_item(x)
         end
+
+        d[atr] = (isa(x, AbstNSitem)
+                  ? (isa(x, NScst_item) ? NScst_item : NSnoncst_item)(x.obj)
+                  : NSnoncst_item(x))
     end
 
 Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
@@ -117,11 +120,14 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
         if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
-            d[atr].obj = isa(x, AbstNSitem) ? x.obj : x
+            isa(d[atr] <: NScst_item) &&
+                Base.error("'" * string(atr) * "' is const!")
         else
             ns._lcked && Base.error("this NS is locked!")
-            d[atr] = isa(x, AbstNSitem) ? x : NSnoncst_item(x)
         end
+        d[atr] = (isa(x, AbstNSitem)
+                  ? (isa(x, NScst_item) ? NScst_item : NSnoncst_item)(x.obj)
+                  : NSnoncst_item(x))
         for i in ns.__instances[1]
             Base.setproperty!(i.o, atr, x)
         end
