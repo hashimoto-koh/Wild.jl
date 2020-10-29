@@ -29,7 +29,7 @@ Base.getproperty(nsi::NSClsInstance, atr::Symbol) =
             isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(nsi))
             isa(x, NSTagFunc{:fnc}) && (return x.fnc)
             isa(x, NSTagFunc{:req}) &&
-                (y = x(ns);
+                (y = x(nsi);
                  d[atr] = (isa(d[atr], NScst_item) ? NScst_item : NSnoncst_item)(y);
                  return y)
             return x
