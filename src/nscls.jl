@@ -24,16 +24,14 @@ Base.getproperty(nsi::NSClsInstance, atr::Symbol) =
 
         d = nsi.__dict
 
-        haskey(d, atr) ||
-            Base.getproperty(nsi.cls, atr)
         if haskey(d, atr)
             x = d[atr].obj;
-            isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) &&
-                (return x(nsi))
-            isa(x, NSTagFunc{:fnc}) &&
-                (return x.fnc)
+            isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(nsi))
+            isa(x, NSTagFunc{:fnc}) && (return x.fnc)
             isa(x, NSTagFunc{:req}) &&
-                (y = x(nsi); d[atr] = typeof(d[atr])(y); return y)
+                (y = x(ns);
+                 d[atr] = (isa(d[atr], NScst_item) ? NScst_item : NSnoncst_item)(y);
+                 return y)
             return x
         else
             haskey(nsi.cls, atr) && (return Base.getproperty(nsi.cls, atr))
