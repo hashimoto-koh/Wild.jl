@@ -91,7 +91,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         x = d[atr].obj;
         isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(ns))
         isa(x, NSTagFunc{:fnc}) && (return x.fnc)
-        isa(x, NSTagFunc{:req}) && (y = x(ns); d[atr] = typeof(d[atr])(y); return y)
+        isa(x, NSTagFunc{:req}) &&
+            (y = x(ns);
+             d[atr] = (isa(d[atr], NScst_item) ? NScst_item : NSnoncst_item)(y);
+             return y)
         return x
     end
 
