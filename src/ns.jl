@@ -43,8 +43,7 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         atr == :exe && (return x(ns))
 
-        haskey(_NSdict0, atr) &&
-            Base.error("'" * string(atr) * "' can't be used for property")
+        haskey(_NSdict0, atr) && Base.error("""'$(atr)' can't be used for property""")
 
         d = ns.__dict
 
@@ -53,9 +52,8 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             isa(o, NSTagFunc{:prp}) && (o.fnc(ns, x); return)
 
             ns._fixed && Base.error("this NS is fixed!")
+            isa(d[atr], NScst_item) && Base.error("""'$(atr)' is const.""")
 
-            isa(d[atr], NScst_item) &&
-                Base.error("'" * string(atr) * "' is const!")
         else
             ns._lcked && Base.error("this NS is locked!")
         end
@@ -86,7 +84,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         d = ns.__dict
 
         haskey(d, atr) ||
-            error("""This NS does not have a property named "$(atr)".""")
+            error("""this NS does not have a property named "$(atr)".""")
 
         x = d[atr].obj;
         isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(ns))
@@ -116,8 +114,7 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
     begin
         hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
 
-        haskey(_NSdict0, atr) &&
-            Base.error("'" * string(atr) * "' can't be used for property")
+        haskey(_NSdict0, atr) && Base.error("""'$(atr)' can't be used for property""")
 
         d = ns.__dict
 
