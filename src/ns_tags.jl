@@ -95,32 +95,40 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
 
 struct NSTag{T, CST} ___NS_ns::AbstNS end
 
-Base.getproperty(x::NSTag, atr::Symbol) =
+Base.getproperty(x::NSTag{TAG}, atr::Symbol) where TAG =
     begin
         Base.hasfield(typeof(x), atr) && (return Base.getfield(x, atr))
 
         ns = x.___NS_ns
 
-        !ns.haskey(atr) &&
-            error("""This NS does not have a property name $(atr)".""")
+        !ns.haskey(atr) && error("""This NS does not have a property name $(atr)".""")
 
         o = ns.__dict[atr].obj
         to = typeof(o)
-        to <: NSTagFunc && to.parameters[1] == typeof(x).parameters[1] &&
-            (return o.fnc)
+        to <: NSTagFunc && to.parameters[1] == TAG && (return o.fnc)
 
         error(""""$(atr)" is not a $(string(typeof(x).parameters[1])).""")
     end
 
-Base.setproperty!(x::NSTag, atr::Symbol, f) =
+Base.setproperty!(x::NSTag{TAG, TF}, atr::Symbol, f) where TAG where TF =
+    begin
+        Base.hasfield(typeof(x), atr) && (Base.setproperty!(x, atr, f); return)
+
+        Base.setproperty!(x.___NS_ns, atr,
+                          typeof(x.___NS_ns) == __NSX_CodeMode
+                          ? (TF ? NScst_item : NSnoncst_item)(NSTagFunc{TAG}(f))
+                          : _MakeItem(x, f))
+    end
+
+Base.setproperty!(x::NSTag{:prp, TF}, atr::Symbol, f) where TF =
     begin
         Base.hasfield(typeof(x), atr) && (Base.setproperty!(x, atr, f); return)
 
         if typeof(x.___NS_ns) == __NSX_CodeMode
-            itm = typeof(x).parameters[2] ? NScst_item : NSnoncst_item
-            tag = NSTagFunc{typeof(x).parameters[1]}
-            Base.setproperty!(x.___NS_ns, atr, itm(tag(f)))
+            Base.setproperty!(x.___NS_ns, atr,
+                              (TF ? NScst_item : NSnoncst_item)(NSTagFunc{:prp}(f)))
         else
+            x.___NS_ns.haskey(atr) && x.___NS_ns.del(atr)
             Base.setproperty!(x.___NS_ns, atr, _MakeItem(x, f))
         end
     end
