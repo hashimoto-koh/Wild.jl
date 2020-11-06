@@ -1,10 +1,4 @@
 ################
-# AbstNSCode
-################
-
-abstract type AbstNSCls <: Function end
-
-################
 # NSClsdict0
 ################
 
