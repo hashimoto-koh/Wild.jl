@@ -120,7 +120,8 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
         haskey(_NSdict0, atr) &&
             Base.error("""'$(atr)' can't be used for property""")
 
-        push!(ns.__code, (atr, x))
+        push!(ns.__code,
+              NamedTuple{(:atr, :obj),Tuple{Symbol, Any}}((atr=atr, obj=x)))
 
         #=
         d = ns.__dict
