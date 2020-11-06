@@ -48,78 +48,7 @@ struct _NSCls{TYPE} <: AbstNSCls
         end
 end
 
-#=
-struct _NSCls{TYPE <: __NSClsInstance} <: AbstNSCls
-    __args::Tuple{Vararg{Symbol}}
-    __kargs
-    __cls::NS #(TYPE <: NSClsInstance ? NS : Nothing)
-    __code::__NSX_CodeMode
-    __type::DataType
-    __instances
-    __link_instances::Bool
-    __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
-    __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
-
-    _NSCls{TYPE <: __NSClsInstance}(args...; __link_instances=false, kargs...) where TYPE =
-        begin
-            nsc = new{TYPE}(
-                            #= __args           =#
-                            args,
-                            #= __kargs          =#
-                            kargs,
-                            #= __cls            =#
-                            NS(), #(TYPE <: NSClsInstance ? NS : Nothing)(),
-                            #= __code           =#
-                            __NSX_CodeMode(),
-                            #= __type           =#
-                            TYPE,
-                            #= __instances      =#
-                            [],
-                            #= __link_instances =#
-                            __link_instances,
-                            #= __init           =#
-                            [nothing],
-                            #= __post           =#
-                            [nothing])
-            push!(nsc.__code.__instances, nsc.__instances)
-            nsc
-        end
-end
-
-struct _NSCls{TYPE <: NSX} <: AbstNSCls
-    __args::Tuple{Vararg{Symbol}}
-    __kargs
-    __code::__NSX_CodeMode
-    __type::DataType
-    __instances
-    __link_instances::Bool
-    __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
-    __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
-
-    _NSCls{TYPE <: NSX}(args...; __link_instances=false, kargs...) where TYPE =
-        begin
-            nsc = new{TYPE}(#= __args           =#
-                            args,
-                            #= __kargs          =#
-                            kargs,
-                            #= __code           =#
-                            __NSX_CodeMode(),
-                            #= __type           =#
-                            TYPE,
-                            #= __instances      =#
-                            [],
-                            #= __link_instances =#
-                            __link_instances,
-                            #= __init           =#
-                            [nothing],
-                            #= __post           =#
-                            [nothing])
-            push!(nsc.__code.__instances, nsc.__instances)
-            nsc
-        end
-end
-=#
-(nsc::_NSCls{__NSClsInstance{X}})(args...; kargs...) where X =
+(nsc::_NSCls{<: __NSClsInstance})(args...; kargs...) =
     begin
         o = nsc.__type(nsc.__cls)
 
@@ -161,7 +90,7 @@ end
         o
     end
 
-(nsc::_NSCls{NSX{X}})(args...; kargs...) where X =
+(nsc::_NSCls{<: NSX})(args...; kargs...) =
     begin
         o = nsc.__type()
 
@@ -203,7 +132,7 @@ end
         o
     end
 
-Base.setproperty!(nsc::_NSCls{__NSClsInstance{X}}, atr::Symbol, x) where X =
+Base.setproperty!(nsc::_NSCls{<: __NSClsInstance}, atr::Symbol, x) =
     begin
         hasfield(typeof(nsc), atr) && (Base.setfield!(nsc, atr, x); return)
 
@@ -217,7 +146,7 @@ Base.setproperty!(nsc::_NSCls{__NSClsInstance{X}}, atr::Symbol, x) where X =
         Base.setproperty!(nsc.__code, atr, x)
     end
 
-Base.setproperty!(nsc::_NSCls{NSX{X}}, atr::Symbol, x) where X =
+Base.setproperty!(nsc::_NSCls{<: NSX}, atr::Symbol, x) =
     begin
         hasfield(typeof(nsc), atr) && (Base.setfield!(nsc, atr, x); return)
 
@@ -230,33 +159,32 @@ Base.setproperty!(nsc::_NSCls{NSX{X}}, atr::Symbol, x) where X =
         Base.setproperty!(nsc.__code, atr, x)
     end
 
-# Base.propertynames(nsc::_NSCls{__NSClsInstance{X}}, private=false) where X =
 Base.propertynames(nsc::_NSCls{<:__NSClsInstance}, private=false) =
     tuple(Base.propertynames(nsc.__cls, private)...,
           Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
-Base.propertynames(nsc::_NSCls{NSX{X}}, private=false) where X =
+Base.propertynames(nsc::_NSCls{<:NSX}, private=false) =
     tuple(Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
-Base.hasproperty(nsc::_NSCls{__NSClsInstance{X}}, atr::Symbol) where X =
+Base.hasproperty(nsc::_NSCls{<: __NSClsInstance}, atr::Symbol) =
     Base.hasfield(typeof(nsc), atr) ||
     haskey(_NSClsdict0, atr) ||
     Base.hasproperty(nsc.__cls, atr)
 
-Base.hasproperty(nsc::_NSCls{NSX{X}}, atr::Symbol) where X =
+Base.hasproperty(nsc::_NSCls{<: NSX}, atr::Symbol) =
     Base.hasfield(typeof(nsc), atr) ||
     haskey(_NSClsdict0, atr)
 
-Base.getproperty(nsc::_NSCls{__NSClsInstance{X}}, atr::Symbol) where X =
+Base.getproperty(nsc::_NSCls{<: __NSClsInstance}, atr::Symbol) =
     begin
         Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
         haskey(_NSClsdict0, atr) && (return _NSClsdict0[atr](nsc))
         Base.getproperty(nsc.__cls, atr)
     end
 
-Base.getproperty(nsc::_NSCls{NSX{X}}, atr::Symbol) where X =
+Base.getproperty(nsc::_NSCls{<: NSX}, atr::Symbol) =
     begin
         Base.hasfield(typeof(nsc), atr) && (return Base.getfield(nsc, atr))
         haskey(_NSClsdict0, atr) && (return _NSClsdict0[atr](nsc))
