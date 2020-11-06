@@ -98,7 +98,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
     end
 
 ################
-# NSX{__NSFlgCodeMode}
+# __NSX_CodeMode
 ################
 
 __NSX_CodeMode_CodeType = Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
@@ -145,6 +145,44 @@ Base.getproperty(ns::__NSX_CodeMode, atr::Symbol) =
         haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
         error("""This NS does not have a property named "$(atr)".""")
     end;
+
+################
+# __NSClsInstance{X}
+################
+
+struct __NSClsInstance{X} <: AbstNS
+    __dict::OrderedDict{Symbol, AbstNSitem}
+    __fix_lck::MVector{2, Bool}
+    cls::NS
+
+    __NSClsInstance{X}(cls) where X =
+        new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+               #= __fix_lck =# MVector{2, Bool}(false, false),
+               #= cls       =# cls)
+end
+
+Base.getproperty(nsi::__NSClsInstance, atr::Symbol) =
+    begin
+        Base.hasfield(typeof(nsi), atr) && (return Base.getfield(nsi, atr))
+
+        haskey(_NSdict0, atr) && (return _NSdict0[atr](nsi))
+
+        d = nsi.__dict
+
+        if haskey(d, atr)
+            x = d[atr].obj;
+            isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(nsi))
+            isa(x, NSTagFunc{:fnc}) && (return x.fnc)
+            isa(x, NSTagFunc{:req}) &&
+                (y = x(nsi);
+                 d[atr] = (isa(d[atr], NScst_item) ? NScst_item : NSnoncst_item)(y);
+                 return y)
+            return x
+        else
+            haskey(nsi.cls, atr) && (return Base.getproperty(nsi.cls, atr))
+            error("""This NS does not have a property named "$(atr)".""")
+        end
+    end
 
 ################
 # >>, >>>
