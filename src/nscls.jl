@@ -179,6 +179,6 @@ Base.getproperty(nsc::_NSCls{TYPE}, atr::Symbol) where TYPE =
     end
 
 NSCls(args...; _link_instanaces=false, kargs...) =
-    _NSCls{NSClsInstance{gensym()}, true}
+    _NSCls{NSClsInstance{gensym()}}
 NSCode(args...; _link_instanaces=false, kargs...) =
-    _NSCls{NSX{gensym()}, false}
+    _NSCls{NSX{gensym()}}
