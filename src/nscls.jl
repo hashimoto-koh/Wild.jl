@@ -71,7 +71,7 @@ struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
                             #= __code           =#
                             __NSX_CodeMode(),
                             #= __type           =#
-                            TYPE,
+                            __NSClsInstance{X},
                             #= __instances      =#
                             [],
                             #= __link_instances =#
@@ -104,7 +104,7 @@ struct _NSCls{NSX{X}} <: AbstNSCls
                             #= __code           =#
                             __NSX_CodeMode(),
                             #= __type           =#
-                            TYPE,
+                            NSX{X},
                             #= __instances      =#
                             [],
                             #= __link_instances =#
