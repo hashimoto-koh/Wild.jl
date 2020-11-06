@@ -17,6 +17,8 @@ mutable struct NSnoncst_item{T} <: AbstNSitem
     obj::T
 end
 
+Base.copy(x::Wild.AbstNSitem) = typeof(x)(x.obj)
+
 ################
 # NSX{X}
 ################
@@ -49,19 +51,17 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
         d = ns.__dict
 
         if haskey(d, atr)
-            o = d[atr].obj
-            isa(o, NSTagFunc{:prp}) && (o.fnc(ns, x); return)
-
             ns._fixed && Base.error("this NS is fixed!")
-            isa(d[atr], NScst_item) && Base.error("""'$(atr)' is const.""")
 
+            o = d[atr].obj
+            isa(o, NSPrp) && (o.fnc(ns, x); return)
+
+            isa(d[atr], NScst_item) && Base.error("""'$(atr)' is const.""")
         else
             ns._lcked && Base.error("this NS is locked!")
         end
 
-        d[atr] = (isa(x, AbstNSitem)
-                  ? (isa(x, NScst_item) ? NScst_item : NSnoncst_item)(x.obj)
-                  : NSnoncst_item(x))
+        d[atr] = isa(x, AbstNSitem) ? copy(x) : NSnoncst_item(x)
     end
 
 Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
@@ -88,9 +88,9 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
             error("""this NS does not have a property named "$(atr)".""")
 
         x = d[atr].obj;
-        isa(x, Union{NSTagFunc{:prp}, NSTagFunc{:mth}}) && (return x(ns))
-        isa(x, NSTagFunc{:fnc}) && (return x.fnc)
-        isa(x, NSTagFunc{:req}) &&
+        isa(x, Union{NSPrp, NSMth}) && (return x(ns))
+        isa(x, NSFnc) && (return x.fnc)
+        isa(x, NSReq) &&
             (y = x(ns);
              d[atr] = (isa(d[atr], NScst_item) ? NScst_item : NSnoncst_item)(y);
              return y)
@@ -104,10 +104,12 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 struct __NSX_CodeMode <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
+    __code::Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
     __instances
     __NSX_CodeMode() =
         new(#= __dict      =# OrderedDict{Symbol, AbstNSitem}(),
             #= __fix_lck   =# MVector{2, Bool}(false, false),
+            #= __code      =# Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}(),
             #= __instances =# [])
 end
 
@@ -118,18 +120,21 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
         haskey(_NSdict0, atr) &&
             Base.error("""'$(atr)' can't be used for property""")
 
+        push!(ns.__code, (atr, x))
+
+        #=
         d = ns.__dict
 
         if haskey(d, atr)
             ns._fixed && Base.error("this NS is fixed!")
-            isa(d[atr], NScst_item) &&
-                Base.error("'" * string(atr) * "' is const!")
+            isa(d[atr], NScst_item) && Base.error("""'$(atr)' is const!""")
         else
             ns._lcked && Base.error("this NS is locked!")
         end
-        d[atr] = (isa(x, AbstNSitem)
-                  ? (isa(x, NScst_item) ? NScst_item : NSnoncst_item)(x.obj)
-                  : NSnoncst_item(x))
+
+        d[atr] = isa(x, AbstNSitem) ? copy(x) : NSnoncst_item(x)
+        =#
+
         for i in ns.__instances[1]
             Base.setproperty!(i.o, atr, x)
         end

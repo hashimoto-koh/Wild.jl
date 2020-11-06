@@ -93,7 +93,8 @@ end
                              Dict((k,v)
                                   for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
-        for (atr, val) ∈ pairs(nsc.__code.__dict)
+        for (atr, val) ∈ nsc.__code.__code
+#        for (atr, val) ∈ pairs(nsc.__code.__dict)
             x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
             y = (isa(val.obj, NSTagFunc)
                  ? Base.getproperty(x, typeof(val.obj).parameters[1])
