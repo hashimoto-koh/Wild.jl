@@ -102,13 +102,13 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 ################
 
 struct __NSX_CodeMode <: AbstNS
-    __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2, Bool}
+#    __dict::OrderedDict{Symbol, AbstNSitem}
+#    __fix_lck::MVector{2, Bool}
     __code::Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
     __instances
     __NSX_CodeMode() =
-        new(#= __dict      =# OrderedDict{Symbol, AbstNSitem}(),
-            #= __fix_lck   =# MVector{2, Bool}(false, false),
+        new(#= __dict      =# # OrderedDict{Symbol, AbstNSitem}(),
+            #= __fix_lck   =# # MVector{2, Bool}(false, false),
             #= __code      =# Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}(),
             #= __instances =# [])
 end
@@ -135,12 +135,15 @@ Base.getproperty(ns::__NSX_CodeMode, atr::Symbol) =
 
         haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
 
+        error("""This NS does not have a property named "$(atr)".""")
+        #=
         d = ns.__dict
 
         haskey(d, atr) ||
             error("""This NS does not have a property named "$(atr)".""")
 
         d[atr].obj;
+        =#
     end;
 
 ################
