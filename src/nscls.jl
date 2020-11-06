@@ -176,8 +176,8 @@ Base.getproperty(nsc::_NSCls{TYPE}, atr::Symbol) where TYPE =
         end
     end
 
-NSCls(args...; _link_instanaces=false, kargs...) =
+NSCls(args...; __link_instanaces=false, kargs...) =
     _NSCls{NSClsInstance{gensym()}}(args...;
-                                    _link_instanaces=_link_instanaces, kargs...)
-NSCode(args...; _link_instanaces=false, kargs...) =
-    _NSCls{NSX{gensym()}}(args...; _link_instanaces=_link_instanaces, kargs...)
+                                    __link_instanaces=__link_instanaces, kargs...)
+NSCode(args...; __link_instanaces=false, kargs...) =
+    _NSCls{NSX{gensym()}}(args...; __link_instanaces=__link_instanaces, kargs...)
