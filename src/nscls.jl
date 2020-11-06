@@ -192,7 +192,7 @@ Base.getproperty(nsc::_NSCls{<: NSX}, atr::Symbol) =
     end
 
 NSCls(args...; __link_instanaces=false, kargs...) =
-    _NSCls{NSClsInstance{gensym()}}(args...;
+    _NSCls{__NSClsInstance{gensym()}}(args...;
                                     __link_instanaces=__link_instanaces, kargs...)
 NSCode(args...; __link_instanaces=false, kargs...) =
     _NSCls{NSX{gensym()}}(args...; __link_instanaces=__link_instanaces, kargs...)
