@@ -47,7 +47,7 @@ Base.getproperty(nsi::NSClsInstance, atr::Symbol) =
 struct _NSCls{TYPE} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
-    __cls::(TYPE<:NSClsInstance?NS:Nothing)
+    __cls::(TYPE <: NSClsInstance ? NS : Nothing)
     __code::__NSX_CodeMode
     __type::DataType
     __instances::SVector{1, __NSX_CodeMode_CodeType}
