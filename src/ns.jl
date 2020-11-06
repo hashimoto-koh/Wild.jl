@@ -101,15 +101,16 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 # NSX{__NSFlgCodeMode}
 ################
 
+__NSX_CodeMode_CodeType = Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
 struct __NSX_CodeMode <: AbstNS
 #    __dict::OrderedDict{Symbol, AbstNSitem}
 #    __fix_lck::MVector{2, Bool}
-    __code::Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
+    __code::__NSX_CodeMode_CodeType
     __instances
     __NSX_CodeMode() =
         new(#= __dict      =# # OrderedDict{Symbol, AbstNSitem}(),
             #= __fix_lck   =# # MVector{2, Bool}(false, false),
-            #= __code      =# Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}(),
+            #= __code      =# __NSX_CodeMode_CodeType(),
             #= __instances =# [])
 end
 

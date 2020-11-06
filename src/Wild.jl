@@ -11,15 +11,13 @@ export NSX, genNSX, nsx, AbstNSitem
 export NSTagFunc
 export NSDfn, NSReq, NSMth, NSPrp, NSFnc
 
-
 include("nscls_dict0.jl")
 include("nscls.jl")
-export AbstNSCls, NSCls
+export AbstNSCls, NSCls, NSCode
 
-
-include("nscode_dict0.jl")
-include("nscode.jl")
-export AbstNSCode, NSCode
+# include("nscode_dict0.jl")
+# include("nscode.jl")
+# export AbstNSCode, NSCode
 
 include("operators.jl")
 
