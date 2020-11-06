@@ -121,7 +121,10 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
             Base.error("""'$(atr)' can't be used for property""")
 
         push!(ns.__code,
-              NamedTuple{(:atr, :obj),Tuple{Symbol, Any}}((atr=atr, obj=x)))
+              NamedTuple{(:atr, :obj),
+                         Tuple{Symbol, Any}}((atr,
+                                              isa(x, AbstNSitem)
+                                              ? x : NSnoncst_item(x))))
 
         #=
         d = ns.__dict

@@ -94,13 +94,16 @@ end
                                   for (k,v) ∈ kargs if k ∉ keys(nsc.__kargs))...)
 
         for (atr, val) ∈ nsc.__code.__code
-#        for (atr, val) ∈ pairs(nsc.__code.__dict)
-            x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
-            y = (isa(val.obj, NSTagFunc)
-                 ? Base.getproperty(x, typeof(val.obj).parameters[1])
-                 : x)
-            z = isa(val.obj, NSTagFunc) ? val.obj.fnc : val.obj
-            Base.setproperty!(y, atr, z)
+            if atr == :exe
+                Base.setproperty!(o, atr, val)
+            else
+                x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
+                y = (isa(val.obj, NSTagFunc)
+                     ? Base.getproperty(x, typeof(val.obj).parameters[1])
+                     : x)
+                z = isa(val.obj, NSTagFunc) ? val.obj.fnc : val.obj
+                Base.setproperty!(y, atr, z)
+            end
         end
         isnothing(nsc.__post[1]) || nsc.__post[1](o)();
 
