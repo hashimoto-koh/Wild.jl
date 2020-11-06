@@ -57,24 +57,25 @@ struct _NSCls{TYPE} <: AbstNSCls
 
     _NSCls(args...; __link_instances=false, kargs...) =
         begin
-            nsc = new(#= __args           =#
-                      args,
-                      #= __kargs          =#
-                      kargs,
-                      #= __cls            =#
-                      (TYPE <: NSClsInstance ? NS : Nothing)(),
-                      #= __code           =#
-                      __NSX_CodeMode(),
-                      #= __type           =#
-                      TYPE,
-                      #= __instances      =#
-                      SVector{1,__NSX_CodeMode_CodeType}([__NSX_CodeMode_CodeType()]),
-                      #= __link_instances =#
-                      __link_instances,
-                      #= __init           =#
-                      [nothing],
-                      #= __post           =#
-                      [nothing])
+            nsc = new{TYPE}(#= __args           =#
+                            args,
+                            #= __kargs          =#
+                            kargs,
+                            #= __cls            =#
+                            (TYPE <: NSClsInstance ? NS : Nothing)(),
+                            #= __code           =#
+                            __NSX_CodeMode(),
+                            #= __type           =#
+                            TYPE,
+                            #= __instances      =#
+                            SVector{1,__NSX_CodeMode_CodeType}(
+                                [__NSX_CodeMode_CodeType()]),
+                            #= __link_instances =#
+                            __link_instances,
+                            #= __init           =#
+                            [nothing],
+                            #= __post           =#
+                            [nothing])
             push!(nsc.__code.__instances, nsc.__instances)
             nsc
         end
