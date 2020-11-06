@@ -130,21 +130,20 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
         end
     end
 
+Base.haskey(ns::__NSX_CodeMode, key::Symbol) = key ∈ propertynames(ns)
+
+Base.propertynames(ns::__NSX_CodeMode, private=false) =
+    tuple(Base.keys(_NSdict0)..., Base.fieldnames(typeof(ns))...)
+
+Base.hasproperty(ns::__NSX_CodeMode, atr::Symbol) =
+    Base.hasfield(typeof(ns), atr) || haskey(_NSdict0, atr)
+
+
 Base.getproperty(ns::__NSX_CodeMode, atr::Symbol) =
     begin
         Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
-
         haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
-
         error("""This NS does not have a property named "$(atr)".""")
-        #=
-        d = ns.__dict
-
-        haskey(d, atr) ||
-            error("""This NS does not have a property named "$(atr)".""")
-
-        d[atr].obj;
-        =#
     end;
 
 ################
