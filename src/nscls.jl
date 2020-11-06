@@ -48,7 +48,7 @@ struct _NSCls{TYPE} <: AbstNSCls
         end
 end
 =#
-struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
+struct _NSCls{TYPE <: __NSClsInstance} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
     __cls::NS #(TYPE <: NSClsInstance ? NS : Nothing)
@@ -59,9 +59,9 @@ struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
-    _NSCls{__NSClsInstance{X}}(args...; __link_instances=false, kargs...) where X =
+    _NSCls{TYPE <: __NSClsInstance}(args...; __link_instances=false, kargs...) where TYPE =
         begin
-            nsc = new{__NSClsInstance{X}}(
+            nsc = new{TYPE}(
                             #= __args           =#
                             args,
                             #= __kargs          =#
@@ -71,7 +71,7 @@ struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
                             #= __code           =#
                             __NSX_CodeMode(),
                             #= __type           =#
-                            __NSClsInstance{X},
+                            TYPE,
                             #= __instances      =#
                             [],
                             #= __link_instances =#
@@ -85,7 +85,7 @@ struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
         end
 end
 
-struct _NSCls{NSX{X}} <: AbstNSCls
+struct _NSCls{TYPE <: NSX} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
     __code::__NSX_CodeMode
@@ -95,16 +95,16 @@ struct _NSCls{NSX{X}} <: AbstNSCls
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
-    _NSCls{NSX{X}}(args...; __link_instances=false, kargs...) where X =
+    _NSCls{TYPE <: NSX}(args...; __link_instances=false, kargs...) where TYPE =
         begin
-            nsc = new{NSX{X}}(#= __args           =#
+            nsc = new{TYPE}(#= __args           =#
                             args,
                             #= __kargs          =#
                             kargs,
                             #= __code           =#
                             __NSX_CodeMode(),
                             #= __type           =#
-                            NSX{X},
+                            TYPE,
                             #= __instances      =#
                             [],
                             #= __link_instances =#
