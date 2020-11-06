@@ -120,24 +120,9 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
         haskey(_NSdict0, atr) &&
             Base.error("""'$(atr)' can't be used for property""")
 
-        push!(ns.__code,
-              NamedTuple{(:atr, :obj),
-                         Tuple{Symbol, Any}}((atr,
-                                              isa(x, AbstNSitem)
-                                              ? x : NSnoncst_item(x))))
+        y = atr == :exe ? x : isa(x, AbstNSitem) ? x : NSnoncst_item(x)
 
-        #=
-        d = ns.__dict
-
-        if haskey(d, atr)
-            ns._fixed && Base.error("this NS is fixed!")
-            isa(d[atr], NScst_item) && Base.error("""'$(atr)' is const!""")
-        else
-            ns._lcked && Base.error("this NS is locked!")
-        end
-
-        d[atr] = isa(x, AbstNSitem) ? copy(x) : NSnoncst_item(x)
-        =#
+        push!(ns.__code, NamedTuple{(:atr, :obj), Tuple{Symbol, Any}}((atr, y)))
 
         for i in ns.__instances[1]
             Base.setproperty!(i.o, atr, x)
