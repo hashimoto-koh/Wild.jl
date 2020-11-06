@@ -103,14 +103,10 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
 
 __NSX_CodeMode_CodeType = Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
 struct __NSX_CodeMode <: AbstNS
-#    __dict::OrderedDict{Symbol, AbstNSitem}
-#    __fix_lck::MVector{2, Bool}
     __code::__NSX_CodeMode_CodeType
     __instances
     __NSX_CodeMode() =
-        new(#= __dict      =# # OrderedDict{Symbol, AbstNSitem}(),
-            #= __fix_lck   =# # MVector{2, Bool}(false, false),
-            #= __code      =# __NSX_CodeMode_CodeType(),
+        new(#= __code      =# __NSX_CodeMode_CodeType(),
             #= __instances =# [])
 end
 
@@ -201,64 +197,3 @@ genNSX(X) = NSX{X}
 
 nsx() = genNSX()()
 nsx(X) = genNSX(X)()
-
-################
-# AbstNSX, NSX, NSXinit, prm, nsx
-################
-#=
-[1] default constructor が必要ないなら
-G = NSX{:G}
-NSX{:G}(a::Integer) = (g = G(); g.a = lapd(a, 3, "0"); g)
-NSX{:G}(a::Union{String, Symbol}) = (g = G(); g.a = Symbol(a); g)
-
-[2] default constructor が必要なら
-G = NSX{:G}
-NSX{:G}() = (g = NSXinit{G}(); g.a = 10; g)
-NSX{:G}(a) = (g = G(); g.a = g.a + a; g)
-NSX{:G}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
-
-[3] type parameter を指定する必要がなければ
-G = nsx()
-NSX{prm(G)}() = (g = NSXinit{G}(); g.a = 10; g)
-NSX{prm(G)}(a) = (g = G(); g.a = g.a + a; g)
-NSX{prm(G)}(a,b) = (g = NSXinit{G}(); g.a = a+b; g)
-=#
-
-#=
-struct NSXinit{X} end
-
-abstract type AbstNSX <: AbstNS end
-
-struct NSX{X} <: AbstNSX
-    __dict::OrderedDict{Symbol, AbstNSitem}
-    __fix_lck::MVector{2, Bool}
-    global NSXinit{X}() where X =
-        new{X.parameters[1]}(OrderedDict{Symbol, AbstNSitem}(),
-                             MVector{2, Bool}(false, false))
-end
-
-NSX{X}() where X = NSXinit{NSX{X}}()
-
-prm(X) = X.parameters[1]
-
-nsx() = NSX{Symbol("NSX_", string(bytes2hex(SHA.sha256(string(time_ns())))))}
-=#
-
-################
-# New NS macro
-################
-#=
-macro makeNS(name)
-    return esc(quote
-               import DataStructures.OrderedDict
-               import Wild.AbstNSitem
-               struct $name <: AbstNS
-                   __dict::OrderedDict{Symbol, AbstNSitem}
-                   __fix_lck::Vector{Bool, 1}
-
-               $name() = new(OrderedDict{Symbol, AbstNSitem}(),
-                             [false, false])
-               end
-               end)
-end
-=#

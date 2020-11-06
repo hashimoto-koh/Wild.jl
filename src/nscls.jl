@@ -15,7 +15,7 @@ abstract type AbstNSCls <: Function end
 struct _NSCls{TYPE} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
-    __cls::NS #(TYPE <: NSClsInstance ? NS : Nothing)
+    __cls::NS
     __code::__NSX_CodeMode
     __type::DataType
     __instances
@@ -30,7 +30,7 @@ struct _NSCls{TYPE} <: AbstNSCls
                             #= __kargs          =#
                             kargs,
                             #= __cls            =#
-                            NS(), #(TYPE <: NSClsInstance ? NS : Nothing)(),
+                            NS(),
                             #= __code           =#
                             __NSX_CodeMode(),
                             #= __type           =#
@@ -193,6 +193,6 @@ Base.getproperty(nsc::_NSCls{<: NSX}, atr::Symbol) =
 
 NSCls(args...; __link_instances=false, kargs...) =
     _NSCls{__NSClsInstance{gensym()}}(args...;
-                                    __link_instances=__link_instances, kargs...)
+                                      __link_instances=__link_instances, kargs...)
 NSCode(args...; __link_instances=false, kargs...) =
     _NSCls{NSX{gensym()}}(args...; __link_instances=__link_instances, kargs...)
