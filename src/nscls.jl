@@ -59,9 +59,10 @@ struct _NSCls{__NSClsInstance{X}} <: AbstNSCls
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
-    _NSCls{TYPE}(args...; __link_instances=false, kargs...) where TYPE =
+    _NSCls{__NSClsInstance{X}}(args...; __link_instances=false, kargs...) where X =
         begin
-            nsc = new{TYPE}(#= __args           =#
+            nsc = new{__NSClsInstance{X}}(
+                            #= __args           =#
                             args,
                             #= __kargs          =#
                             kargs,
@@ -94,9 +95,9 @@ struct _NSCls{NSX{X}} <: AbstNSCls
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
-    _NSCls{TYPE}(args...; __link_instances=false, kargs...) where TYPE =
+    _NSCls{NSX{X}}(args...; __link_instances=false, kargs...) where X =
         begin
-            nsc = new{TYPE}(#= __args           =#
+            nsc = new{NSX{X}}(#= __args           =#
                             args,
                             #= __kargs          =#
                             kargs,
