@@ -1,6 +1,6 @@
 import Dates
 import SHA
-import StaticArrays.MVector
+import StaticArrays.SVector
 
 ################
 # NSClsInstance{X}
