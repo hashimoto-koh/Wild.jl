@@ -11,7 +11,7 @@ abstract type AbstNSCls <: Function end
 ################
 # _NSCls
 ################
-#=
+
 struct _NSCls{TYPE} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
@@ -47,7 +47,8 @@ struct _NSCls{TYPE} <: AbstNSCls
             nsc
         end
 end
-=#
+
+#=
 struct _NSCls{TYPE <: __NSClsInstance} <: AbstNSCls
     __args::Tuple{Vararg{Symbol}}
     __kargs
@@ -117,7 +118,7 @@ struct _NSCls{TYPE <: NSX} <: AbstNSCls
             nsc
         end
 end
-
+=#
 (nsc::_NSCls{__NSClsInstance{X}})(args...; kargs...) where X =
     begin
         o = nsc.__type(nsc.__cls)
