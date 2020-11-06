@@ -61,7 +61,7 @@ struct _NSCls{TYPE} <: AbstNSCls
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
 
-    _NSCls(args...; __link_instances=false, kargs...) =
+    _NSCls{TYPE}(args...; __link_instances=false, kargs...) where TYPE =
         begin
             nsc = new{TYPE}(#= __args           =#
                             args,
