@@ -191,8 +191,8 @@ Base.getproperty(nsc::_NSCls{<: NSX}, atr::Symbol) =
         Base.error("""this NSCode does not have a property named '$(atr)'.""")
     end
 
-NSCls(args...; __link_instanaces=false, kargs...) =
+NSCls(args...; __link_instances=false, kargs...) =
     _NSCls{__NSClsInstance{gensym()}}(args...;
-                                    __link_instanaces=__link_instanaces, kargs...)
+                                    __link_instances=__link_instances, kargs...)
 NSCode(args...; __link_instanaces=false, kargs...) =
-    _NSCls{NSX{gensym()}}(args...; __link_instanaces=__link_instanaces, kargs...)
+    _NSCls{NSX{gensym()}}(args...; __link_instances=__link_instances, kargs...)
