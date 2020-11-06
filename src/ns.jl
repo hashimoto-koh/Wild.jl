@@ -43,7 +43,8 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
         atr == :exe && (return x(ns))
 
-        haskey(_NSdict0, atr) && Base.error("""'$(atr)' can't be used for property""")
+        haskey(_NSdict0, atr) &&
+            Base.error("""'$(atr)' can't be used for property""")
 
         d = ns.__dict
 
@@ -114,7 +115,8 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
     begin
         hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
 
-        haskey(_NSdict0, atr) && Base.error("""'$(atr)' can't be used for property""")
+        haskey(_NSdict0, atr) &&
+            Base.error("""'$(atr)' can't be used for property""")
 
         d = ns.__dict
 

@@ -101,7 +101,8 @@ Base.getproperty(x::NSTag{TAG}, atr::Symbol) where TAG =
 
         ns = x.___NS_ns
 
-        !ns.haskey(atr) && error("""This NS does not have a property name $(atr)".""")
+        !ns.haskey(atr) &&
+            error("""This NS does not have a property name $(atr)".""")
 
         o = ns.__dict[atr].obj
         to = typeof(o)
