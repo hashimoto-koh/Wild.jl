@@ -56,7 +56,7 @@ struct _NSCls{TYPE} <: AbstNSCls
     __cls::NS #(TYPE <: NSClsInstance ? NS : Nothing)
     __code::__NSX_CodeMode
     __type::DataType
-    __instances::SVector{1, __NSX_CodeMode_CodeType}
+    __instances
     __link_instances::Bool
     __init::Vector{Union{Nothing, NSTagFunc{:mth}}}
     __post::Vector{Union{Nothing, NSTagFunc{:mth}}}
@@ -74,8 +74,7 @@ struct _NSCls{TYPE} <: AbstNSCls
                             #= __type           =#
                             TYPE,
                             #= __instances      =#
-                            SVector{1,__NSX_CodeMode_CodeType}(
-                                [__NSX_CodeMode_CodeType()]),
+                            [],
                             #= __link_instances =#
                             __link_instances,
                             #= __init           =#
@@ -131,8 +130,7 @@ end
 
 Base.setproperty!(nsc::_NSCls{TYPE}, atr::Symbol, x) where TYPE =
     begin
-        hasfield(typeof(nsc), atr) &&
-            (Base.setfield!(nsc, atr, x); return)
+        hasfield(typeof(nsc), atr) && (Base.setfield!(nsc, atr, x); return)
 
         atr == :init && (nsc.__init[1] = NSTagFunc{:mth}(x); return)
         atr == :post && (nsc.__post[1] = NSTagFunc{:mth}(x); return)
