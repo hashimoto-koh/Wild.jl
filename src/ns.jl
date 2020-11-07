@@ -130,17 +130,14 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
         push!(ns.__code, NamedTuple{(:atr, :obj), Tuple{Symbol, Any}}((atr, y)))
 
+        inst = ns.__instances[1]
         if ns.__parallel.obj
-            for s in [Threads.@spawn [Base.setproperty!(i.o, atr, x)
-                                      for i in ns.__instances[1][r]]
-                      for r in __divNn(length(ns.__instances[1]),
-                                       Threads.nthreads())]
-                fetch(s)
+            for r in __divNn(length(inst), Threads.nthreads())
+                Threads.@spawn foreach(i -> Base.setproperty!(i.o, atr, x), inst[r])
             end
+            @sync
         else
-            for i in ns.__instances[1]
-                Base.setproperty!(i.o, atr, x)
-            end
+            foreach(i -> Base.setproperty!(i.o, atr, x), inst)
         end
     end
 
