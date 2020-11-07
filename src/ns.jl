@@ -61,7 +61,12 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
             ns._lcked && Base.error("this NS is locked!")
         end
 
-        d[atr] = isa(x, AbstNSitem) ? copy(x) : NSnoncst_item(x)
+        if isa(x, AbstNSitem) && isa(x.obj, NSDfn)
+            y = x.obj.fnc(ns)
+            d[atr] = (isa(x, NScst_item) ? NScst_item : NSnoncst_item)(y)
+        else
+            d[atr] = isa(x, AbstNSitem) ? copy(x) : NSnoncst_item(x)
+        end
     end
 
 Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
