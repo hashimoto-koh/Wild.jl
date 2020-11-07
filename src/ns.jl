@@ -105,9 +105,11 @@ __NSX_CodeMode_CodeType = Vector{NamedTuple{(:atr, :obj),Tuple{Symbol,Any}}}
 struct __NSX_CodeMode <: AbstNS
     __code::__NSX_CodeMode_CodeType
     __instances
+    __parallel::NSnoncst_item{Bool}
     __NSX_CodeMode() =
         new(#= __code      =# __NSX_CodeMode_CodeType(),
-            #= __instances =# [])
+            #= __instances =# [],
+            #= __parallel  =# NSnoncst_item{Bool}(false))
 end
 
 Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
@@ -121,8 +123,15 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
         push!(ns.__code, NamedTuple{(:atr, :obj), Tuple{Symbol, Any}}((atr, y)))
 
-        for i in ns.__instances[1]
-            Base.setproperty!(i.o, atr, x)
+        if ns.__parallel.obj
+            for s in [Threads.@spawn Base.setproperty!(i.o, atr, x)
+                      for i in ns.__instances[1]]
+                fetch(s)
+            end
+        else
+            for i in ns.__instances[1]
+                Base.setproperty!(i.o, atr, x)
+            end
         end
     end
 

@@ -138,6 +138,7 @@ Base.setproperty!(nsc::_NSCls{<: __NSClsInstance}, atr::Symbol, x) =
 
         atr == :init && (nsc.__init[1] = NSTagFunc{:mth}(x); return)
         atr == :post && (nsc.__post[1] = NSTagFunc{:mth}(x); return)
+        atr == :parallel && (nsc.__code.__parallel.obj = x; return)
 
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")
@@ -152,6 +153,7 @@ Base.setproperty!(nsc::_NSCls{<: NSX}, atr::Symbol, x) =
 
         atr == :init && (nsc.__init[1] = NSTagFunc{:mth}(x); return)
         atr == :post && (nsc.__post[1] = NSTagFunc{:mth}(x); return)
+        atr == :parallel && (nsc.__code.__parallel.obj = x; return)
 
         haskey(_NSClsdict0, atr) &&
             Base.error("'" * string(atr) * "' can't be used for property")

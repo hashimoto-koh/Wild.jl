@@ -10,6 +10,7 @@ _NSClsdict0[:cls] = nsc -> nsc.__cls
 
 _NSClsdict0[:init] = nsc -> nsc.__init[1]
 _NSClsdict0[:post] = nsc -> nsc.__post[1]
+_NSClsdict0[:parallel] = nsc -> nsc.__code.__parallel.obj
 
 _NSClsdict0[:cst] = nsc -> nsc.__code.cst
 _NSClsdict0[:dfn] = nsc -> nsc.__code.dfn
