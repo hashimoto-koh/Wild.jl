@@ -112,6 +112,13 @@ struct __NSX_CodeMode <: AbstNS
             #= __parallel  =# NSnoncst_item{Bool}(false))
 end
 
+__divNn(N::Integer, n::Integer) =
+begin
+    k1 = (let v = fill(N ÷ n, n); v[1:N%n] .+= 1; accumulate(+, v); end)
+    k0 = (let v = similar(k1); v[1] = 1; @. v[2:end] = k1[1:end-1] + 1; v; end)
+    [i0:i1 for (i0,i1) in zip(k0,k1)]
+end
+
 Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
     begin
         hasfield(typeof(ns), atr) && (return Base.setfield!(ns, atr, x))
@@ -124,8 +131,10 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
         push!(ns.__code, NamedTuple{(:atr, :obj), Tuple{Symbol, Any}}((atr, y)))
 
         if ns.__parallel.obj
-            for s in [Threads.@spawn Base.setproperty!(i.o, atr, x)
-                      for i in ns.__instances[1]]
+            for s in [Threads.@spawn [Base.setproperty!(i.o, atr, x)
+                                      for i in ns.__instances[1][r]]
+                      for r in __divNn(length(ns.__instances[1]),
+                                       Threads.nthreads())]
                 fetch(s)
             end
         else
