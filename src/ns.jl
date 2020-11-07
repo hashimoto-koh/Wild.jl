@@ -132,10 +132,9 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
         inst = ns.__instances[1]
         if ns.__parallel.obj
-            for r in __divNn(length(inst), Threads.nthreads())
+            @sync for r in __divNn(length(inst), Threads.nthreads())
                 Threads.@spawn foreach(i -> Base.setproperty!(i.o, atr, x), inst[r])
             end
-            @sync
         else
             foreach(i -> Base.setproperty!(i.o, atr, x), inst)
         end
