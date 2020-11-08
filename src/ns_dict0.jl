@@ -220,7 +220,7 @@ _NSdict0[:save] = ns ->
 _NSdict0[:haskey] = ns -> NShaskey(ns)
 _NSdict0[:iscst] = ns ->
     (key -> (!haskey(ns.__dict, key) &&
-             error("This NS does not have a key named $(atr)." );
+             error("this NS does not have a key named '$(atr)'." );
              isa(ns.__dict[key], NScst_item)))
 _NSdict0[:del] = ns -> NSdel(ns)
 _NSdict0[:cstize] = ns -> NScstize(ns)

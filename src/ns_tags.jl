@@ -57,7 +57,7 @@ Base.getproperty(x::NScstize, atr::Symbol) =
         d = x.___NS_ns.__dict
 
         haskey(d, atr) ||
-            error("""this NS does not have a property named "$(atr)".""")
+            error("""this NS does not have a property named '$(atr)'.""")
 
         isa(d[atr], NSnoncst_item) && (d[atr] = NScst_item(d[atr].obj))
 
@@ -73,7 +73,7 @@ Base.getproperty(x::NSdecstize, atr::Symbol) =
         d = x.___NS_ns.__dict
 
         haskey(d, atr) ||
-            error("""this NS does not have a property named "$(atr)".""")
+            error("""this NS does not have a property named '$(atr)'.""")
 
         isa(x.___NS_ns.__dict[atr], NScst_item) &&
             (x.___NS_ns.__dict[atr] = NSnoncst_item(x.___NS_ns.__dict[atr].obj))
@@ -102,13 +102,13 @@ Base.getproperty(x::NSTag{TAG}, atr::Symbol) where TAG =
         ns = x.___NS_ns
 
         !ns.haskey(atr) &&
-            error("""this NS does not have a property named $(atr)".""")
+            error("""this NS does not have a property named '$(atr)'.""")
 
         o = ns.__dict[atr].obj
         to = typeof(o)
         to <: NSTagFunc && to.parameters[1] == TAG && (return o.fnc)
 
-        error(""""$(atr)" is not a $(string(typeof(x).parameters[1])).""")
+        error("""'$(atr)' is not a $(string(typeof(x).parameters[1])).""")
     end
 
 Base.setproperty!(x::NSTag{TAG, TF}, atr::Symbol, f) where TAG where TF =

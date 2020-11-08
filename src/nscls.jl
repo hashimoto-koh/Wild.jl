@@ -141,7 +141,7 @@ Base.setproperty!(nsc::_NSCls{<: __NSClsInstance}, atr::Symbol, x) =
         atr == :parallel && (nsc.__code.__parallel.obj = x; return)
 
         haskey(_NSClsdict0, atr) &&
-            Base.error("'" * string(atr) * "' can't be used for property")
+            Base.error("""'$(atr)' can't be used for property""")
 
         nsc.__cls.haskey(atr) && (return Base.setproperty!(nsc.__cls, atr, x))
         Base.setproperty!(nsc.__code, atr, x)
@@ -156,7 +156,7 @@ Base.setproperty!(nsc::_NSCls{<: NSX}, atr::Symbol, x) =
         atr == :parallel && (nsc.__code.__parallel.obj = x; return)
 
         haskey(_NSClsdict0, atr) &&
-            Base.error("'" * string(atr) * "' can't be used for property")
+            Base.error("""'$(atr)' can't be used for property""")
 
         Base.setproperty!(nsc.__code, atr, x)
     end

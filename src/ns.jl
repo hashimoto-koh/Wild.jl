@@ -90,7 +90,7 @@ Base.getproperty(ns::AbstNS, atr::Symbol) =
         d = ns.__dict
 
         haskey(d, atr) ||
-            error("""this NS does not have a property named "$(atr)".""")
+            error("""this NS does not have a property named '$(atr)'.""")
 
         x = d[atr].obj;
         isa(x, Union{NSPrp, NSMth}) && (return x(ns))
@@ -158,7 +158,7 @@ Base.getproperty(ns::__NSX_CodeMode, atr::Symbol) =
     begin
         Base.hasfield(typeof(ns), atr) && (return Base.getfield(ns, atr))
         haskey(_NSdict0, atr) && (return _NSdict0[atr](ns))
-        error("""This NS does not have a property named "$(atr)".""")
+        error("""This NS does not have a property named '$(atr)'.""")
     end;
 
 ################
@@ -195,7 +195,7 @@ Base.getproperty(nsi::__NSClsInstance, atr::Symbol) =
             return x
         else
             haskey(nsi.cls, atr) && (return Base.getproperty(nsi.cls, atr))
-            error("""This NS does not have a property named "$(atr)".""")
+            error("""This NS does not have a property named '$(atr)'.""")
         end
     end
 
