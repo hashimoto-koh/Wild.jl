@@ -1,4 +1,3 @@
-import CodeTransformation: addmethod!
 
 ################
 # NShaskey
