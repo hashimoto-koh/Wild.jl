@@ -185,3 +185,10 @@ NSPrp = NSTagFunc{:prp}
 # (mth::NSMth)(a...; ka...) = mth.fnc(a...; ka...)
 # (fnc::NSFnc)(a...; ka...) = fnc.fnc(a...; ka...)
 # (prp::NSPrp)(a...) = prp.fnc(a...)
+
+macro nsdfn(ex) esc(Expr(:call, :(Wild.NSDfn), ex)) end
+macro nsprp(ex) esc(Expr(:call, :(Wild.NSPrp), ex)) end
+macro nsreq(ex) esc(Expr(:call, :(Wild.NSReq), ex)) end
+macro nsmth(ex) esc(Expr(:call, :(Wild.NSMth), ex)) end
+macro nsfnc(ex) esc(Expr(:call, :(Wild.NSFnc), ex)) end
+macro nscst(ex) esc(Expr(:call, :(Wild.NScst_item), ex)) end

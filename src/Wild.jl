@@ -10,6 +10,7 @@ export AbstNS, NS
 export NSX, genNSX, nsx, AbstNSitem
 export NSTagFunc
 export NSDfn, NSReq, NSMth, NSPrp, NSFnc
+export @nsdfn, @nsreq, @nsmth, @nsprp, @nsfnc
 
 include("nscls_dict0.jl")
 include("nscls.jl")
