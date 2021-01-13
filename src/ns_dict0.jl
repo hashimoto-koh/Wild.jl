@@ -144,7 +144,7 @@ _NSdict0[:copyfrom] = ns ->
      end)
 # g.export()
 #     : export all properties from g to new ns
-# g.export(:a, :b, :c) #
+# g.export(:a, :b, :c)
 #     : export properties :a, :b, :c from g to new ns
 _NSdict0[:export] = ns ->
     ((a::Vararg{Symbol}; exclude=[], deep=false) ->
@@ -180,6 +180,38 @@ _NSdict0[:deepimport] = ns ->
      ns.import(g, a...; exclude=exclude, deep=true))
 _NSdict0[:deepexport] = ns ->
     ((a::Vararg{Symbol}; exclude=[]) -> ns.export(a...; exclude=exclude, deep=true))
+
+# g.tontpl()
+#     : export all properties from g to a NamedTuple
+# g.tontpl(:a, :b, :c)
+#     : export properties :a, :b, :c from g to a NamedTuple
+_NSdict0[:tontpl] = ns ->
+    ((a::Vararg{Symbol}; exclude=[], deep=false) ->
+    begin
+        gd = Dict()
+         if deep
+             if length(a) > 0
+                 for k ∈ a
+                     k ∉ exclude && (gd[k] = deepcopy(Base.getproperty(ns,k)))
+                 end
+             else
+                 for k ∈ ns._keys
+                     k ∉ exclude && (gd[k] = deepcopy(Base.getproperty(ns,k)))
+                 end
+             end
+         else
+             if length(a) > 0
+                 for k ∈ a
+                     k ∉ exclude && (gd[k] = Base.getproperty(ns,k))
+                 end
+             else
+                 for k ∈ ns._keys
+                     k ∉ exclude && (gd[k] = Base.getproperty(ns,k))
+                 end
+             end
+         end
+        (;gd...)
+        end);
 
 # g.load("x.ns")
 #     : load "x.ns" and import all properties from it
