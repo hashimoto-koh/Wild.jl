@@ -27,8 +27,34 @@ struct NSX{X} <: AbstNS
     __dict::OrderedDict{Symbol, AbstNSitem}
     __fix_lck::MVector{2, Bool}
 
-    NSX{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
-                              #= __fix_lck =# MVector{2, Bool}(false, false))
+#    NSX{X}() where X = new{X}(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+#                              #= __fix_lck =# MVector{2, Bool}(false, false))
+    NSX{X}(; ka...) where X =
+        begin
+            g = new(#= __dict    =# OrderedDict{Symbol, AbstNSitem}(),
+                    #= __fix_lck =# MVector{2, Bool}(false, false))
+            setprp(g, k, v) =
+                begin
+                    s = string(k)
+                    if length(s) > 3 && s[4] == '_'
+                        length(s) == 4 &&
+                            Base.error("$(k) can't be used for property.")
+                        pre = Symbol(s[1:3])
+                        if pre in [:cst, :dfn, :prp, :req, :mth, :fnc]
+                            setprp(Base.getproperty(g, pre), Symbol(s[5:end]), v)
+                        else
+                            Base.setproperty!(g, k, v)
+                        end
+                    else
+                        Base.setproperty!(g, k, v)
+                    end
+                end
+
+            for (k,v) in pairs(ka)
+                setprp(g, k, v)
+            end
+            g
+        end;
 end
 
 const NS = NSX{nothing}
