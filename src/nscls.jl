@@ -75,7 +75,7 @@ end
             if atr == :exe
                 Base.setproperty!(o, atr, val)
             else
-                x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
+                x = isa(val, NScst_item) ? Base.getproperty(o, :cst) : o
                 y = (isa(val.obj, NSTagFunc)
                      ? Base.getproperty(x, typeof(val.obj).parameters[1])
                      : x)
@@ -117,7 +117,7 @@ end
             if atr == :exe
                 Base.setproperty!(o, atr, val)
             else
-                x = isa(val, NScst_item) ? Base.getproperty!(o, :cst) : o
+                x = isa(val, NScst_item) ? Base.getproperty(o, :cst) : o
                 y = (isa(val.obj, NSTagFunc)
                      ? Base.getproperty(x, typeof(val.obj).parameters[1])
                      : x)
