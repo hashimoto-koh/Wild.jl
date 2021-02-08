@@ -96,10 +96,14 @@ Base.setproperty!(ns::AbstNS, atr::Symbol, x) =
 
 Base.haskey(o::AbstNS, key::Symbol) = key ∈ o._keys
 
-Base.propertynames(ns::AbstNS, private=false) =
-    tuple(Base.keys(ns.__dict)...,
-          Base.keys(_NSdict0)...,
-          Base.fieldnames(typeof(ns))...)
+Base.propertynames(ns::AbstNS, private::Bool=false) =
+    (private
+     ? tuple(Base.keys(ns.__dict)...,
+             Base.keys(_NSdict0)...,
+             Base.fieldnames(typeof(ns))...)
+     : tuple(Base.keys(ns.__dict)...,
+             Base.keys(_NSdict0)...))
+
 
 Base.hasproperty(ns::AbstNS, atr::Symbol) =
     Base.hasfield(typeof(ns), atr) ||
