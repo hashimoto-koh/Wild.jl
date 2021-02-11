@@ -169,7 +169,7 @@ for T in __prpdct_type_list
             end
             false
         end
-    Base.propertynames(o::T, private=false) =
+    Base.propertynames(o::T, private::Bool=false) =
         tuple(fieldnames(typeof(o))...,
               vcat([collect(keys(getprp_dct[t]))
                     for t in getprp_dct_path_dct[T]]...)...)

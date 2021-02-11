@@ -176,7 +176,7 @@ Base.setproperty!(ns::__NSX_CodeMode, atr::Symbol, x) =
 
 Base.haskey(ns::__NSX_CodeMode, key::Symbol) = key ∈ propertynames(ns)
 
-Base.propertynames(ns::__NSX_CodeMode, private=false) =
+Base.propertynames(ns::__NSX_CodeMode, private::Bool=false) =
     tuple(Base.keys(_NSdict0)..., Base.fieldnames(typeof(ns))...)
 
 Base.hasproperty(ns::__NSX_CodeMode, atr::Symbol) =

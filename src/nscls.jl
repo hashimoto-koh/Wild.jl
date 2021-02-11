@@ -161,12 +161,12 @@ Base.setproperty!(nsc::_NSCls{<: NSX}, atr::Symbol, x) =
         Base.setproperty!(nsc.__code, atr, x)
     end
 
-Base.propertynames(nsc::_NSCls{<:__NSClsInstance}, private=false) =
+Base.propertynames(nsc::_NSCls{<:__NSClsInstance}, private::Bool=false) =
     tuple(Base.propertynames(nsc.__cls, private)...,
           Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
-Base.propertynames(nsc::_NSCls{<:NSX}, private=false) =
+Base.propertynames(nsc::_NSCls{<:NSX}, private::Bool=false) =
     tuple(Base.keys(_NSClsdict0)...,
           Base.fieldnames(typeof(nsc))...)
 
