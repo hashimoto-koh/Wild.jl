@@ -151,6 +151,9 @@ Base.setindex!(d::__getprp_dct, x::__PrpDct, T::Type) = Base.setindex!(d._dct, x
 getprp_dct = __getprp_dct(Dict{Type, __PrpDct}())
 
 for T in __prpdct_type_list
+
+    if T == Any continue end
+
     getprp_dct[T] = __PrpDct()
     Base.getproperty(o::T, atr::Symbol) =
         begin
