@@ -152,9 +152,10 @@ getprp_dct = __getprp_dct(Dict{Type, __PrpDct}())
 
 for T in __prpdct_type_list
 
+    getprp_dct[T] = __PrpDct()
+
     if T == Any continue end
 
-    getprp_dct[T] = __PrpDct()
     Base.getproperty(o::T, atr::Symbol) =
         begin
             hasfield(typeof(o), atr) && (return Base.getfield(o, atr))
