@@ -67,7 +67,7 @@ end
 ###############################
 # prpdict
 ###############################
-
+#=
 mutable struct __Tree
     t::Type
     p::Union{Nothing, __Tree}
@@ -189,6 +189,7 @@ begin
     getprp_dct_path_dct[T] = reverse(__Tree_path(getprp_dct_type_tree, T))
     getprp_dct[T] = __PrpDct()
 end
+=#
 
 #=
 Wild.insert_type_to_getprp_dct(T)

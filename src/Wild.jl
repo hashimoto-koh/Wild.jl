@@ -22,6 +22,6 @@ export AbstNSCls, NSCls, NSCode
 
 include("operators.jl")
 
-# include("prp.jl")
+include("prp.jl")
 
 end
