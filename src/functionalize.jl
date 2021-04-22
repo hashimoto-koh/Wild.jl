@@ -115,6 +115,14 @@ mutable struct _Mth <: _AbstGet __itms::Vector{Any} end
 ###########
 
 cry(f, n::Integer=1) =
+    (x...; xkwa...) ->
+        ((y...; ykwa...) ->
+             f(x[1:(n==0 ? 0 : (n>0 ? n-1 : end+n+1))]...,
+               y...,
+               x[(n==0 ? 1 : (n>0 ? n : end+n+2)):end]...;
+               xkwa..., ykwa...))
+               # merge(n>=0 ? xkwa : ykwa, n>=0 ? ykwa : xkwa)...))
+    #=
     begin
         if n < 0
             (x...; xkwa...) -> ((y...; ykwa...) -> f(x[1:end+n+1]...,
@@ -130,6 +138,7 @@ cry(f, n::Integer=1) =
             cry(f,1)
         end
     end
+    =#
 
 Base.getproperty(::typeof(cry), p::Symbol) = cry(eval(p))
 
