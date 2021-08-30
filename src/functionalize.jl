@@ -7,10 +7,9 @@ struct _functionalize{F} <: Function; f::F; end
 @inline functionalize(f) = _functionalize(f)
 @inline functionalize(f::Function) = f
 @inline functionalize(s::Symbol) = o -> getproperty(o, s)
-@inline functionalize(s::Union{Tuple, AbstractArray, Base.Generator}) =
+@inline functionalize(s::Union{Tuple, AbstractArray, Base.Generator, Base.ValueIterator}) =
     (a...; ka...) -> map(f->functionalize(f)(a...; ka...), s)
-@inline functionalize(s::NamedTuple) =
-    (a...; ka...) -> map(f->functionalize(f)(a...; ka...), values(s))
+@inline functionalize(s::Union{NamedTuple, AbstratDict}) = functionalize(values(s))
 
 ###############################
 # arg
