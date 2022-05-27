@@ -112,6 +112,8 @@ mutable struct _Mth <: _AbstGet __itms::Vector{Any} end
 ###########
 # cry, wc, wd
 ###########
+cry0(f) = (x...; xkwa...) -> ((y...; ykwa...) -> f(y..., x...; xkwa..., ykwa...))
+cry1(f) = (x...; xkwa...) -> ((y...; ykwa...) -> f(x..., y...; xkwa..., ykwa...))
 
 cry(f, n::Integer=1) =
     (x...; xkwa...) ->
@@ -139,12 +141,12 @@ cry(f, n::Integer=1) =
     end
     =#
 
-Base.getproperty(::typeof(cry), p::Symbol) = cry(eval(p))
+Base.getproperty(::typeof(cry), p::Symbol) = cry0(eval(p))
 
-wc(f) = cry(f)
+wc(f) = cry0(f)
 Base.getproperty(::typeof(wc), p::Symbol) = wc(eval(p))
 
-wd(f) = cry(f, -1)
+wd(f) = cry1(f)
 Base.getproperty(::typeof(wd), p::Symbol) = wd(eval(p))
 
 macro cry(f)
