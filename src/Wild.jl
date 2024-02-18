@@ -20,7 +20,7 @@ export AbstNSCls, NSCls, NSCode
 # include("nscode.jl")
 # export AbstNSCode, NSCode
 
-include("operators.jl")
+# include("operators.jl")
 
 include("prp.jl")
 
